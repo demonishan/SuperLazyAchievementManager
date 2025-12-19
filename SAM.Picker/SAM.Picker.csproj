@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
             <ItemGroup>
                 <ProjectReference Include="..\SAM.API\SAM.API.csproj"/>
-                <Resource Include="Resources\icon.png"/>
+                <Resource Include="..\Resources\icon.png" Link="Resources\icon.png"/>
             </ItemGroup>
             <ItemGroup>
                 <PackageReference Include="Costura.Fody" Version="6.0.0">
@@ -17,6 +17,6 @@
                 <Platforms>x86</Platforms>
                 <PlatformTarget>x86</PlatformTarget>
                 <LangVersion>9.0</LangVersion>
-                <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
+                <ApplicationIcon>..\Resources\icon.ico</ApplicationIcon>
             </PropertyGroup>
         </Project>

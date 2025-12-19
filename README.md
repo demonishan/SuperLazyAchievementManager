@@ -42,4 +42,4 @@ Together, we can keep SAM alive and better than ever.
 
 ---
 
-_Based on the original work by Rick (gibbed)._
+_Based on the original work by [Rick (gibbed)](https://github.com/gibbed)._

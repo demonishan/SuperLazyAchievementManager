@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SAM.API", "SAM.API\SAM.API.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SAM.Game", "SAM.Game\SAM.Game.csproj", "{7640DE31-E54E-45F9-9CF0-8DF3A3EA30FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SAM.Picker.Modern", "SAM.Picker.Modern\SAM.Picker.Modern.csproj", "{3355D54F-AA4C-4E31-AF6A-2DB286C570ED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SAM.Picker", "SAM.Picker\SAM.Picker.csproj", "{3355D54F-AA4C-4E31-AF6A-2DB286C570ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
