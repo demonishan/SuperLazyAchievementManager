@@ -3,7 +3,6 @@
                 <WindowChrome CaptionHeight="40" GlassFrameThickness="0" CornerRadius="0"/>
             </WindowChrome.WindowChrome>
             <Window.Resources>
-                <!-- Button Styles -->
                 <Style x:Key="TitleBarButtonStyle" TargetType="Button">
                     <Setter Property="Background" Value="Transparent"/>
                     <Setter Property="Foreground" Value="#DDDDDD"/>
@@ -59,24 +58,23 @@
                         </Trigger>
                     </Style.Triggers>
                 </Style>
-
-                <!-- Icon Helper -->
                 <Style x:Key="PathIconStyle" TargetType="Path">
                     <Setter Property="Fill" Value="White"/>
                     <Setter Property="Width" Value="16"/>
                     <Setter Property="Height" Value="16"/>
                     <Setter Property="Stretch" Value="Uniform"/>
                 </Style>
-
-                <!-- Geometries -->
                 <Geometry x:Key="Icon.Search">M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z</Geometry>
                 <Geometry x:Key="Icon.Refresh">M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z</Geometry>
                 <Geometry x:Key="Icon.Save">M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z</Geometry>
                 <Geometry x:Key="Icon.Back">M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z</Geometry>
                 <Geometry x:Key="Icon.SortAz">M19,17H22L18,21L14,17H17V3H19V17M11,3V5H3V3H11M9,7V9H3V7H9M7,11V13H3V11H7M5,15V17H3V15H5M3,19V21H3V19H3Z</Geometry>
                 <Geometry x:Key="Icon.Filter">M10,18H14V16H10V18M3,6V8H21V6H3M6,13H18V11H6V13Z</Geometry>
-
-                <!-- ComboBox Styling -->
+                <Geometry x:Key="Icon.DragHandle">M9,6h2v2h-2v-2z m0,5h2v2h-2v-2z m0,5h2v2h-2v-2z m5,-10h2v2h-2v-2z m0,5h2v2h-2v-2z m0,5h2v2h-2v-2z</Geometry>
+                <Geometry x:Key="Icon.Timer">M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z</Geometry>
+                <Geometry x:Key="Icon.Play">M8,5.14V19.14L19,12.14L8,5.14Z</Geometry>
+                <Geometry x:Key="Icon.Random">M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4H14.5M15,15.41L18.59,19L20,17.59L16.41,14L15,15.41Z</Geometry>
+                <Geometry x:Key="Icon.Pause">M14,19H18V5H14M6,19H10V5H6V19Z</Geometry>
                 <Style TargetType="ComboBox">
                     <Setter Property="Background" Value="#333337"/>
                     <Setter Property="Foreground" Value="White"/>
@@ -139,27 +137,29 @@
                     </Setter>
                 </Style>
             </Window.Resources>
-
             <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=WindowState}" Value="Maximized">
+                                <Setter Property="Margin" Value="8"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-
-                <!-- Title Bar -->
                 <Grid Grid.Row="0" Background="#252526">
-                    <TextBlock Text="SAM Reborn 2026" VerticalAlignment="Center" Margin="15,0,0,0" FontWeight="SemiBold" FontSize="14" Foreground="#DDDDDD"/>
+                    <TextBlock x:Name="WindowTitleText" Text="SAM Reborn 2026" VerticalAlignment="Center" Margin="15,0,0,0" FontWeight="SemiBold" FontSize="14" Foreground="#DDDDDD"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Content="&#xE921;" Width="46" Click="Minimize_Click" Style="{StaticResource TitleBarButtonStyle}" FontFamily="Segoe MDL2 Assets" FontSize="10" WindowChrome.IsHitTestVisibleInChrome="True"/>
                         <Button x:Name="MaximizeBtn" Content="&#xE922;" Width="46" Click="Maximize_Click" Style="{StaticResource TitleBarButtonStyle}" FontFamily="Segoe MDL2 Assets" FontSize="10" WindowChrome.IsHitTestVisibleInChrome="True"/>
                         <Button Content="&#xE8BB;" Width="46" Click="Close_Click" Style="{StaticResource CloseButtonStyle}" FontFamily="Segoe MDL2 Assets" FontSize="10" WindowChrome.IsHitTestVisibleInChrome="True"/>
                     </StackPanel>
                 </Grid>
-
-                <!-- Content -->
-                <Grid
-                    Grid.Row="1">
-                    <!-- Home View (Game List) -->
+                <Grid Grid.Row="1">
                     <Grid x:Name="HomeView" Visibility="Visible">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -201,22 +201,22 @@
                         <ListView x:Name="GamesList" Grid.Row="1" Background="Transparent" BorderThickness="0" Margin="15,0,15,15" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <WrapPanel ItemWidth="230"/>
+                                    <WrapPanel ItemWidth="280"/>
                                 </ItemsPanelTemplate>
                             </ListView.ItemsPanel>
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="#252526" CornerRadius="8" Margin="5" MouseLeftButtonUp="Game_Click" Cursor="Hand">
-                                        <Grid Height="140">
+                                    <Border Background="#252526" CornerRadius="8" Margin="10" MouseLeftButtonUp="Game_Click" Cursor="Hand" Width="260" VerticalAlignment="Top">
+                                        <Grid>
                                             <Grid.RowDefinitions>
-                                                <RowDefinition Height="100"/>
-                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
-                                            <Border Grid.Row="0" CornerRadius="8,8,0,0" ClipToBounds="True">
+                                            <Border Grid.Row="0" ClipToBounds="True" Height="117" Background="Black">
                                                 <Image Source="{Binding Image}" Stretch="UniformToFill"/>
                                             </Border>
-                                            <Border Grid.Row="1" Background="#2D2D30" CornerRadius="0,0,8,8">
-                                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Margin="10,0" Foreground="White"/>
+                                            <Border Grid.Row="1" Background="#2D2D30" MinHeight="50">
+                                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="SemiBold" TextWrapping="Wrap" TextAlignment="Center" Margin="10,8" Foreground="White" TextTrimming="None"/>
                                             </Border>
                                         </Grid>
                                     </Border>
@@ -241,14 +241,16 @@
                             </StackPanel>
                         </Grid>
                     </Grid>
-
-                    <!-- Game Details View -->
                     <Grid x:Name="GameDetailsView" Visibility="Collapsed">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" Margin="20,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -262,7 +264,7 @@
                                 <TextBlock x:Name="SelectedGameInfo" FontSize="14" Foreground="#888888"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                <Button x:Name="BulkActionsButton" Height="40" Margin="5,0" Style="{StaticResource ActionButtonStyle}" Click="BulkAction_Click">
+                                <Button x:Name="BulkActionsButton" Width="100" Height="40" Margin="5,0" Style="{StaticResource ActionButtonStyle}" Click="BulkAction_Click">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="Bulk Actions" VerticalAlignment="Center" Margin="5,0"/>
                                         <Path Data="M0,0 L4,4 L8,0 Z" Fill="White" VerticalAlignment="Center" Margin="5,0,0,0"/>
@@ -274,12 +276,12 @@
                                         </ContextMenu>
                                     </Button.ContextMenu>
                                 </Button>
-                                <ComboBox x:Name="AchievementFilter" Width="90" Height="40" Margin="5,0" SelectionChanged="AchievementFilter_SelectionChanged">
+                                <ComboBox x:Name="AchievementFilter" Height="40" Margin="5,0" SelectionChanged="AchievementFilter_SelectionChanged">
                                     <ComboBoxItem Content="All" Tag="all"/>
                                     <ComboBoxItem Content="Locked" Tag="locked"/>
                                     <ComboBoxItem Content="Unlocked" Tag="unlocked"/>
                                 </ComboBox>
-                                <Button x:Name="SortButton" Width="90" Height="40" Margin="5,0" Click="Sort_Click" Style="{StaticResource ActionButtonStyle}">
+                                <Button x:Name="SortButton" Width="40" Height="40" Margin="5,0" Click="Sort_Click" Style="{StaticResource ActionButtonStyle}">
                                     <Path x:Name="SortIcon" Data="{StaticResource Icon.SortAz}" Style="{StaticResource PathIconStyle}"/>
                                     <Button.ContextMenu>
                                         <ContextMenu>
@@ -290,41 +292,90 @@
                                         </ContextMenu>
                                     </Button.ContextMenu>
                                 </Button>
-                                <Button Width="40" Height="40" Margin="5,0" Click="RefreshGame_Click" Style="{StaticResource ActionButtonStyle}">
+                                <Button x:Name="RefreshButton" Width="40" Height="40" Margin="5,0" Click="RefreshGame_Click" Style="{StaticResource ActionButtonStyle}">
                                     <Path Data="{StaticResource Icon.Refresh}" Style="{StaticResource PathIconStyle}"/>
                                 </Button>
-                                <Button Margin="5,0,0,0" Style="{StaticResource PrimaryActionButtonStyle}" Height="40" MinWidth="100" Padding="15,0" Click="Store_Click">
+                                <Button x:Name="EnableTimerButton" Width="120" Height="40" Margin="5,0" Style="{StaticResource ActionButtonStyle}" Click="EnableTimer_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="{StaticResource Icon.Timer}" Style="{StaticResource PathIconStyle}" Margin="0,0,5,0"/>
+                                        <TextBlock x:Name="EnableTimerText" Text="Timer Mode" VerticalAlignment="Center" Margin="5,0"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:Name="RandomTimerButton" Margin="5,0,0,0" Style="{StaticResource ActionButtonStyle}" Width="40" Height="40" Click="RandomTimerButton_Click" Visibility="Collapsed" ToolTip="Generate Random Times">
+                                    <Path Data="{StaticResource Icon.Random}" Style="{StaticResource PathIconStyle}"/>
+                                </Button>
+                                <Popup x:Name="RandomTimerPopup" PlacementTarget="{Binding ElementName=RandomTimerButton}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True">
+                                    <Border Background="#252526" BorderBrush="#007ACC" BorderThickness="1" CornerRadius="4" Padding="15" Width="200">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.5"/>
+                                        </Border.Effect>
+                                        <StackPanel>
+                                            <TextBlock Text="Random Timer" FontWeight="Bold" Foreground="White" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+
+                                            <Grid Margin="0,5">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="10"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Min (m)" Foreground="#BBBBBB" FontSize="11" Margin="0,0,0,2"/>
+                                                    <TextBox x:Name="RandMinInput" Background="#333337" Foreground="White" BorderThickness="0" Padding="5" Text="10" HorizontalContentAlignment="Center"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Max (m)" Foreground="#BBBBBB" FontSize="11" Margin="0,0,0,2"/>
+                                                    <TextBox x:Name="RandMaxInput" Background="#333337" Foreground="White" BorderThickness="0" Padding="5" Text="60" HorizontalContentAlignment="Center"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <Button Content="Apply" Margin="0,15,0,0" Style="{StaticResource PrimaryActionButtonStyle}" Click="ApplyRandomTimer_Click" Height="30"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Popup>
+                                <Button x:Name="StartTimerButton" Margin="5,0,0,0" Style="{StaticResource PrimaryActionButtonStyle}" Width="110" Height="40" Padding="15,0" Click="StartTimer_Click" Visibility="Collapsed">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path x:Name="StartTimerIcon" Data="{StaticResource Icon.Play}" Style="{StaticResource PathIconStyle}" Margin="0,0,8,0"/>
+                                        <TextBlock x:Name="StartTimerText" Text="Start timer" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:Name="SaveButton" Margin="5,0,0,0" Style="{StaticResource PrimaryActionButtonStyle}" Height="40" MinWidth="100" Padding="15,0" Click="Store_Click">
                                     <StackPanel Orientation="Horizontal">
                                         <Path Data="{StaticResource Icon.Save}" Style="{StaticResource PathIconStyle}" Margin="0,0,8,0"/>
                                         <TextBlock Text="Save" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
+                            <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Background="#007ACC" Height="30" Margin="0,10,0,0" CornerRadius="4">
+                                <TextBlock x:Name="DetailsStatus" Text="Ready" VerticalAlignment="Center" Margin="10,0" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
+                            </Border>
                         </Grid>
                         <Grid Grid.Row="1">
-                            <ListView x:Name="AchievementList" Background="Transparent" BorderThickness="0" Margin="15,0,15,15" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
+                            <ListView x:Name="AchievementList" Background="Transparent" BorderThickness="0" Margin="20,10,10,20" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" AllowDrop="True" PreviewMouseLeftButtonDown="AchievementList_PreviewMouseLeftButtonDown" PreviewMouseMove="AchievementList_PreviewMouseMove" Drop="AchievementList_Drop">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
                                         <Border Background="#252526" CornerRadius="8" Margin="0,0,0,8" Padding="15">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition
-                                                    Width="64"/> <!-- Image -->
-                                                    <ColumnDefinition
-                                                    Width="*"/> <!-- Title, Desc, Time -->
-                                                    <ColumnDefinition
-                                                    Width="150"/> <!-- Global % -->
-                                                    <ColumnDefinition
-                                                    Width="120"/>
-                                                <!-- Checkbox -->
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="64"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="150"/>
+                                                    <ColumnDefinition Width="120"/>
                                                 </Grid.ColumnDefinitions>
-
-                                                <!-- Column 1: Image -->
-                                                <Image
-                                                Grid.Column="0" Source="{Binding Icon}" Width="64" Height="64" VerticalAlignment="Center"/>
-
-                                                <!-- Column 2: Info -->
-                                                <StackPanel Grid.Column="1" Margin="20,0" VerticalAlignment="Center">
+                                                <Path Grid.Column="0" Data="{StaticResource Icon.DragHandle}" Fill="#666666" Width="16" Height="16" Margin="0,0,15,0" VerticalAlignment="Center" Stretch="Uniform">
+                                                    <Path.Style>
+                                                        <Style TargetType="Path">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Path.Style>
+                                                </Path>
+                                                <Image Grid.Column="1" Source="{Binding Icon}" Width="64" Height="64" VerticalAlignment="Center"/>
+                                                <StackPanel Grid.Column="2" Margin="20,0" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,2"/>
                                                     <TextBlock Text="{Binding Description}" FontSize="13" Foreground="#BBBBBB" TextWrapping="Wrap" Margin="0,0,10,4"/>
                                                     <TextBlock Text="{Binding UnlockTime, StringFormat='Unlocked: {0}'}" FontSize="11" Foreground="#888888">
@@ -339,19 +390,39 @@
                                                         </TextBlock.Style>
                                                     </TextBlock>
                                                 </StackPanel>
+                                                <StackPanel Grid.Column="3" VerticalAlignment="Center">
 
-                                                <!-- Column 3: Global Percentage -->
-                                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding GlobalPercent, StringFormat='{}{0:N1}%'}" FontSize="18" Foreground="#007ACC" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                                                     <TextBlock Text="global rarity" FontSize="11" Foreground="#666666" HorizontalAlignment="Center"/>
                                                 </StackPanel>
-
-                                                <!-- Column 4: Checkbox -->
-                                                <CheckBox Grid.Column="3" IsChecked="{Binding IsAchieved, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Achieved" Foreground="#DDDDDD">
-                                                    <CheckBox.LayoutTransform>
-                                                        <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
-                                                    </CheckBox.LayoutTransform>
-                                                </CheckBox>
+                                                <Grid Grid.Column="4">
+                                                    <CheckBox IsChecked="{Binding IsAchieved, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#DDDDDD">
+                                                        <CheckBox.LayoutTransform>
+                                                            <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                                                        </CheckBox.LayoutTransform>
+                                                        <CheckBox.Style>
+                                                            <Style TargetType="CheckBox">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
+                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </CheckBox.Style>
+                                                    </CheckBox>
+                                                    <TextBox Text="{Binding TimerMinutes, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" HorizontalContentAlignment="Center" Background="#333337" Foreground="White" BorderThickness="0" Padding="5">
+                                                        <TextBox.Style>
+                                                            <Style TargetType="TextBox">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBox.Style>
+                                                    </TextBox>
+                                                </Grid>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -375,9 +446,6 @@
                                 </StackPanel>
                             </Grid>
                         </Grid>
-                        <Border Grid.Row="1" VerticalAlignment="Bottom" Background="#007ACC" Padding="10,2">
-                            <TextBlock x:Name="DetailsStatus" FontSize="11" Foreground="White"/>
-                        </Border>
                     </Grid>
                 </Grid>
             </Grid>
