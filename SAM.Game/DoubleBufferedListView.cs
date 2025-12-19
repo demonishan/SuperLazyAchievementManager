@@ -19,9 +19,7 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 using System.Windows.Forms;
-
 namespace SAM.Game
 {
 	internal class DoubleBufferedListView : ListView

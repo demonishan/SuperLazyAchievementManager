@@ -19,7 +19,6 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -35,54 +34,66 @@ namespace SAM.API
         public Wrappers.SteamUtils005 SteamUtils;
         public Wrappers.SteamApps001 SteamApps001;
         public Wrappers.SteamApps008 SteamApps008;
-
         private bool _IsDisposed = false;
         private int _Pipe;
         private int _User;
-
         private readonly List<ICallback> _Callbacks = new();
 
         public void Initialize(long appId)
         {
             if (string.IsNullOrEmpty(Steam.GetInstallPath()) == true)
             {
-                throw new ClientInitializeException(ClientInitializeFailure.GetInstallPath, "failed to get Steam install path");
+                throw new ClientInitializeException(
+                    ClientInitializeFailure.GetInstallPath,
+                    "failed to get Steam install path"
+                );
             }
-
             if (appId != 0)
             {
-                Environment.SetEnvironmentVariable("SteamAppId", appId.ToString(CultureInfo.InvariantCulture));
+                Environment.SetEnvironmentVariable(
+                    "SteamAppId",
+                    appId.ToString(CultureInfo.InvariantCulture)
+                );
             }
-
             if (Steam.Load() == false)
             {
-                throw new ClientInitializeException(ClientInitializeFailure.Load, "failed to load SteamClient");
+                throw new ClientInitializeException(
+                    ClientInitializeFailure.Load,
+                    "failed to load SteamClient"
+                );
             }
-
             this.SteamClient = Steam.CreateInterface<Wrappers.SteamClient018>("SteamClient018");
             if (this.SteamClient == null)
             {
-                throw new ClientInitializeException(ClientInitializeFailure.CreateSteamClient, "failed to create ISteamClient018");
+                throw new ClientInitializeException(
+                    ClientInitializeFailure.CreateSteamClient,
+                    "failed to create ISteamClient018"
+                );
             }
-
             this._Pipe = this.SteamClient.CreateSteamPipe();
             if (this._Pipe == 0)
             {
-                throw new ClientInitializeException(ClientInitializeFailure.CreateSteamPipe, "failed to create pipe");
+                throw new ClientInitializeException(
+                    ClientInitializeFailure.CreateSteamPipe,
+                    "failed to create pipe"
+                );
             }
-
             this._User = this.SteamClient.ConnectToGlobalUser(this._Pipe);
             if (this._User == 0)
             {
-                throw new ClientInitializeException(ClientInitializeFailure.ConnectToGlobalUser, "failed to connect to global user");
+                throw new ClientInitializeException(
+                    ClientInitializeFailure.ConnectToGlobalUser,
+                    "failed to connect to global user"
+                );
             }
-
             this.SteamUtils = this.SteamClient.GetSteamUtils004(this._Pipe);
             if (appId > 0 && this.SteamUtils.GetAppId() != (uint)appId)
             {
-                throw new ClientInitializeException(ClientInitializeFailure.AppIdMismatch, "appID mismatch");
+                throw new ClientInitializeException(
+                    ClientInitializeFailure.AppIdMismatch,
+                    "appID mismatch"
+                );
             }
-
             this.SteamUser = this.SteamClient.GetSteamUser012(this._User, this._Pipe);
             this.SteamUserStats = this.SteamClient.GetSteamUserStats013(this._User, this._Pipe);
             this.SteamApps001 = this.SteamClient.GetSteamApps001(this._User, this._Pipe);
@@ -100,7 +111,6 @@ namespace SAM.API
             {
                 return;
             }
-
             if (this.SteamClient != null && this._Pipe > 0)
             {
                 if (this._User > 0)
@@ -108,11 +118,9 @@ namespace SAM.API
                     this.SteamClient.ReleaseUser(this._Pipe, this._User);
                     this._User = 0;
                 }
-
                 this.SteamClient.ReleaseSteamPipe(this._Pipe);
                 this._Pipe = 0;
             }
-
             this._IsDisposed = true;
         }
 
@@ -138,22 +146,21 @@ namespace SAM.API
             {
                 return;
             }
-
             this._RunningCallbacks = true;
-
             Types.CallbackMessage message;
             while (Steam.GetCallback(this._Pipe, out message, out _) == true)
             {
                 var callbackId = message.Id;
-                foreach (ICallback callback in this._Callbacks.Where(
-                    candidate => candidate.Id == callbackId &&
-                                 candidate.IsServer == server))
+                foreach (
+                    ICallback callback in this._Callbacks.Where(candidate =>
+                        candidate.Id == callbackId && candidate.IsServer == server
+                    )
+                )
                 {
                     callback.Run(message.ParamPointer);
                 }
                 Steam.FreeLastCallback(this._Pipe);
             }
-
             this._RunningCallbacks = false;
         }
     }

@@ -19,16 +19,13 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 using System.Drawing;
-
 namespace SAM.Picker
 {
     internal class LogoInfo
     {
         public readonly uint Id;
         public readonly Bitmap Bitmap;
-
         public LogoInfo(uint id, Bitmap bitmap)
         {
             this.Id = id;

@@ -19,7 +19,6 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 namespace SAM.Game.Stats
 {
     internal abstract class StatInfo
@@ -30,7 +29,6 @@ namespace SAM.Game.Stats
         public abstract object Value { get; set; }
         public bool IsIncrementOnly { get; set; }
         public int Permission { get; set; }
-
         public string Extra
         {
             get

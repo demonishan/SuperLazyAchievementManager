@@ -19,11 +19,9 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 using System;
 using System.Runtime.InteropServices;
 using SAM.API.Interfaces;
-
 namespace SAM.API.Wrappers
 {
     public class SteamUserStats013 : NativeWrapper<ISteamUserStats013>
@@ -32,7 +30,6 @@ namespace SAM.API.Wrappers
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         [return: MarshalAs(UnmanagedType.I1)]
         private delegate bool NativeGetStatInt(IntPtr self, IntPtr name, out int data);
-
         public bool GetStatValue(string name, out int value)
         {
             using (var nativeName = NativeStrings.StringToStringHandle(name))
@@ -42,12 +39,10 @@ namespace SAM.API.Wrappers
             }
         }
         #endregion
-
         #region GetStatValue (float)
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         [return: MarshalAs(UnmanagedType.I1)]
         private delegate bool NativeGetStatFloat(IntPtr self, IntPtr name, out float data);
-
         public bool GetStatValue(string name, out float value)
         {
             using (var nativeName = NativeStrings.StringToStringHandle(name))
@@ -57,12 +52,10 @@ namespace SAM.API.Wrappers
             }
         }
         #endregion
-
         #region SetStatValue (int)
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         [return: MarshalAs(UnmanagedType.I1)]
         private delegate bool NativeSetStatInt(IntPtr self, IntPtr name, int data);
-
         public bool SetStatValue(string name, int value)
         {
             using (var nativeName = NativeStrings.StringToStringHandle(name))
@@ -75,12 +68,10 @@ namespace SAM.API.Wrappers
             }
         }
         #endregion
-
         #region SetStatValue (float)
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         [return: MarshalAs(UnmanagedType.I1)]
         private delegate bool NativeSetStatFloat(IntPtr self, IntPtr name, float data);
-
         public bool SetStatValue(string name, float value)
         {
             using (var nativeName = NativeStrings.StringToStringHandle(name))
@@ -93,7 +84,6 @@ namespace SAM.API.Wrappers
             }
         }
         #endregion
-
         #region GetAchievement
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         [return: MarshalAs(UnmanagedType.I1)]
@@ -101,7 +91,6 @@ namespace SAM.API.Wrappers
             IntPtr self,
             IntPtr name,
             [MarshalAs(UnmanagedType.I1)] out bool isAchieved);
-
         public bool GetAchievement(string name, out bool isAchieved)
         {
             using (var nativeName = NativeStrings.StringToStringHandle(name))
@@ -111,16 +100,13 @@ namespace SAM.API.Wrappers
             }
         }
         #endregion
-
         #region SetAchievement
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         [return: MarshalAs(UnmanagedType.I1)]
         private delegate bool NativeSetAchievement(IntPtr self, IntPtr name);
-
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         [return: MarshalAs(UnmanagedType.I1)]
         private delegate bool NativeClearAchievement(IntPtr self, IntPtr name);
-
         public bool SetAchievement(string name, bool state)
         {
             using (var nativeName = NativeStrings.StringToStringHandle(name))
@@ -132,7 +118,6 @@ namespace SAM.API.Wrappers
                         this.ObjectAddress,
                         nativeName.Handle);
                 }
-
                 return this.Call<bool, NativeSetAchievement>(
                     this.Functions.SetAchievement,
                     this.ObjectAddress,
@@ -140,7 +125,6 @@ namespace SAM.API.Wrappers
             }
         }
         #endregion
-
         #region GetAchievementAndUnlockTime
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         [return: MarshalAs(UnmanagedType.I1)]
@@ -149,7 +133,6 @@ namespace SAM.API.Wrappers
             IntPtr name,
             [MarshalAs(UnmanagedType.I1)] out bool isAchieved,
             out uint unlockTime);
-
         public bool GetAchievementAndUnlockTime(string name, out bool isAchieved, out uint unlockTime)
         {
             using (var nativeName = NativeStrings.StringToStringHandle(name))
@@ -159,22 +142,18 @@ namespace SAM.API.Wrappers
             }
         }
         #endregion
-
         #region StoreStats
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         [return: MarshalAs(UnmanagedType.I1)]
         private delegate bool NativeStoreStats(IntPtr self);
-
         public bool StoreStats()
         {
             return this.Call<bool, NativeStoreStats>(this.Functions.StoreStats, this.ObjectAddress);
         }
         #endregion
-
         #region GetAchievementIcon
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         private delegate int NativeGetAchievementIcon(IntPtr self, IntPtr name);
-
         public int GetAchievementIcon(string name)
         {
             using (var nativeName = NativeStrings.StringToStringHandle(name))
@@ -186,11 +165,9 @@ namespace SAM.API.Wrappers
             }
         }
         #endregion
-
         #region GetAchievementDisplayAttribute
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         private delegate IntPtr NativeGetAchievementDisplayAttribute(IntPtr self, IntPtr name, IntPtr key);
-
         public string GetAchievementDisplayAttribute(string name, string key)
         {
             using (var nativeName = NativeStrings.StringToStringHandle(name))
@@ -205,22 +182,18 @@ namespace SAM.API.Wrappers
             }
         }
         #endregion
-
         #region RequestUserStats
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         private delegate CallHandle NativeRequestUserStats(IntPtr self, ulong steamIdUser);
-
         public CallHandle RequestUserStats(ulong steamIdUser)
         {
             return this.Call<CallHandle, NativeRequestUserStats>(this.Functions.RequestUserStats, this.ObjectAddress, steamIdUser);
         }
         #endregion
-
         #region ResetAllStats
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         [return: MarshalAs(UnmanagedType.I1)]
         private delegate bool NativeResetAllStats(IntPtr self, [MarshalAs(UnmanagedType.I1)] bool achievementsToo);
-
         public bool ResetAllStats(bool achievementsToo)
         {
             return this.Call<bool, NativeResetAllStats>(

@@ -6,7 +6,6 @@
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-
         /// <summary>
         /// Clean up any resources being used.
         /// </summary>
@@ -19,9 +18,7 @@
             }
             base.Dispose(disposing);
         }
-
         #region Windows Form Designer generated code
-
         /// <summary>
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
@@ -259,7 +256,6 @@
             this.ResumeLayout(false);
             this.PerformLayout();
         }
-
         private MyListView _GameListView;
         private System.Windows.Forms.ImageList _LogoImageList;
         private System.Windows.Forms.Timer _CallbackTimer;
@@ -279,7 +275,6 @@
         private System.ComponentModel.BackgroundWorker _ListWorker;
         private System.Windows.Forms.ToolStripTextBox _SearchGameTextBox;
         private System.Windows.Forms.ToolStripLabel _FindGamesLabel;
-
         #endregion
     }
 }

@@ -19,14 +19,12 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 namespace SAM.Game.Stats
 {
     internal class FloatStatInfo : StatInfo
     {
         public float OriginalValue;
         public float FloatValue;
-
         public override object Value
         {
             get => this.FloatValue;
@@ -41,7 +39,6 @@ namespace SAM.Game.Stats
                 this.FloatValue = f;
             }
         }
-
         public override bool IsModified => this.FloatValue.Equals(this.OriginalValue) == false;
     }
 }

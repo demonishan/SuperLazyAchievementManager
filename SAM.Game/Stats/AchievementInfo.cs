@@ -19,10 +19,8 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 using System;
 using System.Windows.Forms;
-
 namespace SAM.Game.Stats
 {
     internal class AchievementInfo
@@ -36,7 +34,6 @@ namespace SAM.Game.Stats
         public string Name;
         public string Description;
         public ListViewItem Item;
-
         #region public int ImageIndex;
         public int ImageIndex
         {

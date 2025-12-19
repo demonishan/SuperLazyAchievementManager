@@ -19,7 +19,6 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -39,14 +38,10 @@ namespace SAM.API
         public void SetupFunctions(IntPtr objectAddress)
         {
             this.ObjectAddress = objectAddress;
-
-            var iface = (NativeClass)Marshal.PtrToStructure(
-                this.ObjectAddress,
-                typeof(NativeClass));
-
-            this.Functions = (TNativeFunctions)Marshal.PtrToStructure(
-                iface.VirtualTable,
-                typeof(TNativeFunctions));
+            var iface = (NativeClass)
+                Marshal.PtrToStructure(this.ObjectAddress, typeof(NativeClass));
+            this.Functions = (TNativeFunctions)
+                Marshal.PtrToStructure(iface.VirtualTable, typeof(TNativeFunctions));
         }
 
         private readonly Dictionary<IntPtr, Delegate> _FunctionCache = new();

@@ -19,11 +19,9 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 using System;
 using System.Runtime.InteropServices;
 using SAM.API.Interfaces;
-
 namespace SAM.API.Wrappers
 {
     public class SteamApps001 : NativeWrapper<ISteamApps001>
@@ -36,7 +34,6 @@ namespace SAM.API.Wrappers
             IntPtr key,
             IntPtr value,
             int valueLength);
-
         public string GetAppData(uint appId, string key)
         {
             using (var nativeHandle = NativeStrings.StringToStringHandle(key))

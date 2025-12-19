@@ -19,7 +19,6 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 namespace SAM.Game.Stats
 {
     internal class AchievementDefinition
@@ -31,7 +30,6 @@ namespace SAM.Game.Stats
         public string IconLocked;
         public bool IsHidden;
         public int Permission;
-
         public override string ToString()
         {
             return $"{this.Name ?? this.Id ?? base.ToString()}: {this.Permission}";

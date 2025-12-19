@@ -19,10 +19,8 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 using System;
 using System.Runtime.InteropServices;
-
 namespace SAM.API.Types
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

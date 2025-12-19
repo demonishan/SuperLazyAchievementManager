@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
             <ItemGroup>
                 <ProjectReference Include="..\SAM.API\SAM.API.csproj"/>
             </ItemGroup>
-
             <PropertyGroup>
                 <OutputType>WinExe</OutputType>
                 <TargetFramework>net48</TargetFramework>
@@ -12,5 +10,4 @@
                 <PlatformTarget>x86</PlatformTarget>
                 <LangVersion>9.0</LangVersion>
             </PropertyGroup>
-
         </Project>

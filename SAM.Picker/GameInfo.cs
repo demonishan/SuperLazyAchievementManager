@@ -19,30 +19,23 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 using System.Globalization;
 using System.Windows.Forms;
-
 namespace SAM.Picker
 {
     internal class GameInfo
     {
         private string _Name;
-
         public uint Id;
         public string Type;
         public int ImageIndex;
-
         public string Name
         {
             get => this._Name;
             set => this._Name = value ?? "App " + this.Id.ToString(CultureInfo.InvariantCulture);
         }
-
         public string ImageUrl;
-
         public ListViewItem Item;
-
         public GameInfo(uint id, string type)
         {
             this.Id = id;

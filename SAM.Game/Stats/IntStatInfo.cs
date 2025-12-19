@@ -19,14 +19,12 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 namespace SAM.Game.Stats
 {
     internal class IntStatInfo : StatInfo
     {
         public int OriginalValue;
         public int IntValue;
-
         public override object Value
         {
             get => this.IntValue;
@@ -41,7 +39,6 @@ namespace SAM.Game.Stats
                 this.IntValue = i;
             }
         }
-
         public override bool IsModified => this.IntValue != this.OriginalValue;
     }
 }

@@ -19,7 +19,6 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -31,63 +30,45 @@ using System.Net;
 using System.Windows.Forms;
 using static SAM.Game.InvariantShorthand;
 using APITypes = SAM.API.Types;
-
 namespace SAM.Game
 {
     internal partial class Manager : Form
     {
         private readonly long _GameId;
         private readonly API.Client _SteamClient;
-
         private readonly WebClient _IconDownloader = new();
-
         private readonly List<Stats.AchievementInfo> _IconQueue = new();
         private readonly List<Stats.StatDefinition> _StatDefinitions = new();
-
         private readonly List<Stats.AchievementDefinition> _AchievementDefinitions = new();
-
         private readonly BindingList<Stats.StatInfo> _Statistics = new();
-
         private readonly API.Callbacks.UserStatsReceived _UserStatsReceivedCallback;
-
         //private API.Callback<APITypes.UserStatsStored> UserStatsStoredCallback;
-
         public Manager(long gameId, API.Client client)
         {
             this.InitializeComponent();
-
             this._MainTabControl.SelectedTab = this._AchievementsTabPage;
             //this.statisticsList.Enabled = this.checkBox1.Checked;
-
             this._AchievementImageList.Images.Add("Blank", new Bitmap(64, 64));
-
             this._StatisticsDataGridView.AutoGenerateColumns = false;
-
             this._StatisticsDataGridView.Columns.Add("name", "Name");
             this._StatisticsDataGridView.Columns[0].ReadOnly = true;
             this._StatisticsDataGridView.Columns[0].Width = 200;
             this._StatisticsDataGridView.Columns[0].DataPropertyName = "DisplayName";
-
             this._StatisticsDataGridView.Columns.Add("value", "Value");
             this._StatisticsDataGridView.Columns[1].ReadOnly = this._EnableStatsEditingCheckBox.Checked == false;
             this._StatisticsDataGridView.Columns[1].Width = 90;
             this._StatisticsDataGridView.Columns[1].DataPropertyName = "Value";
-
             this._StatisticsDataGridView.Columns.Add("extra", "Extra");
             this._StatisticsDataGridView.Columns[2].ReadOnly = true;
             this._StatisticsDataGridView.Columns[2].Width = 200;
             this._StatisticsDataGridView.Columns[2].DataPropertyName = "Extra";
-
             this._StatisticsDataGridView.DataSource = new BindingSource()
             {
                 DataSource = this._Statistics,
             };
-
             this._GameId = gameId;
             this._SteamClient = client;
-
             this._IconDownloader.DownloadDataCompleted += this.OnIconDownload;
-
             string name = this._SteamClient.SteamApps001.GetAppData((uint)this._GameId, "name");
             if (name != null)
             {
@@ -97,15 +78,11 @@ namespace SAM.Game
             {
                 base.Text += " | " + this._GameId.ToString(CultureInfo.InvariantCulture);
             }
-
             this._UserStatsReceivedCallback = client.CreateAndRegisterCallback<API.Callbacks.UserStatsReceived>();
             this._UserStatsReceivedCallback.OnRun += this.OnUserStatsReceived;
-
             //this.UserStatsStoredCallback = new API.Callback(1102, new API.Callback.CallbackFunction(this.OnUserStatsStored));
-
             this.RefreshStats();
         }
-
         private void AddAchievementIcon(Stats.AchievementInfo info, Image icon)
         {
             if (icon == null)
@@ -118,13 +95,11 @@ namespace SAM.Game
                 this._AchievementImageList.Images.Add(info.IsAchieved == true ? info.IconNormal : info.IconLocked, icon);
             }
         }
-
         private void OnIconDownload(object sender, DownloadDataCompletedEventArgs e)
         {
             if (e.Error == null && e.Cancelled == false)
             {
                 var info = (Stats.AchievementInfo)e.UserState;
-
                 Bitmap bitmap;
                 try
                 {
@@ -138,14 +113,11 @@ namespace SAM.Game
                 {
                     bitmap = null;
                 }
-
                 this.AddAchievementIcon(info, bitmap);
                 this._AchievementListView.Update();
             }
-
             this.DownloadNextIcon();
         }
-
         private void DownloadNextIcon()
         {
             if (this._IconQueue.Count == 0)
@@ -153,30 +125,23 @@ namespace SAM.Game
                 this._DownloadStatusLabel.Visible = false;
                 return;
             }
-
             if (this._IconDownloader.IsBusy == true)
             {
                 return;
             }
-
             this._DownloadStatusLabel.Text = $"Downloading {this._IconQueue.Count} icons...";
             this._DownloadStatusLabel.Visible = true;
-
             var info = this._IconQueue[0];
             this._IconQueue.RemoveAt(0);
-
-
             this._IconDownloader.DownloadDataAsync(
                 new Uri(_($"https://cdn.steamstatic.com/steamcommunity/public/images/apps/{this._GameId}/{(info.IsAchieved == true ? info.IconNormal : info.IconLocked)}")),
                 info);
         }
-
         private static string TranslateError(int id) => id switch
         {
             2 => "generic error -- this usually means you don't own the game",
             _ => _($"{id}"),
         };
-
         private static string GetLocalizedString(KeyValue kv, string language, string defaultValue)
         {
             var name = kv[language].AsString("");
@@ -184,7 +149,6 @@ namespace SAM.Game
             {
                 return name;
             }
-
             if (language != "english")
             {
                 name = kv["english"].AsString("");
@@ -193,16 +157,13 @@ namespace SAM.Game
                     return name;
                 }
             }
-
             name = kv.AsString("");
             if (string.IsNullOrEmpty(name) == false)
             {
                 return name;
             }
-
             return defaultValue;
         }
-
         private bool LoadUserGameStatsSchema()
         {
             string path;
@@ -220,31 +181,25 @@ namespace SAM.Game
             {
                 return false;
             }
-
             var kv = KeyValue.LoadAsBinary(path);
             if (kv == null)
             {
                 return false;
             }
-
             var currentLanguage = this._SteamClient.SteamApps008.GetCurrentGameLanguage();
-
             this._AchievementDefinitions.Clear();
             this._StatDefinitions.Clear();
-
             var stats = kv[this._GameId.ToString(CultureInfo.InvariantCulture)]["stats"];
             if (stats.Valid == false || stats.Children == null)
             {
                 return false;
             }
-
             foreach (var stat in stats.Children)
             {
                 if (stat.Valid == false)
                 {
                     continue;
                 }
-
                 var rawType = stat["type_int"].Valid
                                   ? stat["type_int"].AsInteger(0)
                                   : stat["type"].AsInteger(0);
@@ -255,12 +210,10 @@ namespace SAM.Game
                     {
                         break;
                     }
-
                     case APITypes.UserStatType.Integer:
                     {
                         var id = stat["name"].AsString("");
                         string name = GetLocalizedString(stat["display"]["name"], currentLanguage, id);
-
                         this._StatDefinitions.Add(new Stats.IntegerStatDefinition()
                         {
                             Id = stat["name"].AsString(""),
@@ -275,13 +228,11 @@ namespace SAM.Game
                         });
                         break;
                     }
-
                     case APITypes.UserStatType.Float:
                     case APITypes.UserStatType.AverageRate:
                     {
                         var id = stat["name"].AsString("");
                         string name = GetLocalizedString(stat["display"]["name"], currentLanguage, id);
-
                         this._StatDefinitions.Add(new Stats.FloatStatDefinition()
                         {
                             Id = stat["name"].AsString(""),
@@ -295,7 +246,6 @@ namespace SAM.Game
                         });
                         break;
                     }
-
                     case APITypes.UserStatType.Achievements:
                     case APITypes.UserStatType.GroupAchievements:
                     {
@@ -309,13 +259,11 @@ namespace SAM.Game
                                 {
                                     continue;
                                 }
-
                                 foreach (var bit in bits.Children)
                                 {
                                     string id = bit["name"].AsString("");
                                     string name = GetLocalizedString(bit["display"]["name"], currentLanguage, id);
                                     string desc = GetLocalizedString(bit["display"]["desc"], currentLanguage, "");
-
                                     this._AchievementDefinitions.Add(new()
                                     {
                                         Id = id,
@@ -329,20 +277,16 @@ namespace SAM.Game
                                 }
                             }
                         }
-
                         break;
                     }
-
                     default:
                     {
                         throw new InvalidOperationException("invalid stat type");
                     }
                 }
             }
-
             return true;
         }
-
         private void OnUserStatsReceived(APITypes.UserStatsReceived param)
         {
             if (param.Result != 1)
@@ -351,14 +295,12 @@ namespace SAM.Game
                 this.EnableInput();
                 return;
             }
-
             if (this.LoadUserGameStatsSchema() == false)
             {
                 this._GameStatusLabel.Text = "Failed to load schema.";
                 this.EnableInput();
                 return;
             }
-
             try
             {
                 this.GetAchievements();
@@ -374,7 +316,6 @@ namespace SAM.Game
                     MessageBoxIcon.Error);
                 return;
             }
-
             try
             {
                 this.GetStatistics();
@@ -390,18 +331,14 @@ namespace SAM.Game
                     MessageBoxIcon.Error);
                 return;
             }
-
             this._GameStatusLabel.Text = $"Retrieved {this._AchievementListView.Items.Count} achievements and {this._StatisticsDataGridView.Rows.Count} statistics.";
             this.EnableInput();
         }
-
         private void RefreshStats()
         {
             this._AchievementListView.Items.Clear();
             this._StatisticsDataGridView.Rows.Clear();
-
             var steamId = this._SteamClient.SteamUser.GetSteamId();
-
             // This still triggers the UserStatsReceived callback, in addition to the callresult.
             // No need to implement callresults for the time being.
             var callHandle = this._SteamClient.SteamUserStats.RequestUserStats(steamId);
@@ -410,35 +347,27 @@ namespace SAM.Game
                 MessageBox.Show(this, "Failed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
             this._GameStatusLabel.Text = "Retrieving stat information...";
             this.DisableInput();
         }
-
         private bool _IsUpdatingAchievementList;
-
         private void GetAchievements()
         {
             var textSearch = this._MatchingStringTextBox.Text.Length > 0
                 ? this._MatchingStringTextBox.Text
                 : null;
-
             this._IsUpdatingAchievementList = true;
-
             this._AchievementListView.Items.Clear();
             this._AchievementListView.BeginUpdate();
             //this.Achievements.Clear();
-
             bool wantLocked = this._DisplayLockedOnlyButton.Checked == true;
             bool wantUnlocked = this._DisplayUnlockedOnlyButton.Checked == true;
-
             foreach (var def in this._AchievementDefinitions)
             {
                 if (string.IsNullOrEmpty(def.Id) == true)
                 {
                     continue;
                 }
-
                 if (this._SteamClient.SteamUserStats.GetAchievementAndUnlockTime(
                     def.Id,
                     out bool isAchieved,
@@ -446,7 +375,6 @@ namespace SAM.Game
                 {
                     continue;
                 }
-
                 bool wanted = (wantLocked == false && wantUnlocked == false) || isAchieved switch
                 {
                     true => wantUnlocked,
@@ -456,7 +384,6 @@ namespace SAM.Game
                 {
                     continue;
                 }
-
                 if (textSearch != null)
                 {
                     if (def.Name.IndexOf(textSearch, StringComparison.OrdinalIgnoreCase) < 0 &&
@@ -465,7 +392,6 @@ namespace SAM.Game
                         continue;
                     }
                 }
-
                 Stats.AchievementInfo info = new()
                 {
                     Id = def.Id,
@@ -479,7 +405,6 @@ namespace SAM.Game
                     Name = def.Name,
                     Description = def.Description,
                 };
-
                 ListViewItem item = new()
                 {
                     Checked = isAchieved,
@@ -487,9 +412,7 @@ namespace SAM.Game
                     Text = info.Name,
                     BackColor = (def.Permission & 3) == 0 ? Color.Black : Color.FromArgb(64, 0, 0),
                 };
-
                 info.Item = item;
-
                 if (item.Text.StartsWith("#", StringComparison.InvariantCulture) == true)
                 {
                     item.Text = info.Id;
@@ -499,23 +422,17 @@ namespace SAM.Game
                 {
                     item.SubItems.Add(info.Description);
                 }
-
                 item.SubItems.Add(info.UnlockTime.HasValue == true
                     ? info.UnlockTime.Value.ToString()
                     : "");
-
                 info.ImageIndex = 0;
-
                 this.AddAchievementToIconQueue(info, false);
                 this._AchievementListView.Items.Add(item);
             }
-
             this._AchievementListView.EndUpdate();
             this._IsUpdatingAchievementList = false;
-
             this.DownloadNextIcon();
         }
-
         private void GetStatistics()
         {
             this._Statistics.Clear();
@@ -525,7 +442,6 @@ namespace SAM.Game
                 {
                     continue;
                 }
-
                 if (stat is Stats.IntegerStatDefinition intStat)
                 {
                     if (this._SteamClient.SteamUserStats.GetStatValue(intStat.Id, out int value) == false)
@@ -560,12 +476,10 @@ namespace SAM.Game
                 }
             }
         }
-
         private void AddAchievementToIconQueue(Stats.AchievementInfo info, bool startDownload)
         {
             int imageIndex = this._AchievementImageList.Images.IndexOfKey(
                 info.IsAchieved == true ? info.IconNormal : info.IconLocked);
-
             if (imageIndex >= 0)
             {
                 info.ImageIndex = imageIndex;
@@ -573,21 +487,18 @@ namespace SAM.Game
             else
             {
                 this._IconQueue.Add(info);
-
                 if (startDownload == true)
                 {
                     this.DownloadNextIcon();
                 }
             }
         }
-
         private int StoreAchievements()
         {
             if (this._AchievementListView.Items.Count == 0)
             {
                 return 0;
             }
-
             List<Stats.AchievementInfo> achievements = new();
             foreach (ListViewItem item in this._AchievementListView.Items)
             {
@@ -596,16 +507,13 @@ namespace SAM.Game
                 {
                     continue;
                 }
-
                 achievementInfo.IsAchieved = item.Checked;
                 achievements.Add(achievementInfo);
             }
-
             if (achievements.Count == 0)
             {
                 return 0;
             }
-
             foreach (var info in achievements)
             {
                 if (this._SteamClient.SteamUserStats.SetAchievement(info.Id, info.IsAchieved) == false)
@@ -619,23 +527,19 @@ namespace SAM.Game
                     return -1;
                 }
             }
-
             return achievements.Count;
         }
-
         private int StoreStatistics()
         {
             if (this._Statistics.Count == 0)
             {
                 return 0;
             }
-
             var statistics = this._Statistics.Where(stat => stat.IsModified == true).ToList();
             if (statistics.Count == 0)
             {
                 return 0;
             }
-
             foreach (var stat in statistics)
             {
                 if (stat is Stats.IntStatInfo intStat)
@@ -673,34 +577,28 @@ namespace SAM.Game
                     throw new InvalidOperationException("unsupported stat type");
                 }
             }
-
             return statistics.Count;
         }
-
         private void DisableInput()
         {
             this._ReloadButton.Enabled = false;
             this._StoreButton.Enabled = false;
         }
-
         private void EnableInput()
         {
             this._ReloadButton.Enabled = true;
             this._StoreButton.Enabled = true;
         }
-
         private void OnTimer(object sender, EventArgs e)
         {
             this._CallbackTimer.Enabled = false;
             this._SteamClient.RunCallbacks(false);
             this._CallbackTimer.Enabled = true;
         }
-
         private void OnRefresh(object sender, EventArgs e)
         {
             this.RefreshStats();
         }
-
         private void OnLockAll(object sender, EventArgs e)
         {
             foreach (ListViewItem item in this._AchievementListView.Items)
@@ -708,7 +606,6 @@ namespace SAM.Game
                 item.Checked = false;
             }
         }
-
         private void OnInvertAll(object sender, EventArgs e)
         {
             foreach (ListViewItem item in this._AchievementListView.Items)
@@ -716,7 +613,6 @@ namespace SAM.Game
                 item.Checked = !item.Checked;
             }
         }
-
         private void OnUnlockAll(object sender, EventArgs e)
         {
             foreach (ListViewItem item in this._AchievementListView.Items)
@@ -724,11 +620,10 @@ namespace SAM.Game
                 item.Checked = true;
             }
         }
-
         private void OnTimedUnlock(object sender, EventArgs e)
         {
             var achievements = new List<Stats.AchievementInfo>();
-            
+           
             // If items are selected, use those. Otherwise, use all currently listed items that are locked.
             System.Collections.IEnumerable sourceItems;
             if (this._AchievementListView.SelectedItems.Count > 0)
@@ -739,7 +634,6 @@ namespace SAM.Game
             {
                 sourceItems = this._AchievementListView.Items;
             }
-
             foreach (ListViewItem item in sourceItems)
             {
                 if (item.Tag is Stats.AchievementInfo info && !info.IsAchieved)
@@ -747,22 +641,19 @@ namespace SAM.Game
                     achievements.Add(info);
                 }
             }
-
             if (achievements.Count == 0)
             {
                 MessageBox.Show("No locked achievements selected or available to unlock.", "Timed Unlock", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-
             using (var form = new TimedUnlockForm(this._SteamClient, achievements))
             {
                 form.ShowDialog(this);
             }
-            
+           
             // Refresh after done
             this.RefreshStats();
         }
-
         private bool Store()
         {
             if (this._SteamClient.SteamUserStats.StoreStats() == false)
@@ -775,10 +666,8 @@ namespace SAM.Game
                     MessageBoxIcon.Error);
                 return false;
             }
-
             return true;
         }
-
         private void OnStore(object sender, EventArgs e)
         {
             int achievements = this.StoreAchievements();
@@ -787,20 +676,17 @@ namespace SAM.Game
                 this.RefreshStats();
                 return;
             }
-
             int stats = this.StoreStatistics();
             if (stats < 0)
             {
                 this.RefreshStats();
                 return;
             }
-
             if (this.Store() == false)
             {
                 this.RefreshStats();
                 return;
             }
-
             MessageBox.Show(
                 this,
                 $"Stored {achievements} achievements and {stats} statistics.",
@@ -809,14 +695,12 @@ namespace SAM.Game
                 MessageBoxIcon.Information);
             this.RefreshStats();
         }
-
         private void OnStatDataError(object sender, DataGridViewDataErrorEventArgs e)
         {
             if (e.Context != DataGridViewDataErrorContexts.Commit)
             {
                 return;
             }
-
             var view = (DataGridView)sender;
             if (e.Exception is Stats.StatIsProtectedException)
             {
@@ -831,18 +715,15 @@ namespace SAM.Game
                 view.Rows[e.RowIndex].ErrorText = "Invalid value";
             }
         }
-
         private void OnStatAgreementChecked(object sender, EventArgs e)
         {
             this._StatisticsDataGridView.Columns[1].ReadOnly = this._EnableStatsEditingCheckBox.Checked == false;
         }
-
         private void OnStatCellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             var view = (DataGridView)sender;
             view.Rows[e.RowIndex].ErrorText = "";
         }
-
         private void OnResetAllStats(object sender, EventArgs e)
         {
             if (MessageBox.Show(
@@ -853,13 +734,11 @@ namespace SAM.Game
             {
                 return;
             }
-
             bool achievementsToo = DialogResult.Yes == MessageBox.Show(
                 "Do you want to reset achievements too?",
                 "Question",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
-
             if (MessageBox.Show(
                 "Really really sure?",
                 "Warning",
@@ -868,33 +747,27 @@ namespace SAM.Game
             {
                 return;
             }
-
             if (this._SteamClient.SteamUserStats.ResetAllStats(achievementsToo) == false)
             {
                 MessageBox.Show(this, "Failed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
             this.RefreshStats();
         }
-
         private void OnCheckAchievement(object sender, ItemCheckEventArgs e)
         {
             if (sender != this._AchievementListView)
             {
                 return;
             }
-
             if (this._IsUpdatingAchievementList == true)
             {
                 return;
             }
-
             if (this._AchievementListView.Items[e.Index].Tag is not Stats.AchievementInfo info)
             {
                 return;
             }
-
             if ((info.Permission & 3) != 0)
             {
                 MessageBox.Show(
@@ -906,27 +779,22 @@ namespace SAM.Game
                 e.NewValue = e.CurrentValue;
             }
         }
-
         private void OnDisplayUncheckedOnly(object sender, EventArgs e)
         {
             if ((sender as ToolStripButton).Checked == true)
             {
                 this._DisplayLockedOnlyButton.Checked = false;
             }
-
             this.GetAchievements();
         }
-
         private void OnDisplayCheckedOnly(object sender, EventArgs e)
         {
             if ((sender as ToolStripButton).Checked == true)
             {
                 this._DisplayUnlockedOnlyButton.Checked = false;
             }
-
             this.GetAchievements();
         }
-
         private void OnFilterUpdate(object sender, KeyEventArgs e)
         {
             this.GetAchievements();

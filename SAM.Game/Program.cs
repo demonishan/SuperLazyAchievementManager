@@ -19,11 +19,9 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
-
 namespace SAM.Game
 {
     internal static class Program
@@ -41,19 +39,16 @@ namespace SAM.Game
                 MessageBox.Show(e.ToString(), "SAM.Game Crash", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private static void MainInternal(string[] args)
         {
             long appId;
             // logging inputs
             System.IO.File.WriteAllText("sam_game_startup.txt", "Started with args: " + string.Join(" ", args));
-
             if (args.Length == 0)
             {
                 Process.Start("SAM.Picker.exe");
                 return;
             }
-
             if (long.TryParse(args[0], out appId) == false)
             {
                 MessageBox.Show(
@@ -63,7 +58,6 @@ namespace SAM.Game
                     MessageBoxIcon.Error);
                 return;
             }
-
             if (API.Steam.GetInstallPath() == Application.StartupPath)
             {
                 MessageBox.Show(
@@ -73,7 +67,6 @@ namespace SAM.Game
                     MessageBoxIcon.Error);
                 return;
             }
-
             using (API.Client client = new())
             {
                 try
@@ -128,7 +121,6 @@ namespace SAM.Game
                      System.IO.File.AppendAllText("sam_game_startup.txt", "\nInitialization Exception: " + ex.ToString());
                      throw;
                 }
-
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new Manager(appId, client));

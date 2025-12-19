@@ -19,7 +19,6 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 namespace SAM.Game.Stats
 {
     internal class FloatStatDefinition : StatDefinition

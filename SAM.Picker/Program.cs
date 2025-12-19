@@ -19,10 +19,8 @@
  * 3. This notice may not be removed or altered from any source
  *    distribution.
  */
-
 using System;
 using System.Windows.Forms;
-
 namespace SAM.Picker
 {
     internal static class Program
@@ -39,7 +37,6 @@ namespace SAM.Picker
                     MessageBoxIcon.Error);
                 return;
             }
-
             using (API.Client client = new())
             {
                 try
@@ -78,7 +75,6 @@ namespace SAM.Picker
                         MessageBoxIcon.Error);
                     return;
                 }
-
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new GamePicker(client));

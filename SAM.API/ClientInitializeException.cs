@@ -38,7 +38,11 @@ namespace SAM.API
             this.Failure = failure;
         }
 
-        public ClientInitializeException(ClientInitializeFailure failure, string message, Exception innerException)
+        public ClientInitializeException(
+            ClientInitializeFailure failure,
+            string message,
+            Exception innerException
+        )
             : base(message, innerException)
         {
             this.Failure = failure;
