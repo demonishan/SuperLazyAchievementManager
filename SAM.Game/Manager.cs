@@ -725,6 +725,44 @@ namespace SAM.Game
             }
         }
 
+        private void OnTimedUnlock(object sender, EventArgs e)
+        {
+            var achievements = new List<Stats.AchievementInfo>();
+            
+            // If items are selected, use those. Otherwise, use all currently listed items that are locked.
+            System.Collections.IEnumerable sourceItems;
+            if (this._AchievementListView.SelectedItems.Count > 0)
+            {
+                sourceItems = this._AchievementListView.SelectedItems;
+            }
+            else
+            {
+                sourceItems = this._AchievementListView.Items;
+            }
+
+            foreach (ListViewItem item in sourceItems)
+            {
+                if (item.Tag is Stats.AchievementInfo info && !info.IsAchieved)
+                {
+                    achievements.Add(info);
+                }
+            }
+
+            if (achievements.Count == 0)
+            {
+                MessageBox.Show("No locked achievements selected or available to unlock.", "Timed Unlock", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (var form = new TimedUnlockForm(this._SteamClient, achievements))
+            {
+                form.ShowDialog(this);
+            }
+            
+            // Refresh after done
+            this.RefreshStats();
+        }
+
         private bool Store()
         {
             if (this._SteamClient.SteamUserStats.StoreStats() == false)

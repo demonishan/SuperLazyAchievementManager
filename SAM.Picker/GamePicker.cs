@@ -452,13 +452,14 @@ namespace SAM.Picker
 
             try
             {
-                Process.Start("SAM.Game.exe", info.Id.ToString(CultureInfo.InvariantCulture));
+                var path = Path.Combine(Application.StartupPath, "SAM.Game.exe");
+                Process.Start(path, info.Id.ToString(CultureInfo.InvariantCulture));
             }
-            catch (Win32Exception)
+            catch (Win32Exception ex)
             {
                 MessageBox.Show(
                     this,
-                    "Failed to start SAM.Game.exe.",
+                    "Failed to start SAM.Game.exe.\n" + ex.ToString(),
                     "Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);

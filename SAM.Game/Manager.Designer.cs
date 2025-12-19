@@ -52,6 +52,7 @@
             this._LockAllButton = new System.Windows.Forms.ToolStripButton();
             this._InvertAllButton = new System.Windows.Forms.ToolStripButton();
             this._UnlockAllButton = new System.Windows.Forms.ToolStripButton();
+            this._TimedUnlockButton = new System.Windows.Forms.ToolStripButton();
             this._DisplayLabel = new System.Windows.Forms.ToolStripLabel();
             this._DisplayLockedOnlyButton = new System.Windows.Forms.ToolStripButton();
             this._DisplayUnlockedOnlyButton = new System.Windows.Forms.ToolStripButton();
@@ -239,6 +240,7 @@
             this._LockAllButton,
             this._InvertAllButton,
             this._UnlockAllButton,
+            this._TimedUnlockButton,
             _ToolStripSeparator1,
             this._DisplayLabel,
             this._DisplayLockedOnlyButton,
@@ -283,6 +285,16 @@
             this._UnlockAllButton.Text = "Unlock All";
             this._UnlockAllButton.ToolTipText = "Unlock all achievements.";
             this._UnlockAllButton.Click += new System.EventHandler(this.OnUnlockAll);
+            // 
+            // _TimedUnlockButton
+            // 
+            this._TimedUnlockButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this._TimedUnlockButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this._TimedUnlockButton.Name = "_TimedUnlockButton";
+            this._TimedUnlockButton.Size = new System.Drawing.Size(23, 22);
+            this._TimedUnlockButton.Text = "Timed Unlock";
+            this._TimedUnlockButton.ToolTipText = "Unlock selected achievements sequentially with a delay.";
+            this._TimedUnlockButton.Click += new System.EventHandler(this.OnTimedUnlock);
             // 
             // _DisplayLabel
             // 
@@ -416,6 +428,7 @@
         private System.Windows.Forms.ToolStripButton _LockAllButton;
         private System.Windows.Forms.ToolStripButton _InvertAllButton;
         private System.Windows.Forms.ToolStripButton _UnlockAllButton;
+        private System.Windows.Forms.ToolStripButton _TimedUnlockButton;
         private System.Windows.Forms.DataGridView _StatisticsDataGridView;
         private System.Windows.Forms.ToolStripButton _ResetButton;
         private System.Windows.Forms.ToolStripStatusLabel _DownloadStatusLabel;

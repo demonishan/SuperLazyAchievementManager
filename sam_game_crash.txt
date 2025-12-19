@@ -1,0 +1,9 @@
+System.ArgumentNullException: Value cannot be null.
+Parameter name: value
+   at System.Windows.Forms.ToolStripItemCollection.CheckCanAddOrInsertItem(ToolStripItem value)
+   at System.Windows.Forms.ToolStripItemCollection.Add(ToolStripItem value)
+   at System.Windows.Forms.ToolStripItemCollection.AddRange(ToolStripItem[] toolStripItems)
+   at SAM.Game.Manager.InitializeComponent()
+   at SAM.Game.Manager..ctor(Int64 gameId, Client client)
+   at SAM.Game.Program.MainInternal(String[] args)
+   at SAM.Game.Program.Main(String[] args)

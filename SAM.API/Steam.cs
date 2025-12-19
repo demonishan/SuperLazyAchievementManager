@@ -60,7 +60,12 @@ namespace SAM.API
 
         public static string GetInstallPath()
         {
-            return (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\Software\Valve\Steam", "InstallPath", null);
+            var path = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\Software\Valve\Steam", "InstallPath", null);
+            if (path == null)
+            {
+                path = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\Software\Wow6432Node\Valve\Steam", "InstallPath", null);
+            }
+            return path;
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
@@ -121,27 +126,32 @@ namespace SAM.API
             Native.SetDllDirectory(path + ";" + Path.Combine(path, "bin"));
 
             path = Path.Combine(path, "steamclient.dll");
+            Console.Error.WriteLine($"DEBUG: Loading steamclient from {path}");
             IntPtr module = Native.LoadLibraryEx(path, IntPtr.Zero, Native.LoadWithAlteredSearchPath);
             if (module == IntPtr.Zero)
             {
+                Console.Error.WriteLine($"DEBUG: LoadLibraryEx failed with code {Marshal.GetLastWin32Error()}");
                 return false;
             }
 
             _CallCreateInterface = GetExportFunction<NativeCreateInterface>(module, "CreateInterface");
             if (_CallCreateInterface == null)
             {
+                Console.Error.WriteLine("DEBUG: Failed to get CreateInterface export");
                 return false;
             }
 
             _CallSteamBGetCallback = GetExportFunction<NativeSteamGetCallback>(module, "Steam_BGetCallback");
             if (_CallSteamBGetCallback == null)
             {
+                Console.Error.WriteLine("DEBUG: Failed to get Steam_BGetCallback export");
                 return false;
             }
 
             _CallSteamFreeLastCallback = GetExportFunction<NativeSteamFreeLastCallback>(module, "Steam_FreeLastCallback");
             if (_CallSteamFreeLastCallback == null)
             {
+                Console.Error.WriteLine("DEBUG: Failed to get Steam_FreeLastCallback export");
                 return false;
             }
 

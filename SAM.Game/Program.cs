@@ -31,7 +31,22 @@ namespace SAM.Game
         [STAThread]
         public static void Main(string[] args)
         {
+            try
+            {
+                MainInternal(args);
+            }
+            catch (Exception e)
+            {
+                System.IO.File.WriteAllText("sam_game_crash.txt", e.ToString());
+                MessageBox.Show(e.ToString(), "SAM.Game Crash", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private static void MainInternal(string[] args)
+        {
             long appId;
+            // logging inputs
+            System.IO.File.WriteAllText("sam_game_startup.txt", "Started with args: " + string.Join(" ", args));
 
             if (args.Length == 0)
             {
@@ -67,6 +82,7 @@ namespace SAM.Game
                 }
                 catch (API.ClientInitializeException e)
                 {
+                    System.IO.File.AppendAllText("sam_game_startup.txt", "\nClientInitializeException: " + e.ToString());
                     if (e.Failure == API.ClientInitializeFailure.ConnectToGlobalUser)
                     {
                         MessageBox.Show(
@@ -97,14 +113,20 @@ namespace SAM.Game
                     }
                     return;
                 }
-                catch (DllNotFoundException)
+                catch (DllNotFoundException ex)
                 {
+                    System.IO.File.AppendAllText("sam_game_startup.txt", "\nDllNotFoundException: " + ex.ToString());
                     MessageBox.Show(
                         "You've caused an exceptional error!",
                         "Error",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
                     return;
+                }
+                catch (Exception ex)
+                {
+                     System.IO.File.AppendAllText("sam_game_startup.txt", "\nInitialization Exception: " + ex.ToString());
+                     throw;
                 }
 
                 Application.EnableVisualStyles();

@@ -48,6 +48,8 @@ namespace SAM.Picker
                 }
                 catch (API.ClientInitializeException e)
                 {
+                    Console.Error.WriteLine("DEBUG: ClientInitializeException caught!");
+                    Console.Error.WriteLine(e.ToString());
                     if (string.IsNullOrEmpty(e.Message) == false)
                     {
                         MessageBox.Show(
