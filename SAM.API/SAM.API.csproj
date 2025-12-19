@@ -1,29 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Company>Gibbed</Company>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyVersion>8.0.0.0</AssemblyVersion>
     <Authors>Gibbed</Authors>
-    <Description></Description>
+    <Company>Gibbed</Company>
     <Copyright>Copyright © Gibbed 2019</Copyright>
-  </PropertyGroup>
-  <PropertyGroup>
-    <Version>7.0.0</Version>
-    <AssemblyVersion>7.0.0.0</AssemblyVersion>
-    <FileVersion>7.0.0.0</FileVersion>
-  </PropertyGroup>
-  <PropertyGroup>
-    <RepositoryUrl>https://github.com/gibbed/SteamAchievementManager/</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
-  </PropertyGroup>
-  <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <Description></Description>
+    <FileVersion>8.0.0.0</FileVersion>
     <LangVersion>9.0</LangVersion>
     <Platforms>x86</Platforms>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RepositoryType>Git</RepositoryType>
+    <RepositoryUrl>https://github.com/gibbed/SteamAchievementManager/</RepositoryUrl>
+    <TargetFramework>net48</TargetFramework>
+    <Version>8.0.0</Version>
   </PropertyGroup>
 </Project>

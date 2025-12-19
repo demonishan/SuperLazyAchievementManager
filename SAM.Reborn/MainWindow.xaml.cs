@@ -114,9 +114,9 @@ namespace SAM.Picker.Modern {
       var filtered = _AllGames.Where(g =>
           (string.IsNullOrEmpty(searchText) || g.Name.ToLower(CultureInfo.InvariantCulture).Contains(searchText)) &&
           ((g.Type == "normal" && _WantGames) ||
-           (g.Type == "mod" && _WantMods) ||
-           (g.Type == "demo" && _WantDemos) ||
-           (g.Type == "junk" && _WantJunk))
+          (g.Type == "mod" && _WantMods) ||
+          (g.Type == "demo" && _WantDemos) ||
+          (g.Type == "junk" && _WantJunk))
       ).OrderBy(g => g.Name).ToList();
       _FilteredGames.Clear();
       foreach (var g in filtered) {

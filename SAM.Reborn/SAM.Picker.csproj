@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\SAM.API\SAM.API.csproj" />
+    <PackageReference Include="Costura.Fody" Version="6.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <Resource Include="..\Resources\icon.png" Link="Resources\icon.png" />
+  </ItemGroup>
+  <PropertyGroup>
+    <ApplicationIcon>..\Resources\icon.ico</ApplicationIcon>
+    <AssemblyName>SAM.Reborn.2026</AssemblyName>
+    <AssemblyVersion>8.0.0.0</AssemblyVersion>
+    <Authors>Ishan Samanta (666de666)</Authors>
+    <Company>DEMONiZER Corp</Company>
+    <Copyright>Copyright © Ishan Samanta (666de666) 2025</Copyright>
+    <Description></Description>
+    <FileVersion>8.0.0.0</FileVersion>
+    <LangVersion>9.0</LangVersion>
+    <OutputType>WinExe</OutputType>
+    <Platforms>x86</Platforms>
+    <PlatformTarget>x86</PlatformTarget>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Version>8.0.0</Version>
+  </PropertyGroup>
+</Project>

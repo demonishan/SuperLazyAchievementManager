@@ -2,6 +2,10 @@
 using System.Configuration;
 using System.Data;
 using System.Windows;
+[assembly: ThemeInfo(
+    ResourceDictionaryLocation.None,
+    ResourceDictionaryLocation.SourceAssembly
+)]
 namespace SAM.Picker.Modern {
   public partial class App : Application {
     protected override void OnStartup(StartupEventArgs e) {
