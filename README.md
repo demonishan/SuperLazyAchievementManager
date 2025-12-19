@@ -1,6 +1,6 @@
 # SAM Reborn - 2026
 
-**A modern revival of the legendary Steam Achievement Manager.**
+**A modern revival of the legendary [Steam Achievement Manager](https://github.com/gibbed/SteamAchievementManager).**
 
 ## About the Project
 
@@ -20,7 +20,7 @@ This isn't just a visual skin; it's a complete modernization of the experience:
 
 ## Getting Started
 
-1. **Download** the latest release from the 'Dist' folder.
+1. **Download** the latest release from the `Dist` folder.
 2. **Execute** `SAM.Reborn.2026.exe`.
 3. Select a game from your library.
 4. Unlock (or lock!) achievements to your heart's content.
@@ -31,8 +31,8 @@ _Note: Steam must be running and you must be logged in._
 
 This project is actively being improved!
 
-- **Found a bug?** Please let me know.
-- **Have a feature idea?** I'm all ears.
+- **Found a bug?** Please report it [here](https://github.com/demonishan/SteamAchievementManager/issues).
+- **Have a feature idea?** Discuss it [here](https://github.com/demonishan/SteamAchievementManager/discussions).
 
 Together, we can keep SAM alive and better than ever.
 
