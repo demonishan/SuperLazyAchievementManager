@@ -1,16 +1,45 @@
-# Steam Achievement Manager
+# SAM Reborn - 2026
 
-Steam Achievement Manager (SAM) is a lightweight, portable application used to manage achievements and statistics in the popular PC gaming platform Steam. This application requires the [Steam client](https://store.steampowered.com/about/), a Steam account and network access. Steam must be running and the user must be logged in.
-This is the code for SAM. The closed-source version originally released in 2008, last major release in 2011, and last updated in 2013 (a hotfix).
-The code is being made available so that those interested can do as they like with it.
-There are some changes to the code since the last closed-source release:
+**A modern revival of the legendary Steam Achievement Manager.**
 
-- General code maintenance to bring it into a more modern state.
-- Icons have been replaced with ones from the Fugue Icons set.
-- Version has been bumped to 7.0.x.x to indicate the open-source release.
-  [Download latest release](https://github.com/gibbed/SteamAchievementManager/releases/latest).
-  [![Build status](https://ci.appveyor.com/api/projects/status/00vic6jliar6j0ol/branch/master?svg=true)](https://ci.appveyor.com/project/gibbed/steamachievementmanager/branch/master)
+## About the Project
 
-## Attribution
+Steam Achievement Manager (SAM) was originally released in 2008 and became the go-to tool for managing Steam achievements. However, its development effectively stopped over a decade ago.
 
-Most (if not all) icons are from the [Fugue Icons](https://p.yusukekamiyamane.com/) set.
+**SAM Reborn** is a fork of the original project. I have picked up the pieces to bring this essential tool into the modern era. The core functionality remains, but the experience has been completely overhauled with a modern design and powerful new features.
+
+## What's New?
+
+This isn't just a visual skin; it's a complete modernization of the experience:
+
+- **Modern User Interface**: A sleek, dark-themed UI that looks at home on modern Windows.
+- **Timer Mode**: Simulate completely natural achievement unlocks over time. Set a delay, and watch them unlock one by one.
+- **Random Unlocker**: Generate random unlock times for realistic intervals between achievements.
+- **Improved Performance**: Faster loading and filtering of your library.
+- **Single File Executable**: No more clutter. Just one `.exe` file to verify and run.
+
+## Getting Started
+
+1. **Download** the latest release from the 'Dist' folder.
+2. **Execute** `SAM.Reborn.2026.exe`.
+3. Select a game from your library.
+4. Unlock (or lock!) achievements to your heart's content.
+
+_Note: Steam must be running and you must be logged in._
+
+## Feedback & Contributions
+
+This project is actively being improved!
+
+- **Found a bug?** Please let me know.
+- **Have a feature idea?** I'm all ears.
+
+Together, we can keep SAM alive and better than ever.
+
+## Disclaimer
+
+> This tool is provided "as-is". While SAM has been safely used by millions for over a decade, you use this software at your own risk. The developer is not responsible for any bans or account issues resulting from the misuse of this tool.
+
+---
+
+_Based on the original work by Rick (gibbed)._
