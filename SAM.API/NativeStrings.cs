@@ -23,7 +23,6 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
-
 namespace SAM.API
 {
     internal class NativeStrings
@@ -35,12 +34,10 @@ namespace SAM.API
             {
                 this.SetHandle(preexistingHandle);
             }
-
             public IntPtr Handle
             {
                 get { return this.handle; }
             }
-
             protected override bool ReleaseHandle()
             {
                 if (handle != IntPtr.Zero)
@@ -52,7 +49,6 @@ namespace SAM.API
                 return false;
             }
         }
-
         public static unsafe StringHandle StringToStringHandle(string value)
         {
             if (value == null)
@@ -66,7 +62,6 @@ namespace SAM.API
             ((byte*)p)[length] = 0;
             return new StringHandle(p, true);
         }
-
         public static unsafe string PointerToString(sbyte* bytes)
         {
             if (bytes == null)
@@ -85,17 +80,14 @@ namespace SAM.API
             }
             return new string(bytes, 0, running, Encoding.UTF8);
         }
-
         public static unsafe string PointerToString(byte* bytes)
         {
             return PointerToString((sbyte*)bytes);
         }
-
         public static unsafe string PointerToString(IntPtr nativeData)
         {
             return PointerToString((sbyte*)nativeData.ToPointer());
         }
-
         public static unsafe string PointerToString(sbyte* bytes, int length)
         {
             if (bytes == null)
@@ -114,12 +106,10 @@ namespace SAM.API
             }
             return new string(bytes, 0, running, Encoding.UTF8);
         }
-
         public static unsafe string PointerToString(byte* bytes, int length)
         {
             return PointerToString((sbyte*)bytes, length);
         }
-
         public static unsafe string PointerToString(IntPtr nativeData, int length)
         {
             return PointerToString((sbyte*)nativeData.ToPointer(), length);

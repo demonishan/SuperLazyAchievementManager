@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-
 namespace SAM.API
 {
     public class Client : IDisposable
@@ -38,7 +37,6 @@ namespace SAM.API
         private int _Pipe;
         private int _User;
         private readonly List<ICallback> _Callbacks = new();
-
         public void Initialize(long appId)
         {
             if (string.IsNullOrEmpty(Steam.GetInstallPath()) == true)
@@ -99,12 +97,10 @@ namespace SAM.API
             this.SteamApps001 = this.SteamClient.GetSteamApps001(this._User, this._Pipe);
             this.SteamApps008 = this.SteamClient.GetSteamApps008(this._User, this._Pipe);
         }
-
         ~Client()
         {
             this.Dispose(false);
         }
-
         protected virtual void Dispose(bool disposing)
         {
             if (this._IsDisposed == true)
@@ -123,13 +119,11 @@ namespace SAM.API
             }
             this._IsDisposed = true;
         }
-
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
         public TCallback CreateAndRegisterCallback<TCallback>()
             where TCallback : ICallback, new()
         {
@@ -137,9 +131,7 @@ namespace SAM.API
             this._Callbacks.Add(callback);
             return callback;
         }
-
         private bool _RunningCallbacks;
-
         public void RunCallbacks(bool server)
         {
             if (this._RunningCallbacks == true)

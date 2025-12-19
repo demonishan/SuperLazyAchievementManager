@@ -23,7 +23,6 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
-
 namespace SAM.API {
     public static class Steam {
         private struct Native {
@@ -34,20 +33,29 @@ namespace SAM.API {
             [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
             [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool SetDllDirectory(string path);
+            [DllImport("kernel32.dll", SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            internal static extern bool FreeLibrary(IntPtr module);
             internal const uint LoadWithAlteredSearchPath = 8;
         }
 
+        public static void Unload() {
+            if (_Handle != IntPtr.Zero) {
+                Native.FreeLibrary(_Handle);
+                _Handle = IntPtr.Zero;
+                _CallCreateInterface = null;
+                _CallSteamBGetCallback = null;
+                _CallSteamFreeLastCallback = null;
+            }
+        }
         private static Delegate GetExportDelegate<TDelegate>(IntPtr module, string name) {
             IntPtr address = Native.GetProcAddress(module, name);
             return address == IntPtr.Zero ? null : Marshal.GetDelegateForFunctionPointer(address, typeof(TDelegate));
         }
-
         private static TDelegate GetExportFunction<TDelegate>(IntPtr module, string name) where TDelegate : class {
             return (TDelegate)((object)GetExportDelegate<TDelegate>(module, name));
         }
-
         private static IntPtr _Handle = IntPtr.Zero;
-
         public static string GetInstallPath() {
             var path = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\Software\Valve\Steam", "InstallPath", null);
             if (path == null) {
@@ -55,11 +63,9 @@ namespace SAM.API {
             }
             return path;
         }
-
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private delegate IntPtr NativeCreateInterface(string version, IntPtr returnCode);
         private static NativeCreateInterface _CallCreateInterface;
-
         public static TClass CreateInterface<TClass>(string version) where TClass : INativeWrapper, new() {
             IntPtr address = _CallCreateInterface(version, IntPtr.Zero);
             if (address == IntPtr.Zero) {
@@ -69,25 +75,20 @@ namespace SAM.API {
             instance.SetupFunctions(address);
             return instance;
         }
-
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
         private delegate bool NativeSteamGetCallback(int pipe, out Types.CallbackMessage message, out int call);
         private static NativeSteamGetCallback _CallSteamBGetCallback;
-
         public static bool GetCallback(int pipe, out Types.CallbackMessage message, out int call) {
             return _CallSteamBGetCallback(pipe, out message, out call);
         }
-
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
         private delegate bool NativeSteamFreeLastCallback(int pipe);
         private static NativeSteamFreeLastCallback _CallSteamFreeLastCallback;
-
         public static bool FreeLastCallback(int pipe) {
             return _CallSteamFreeLastCallback(pipe);
         }
-
         public static bool Load() {
             if (_Handle != IntPtr.Zero) {
                 return true;

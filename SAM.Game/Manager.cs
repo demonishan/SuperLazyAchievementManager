@@ -623,7 +623,6 @@ namespace SAM.Game
         private void OnTimedUnlock(object sender, EventArgs e)
         {
             var achievements = new List<Stats.AchievementInfo>();
-           
             // If items are selected, use those. Otherwise, use all currently listed items that are locked.
             System.Collections.IEnumerable sourceItems;
             if (this._AchievementListView.SelectedItems.Count > 0)
@@ -650,7 +649,6 @@ namespace SAM.Game
             {
                 form.ShowDialog(this);
             }
-           
             // Refresh after done
             this.RefreshStats();
         }

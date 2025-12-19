@@ -31,6 +31,22 @@
                         </Trigger>
                     </Style.Triggers>
                 </Style>
+                <!-- Vector Icons (SVG-equivalent Paths) -->
+                <Geometry x:Key="Icon.Save">M17,3H5C3.89,3 3,3.9 3,5V19C3,20.1 3.89,21 5,21H19C20.1,21 21,20.1 21,19V7L17,3M12,19C10.34,19 9,17.66 9,16C9,14.34 10.34,13 12,13C13.66,13 15,14.34 15,16C15,17.66 13.66,19 12,19M15,9H5V5H15V9Z</Geometry>
+                <Geometry x:Key="Icon.Refresh">M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z</Geometry>
+                <Geometry x:Key="Icon.Back">M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z</Geometry>
+                <Geometry x:Key="Icon.SortAz">M19,17H22L18,21L14,17H17V3H19V17M11,3V5H3V3H11M9,7V9H3V7H9M7,11V13H3V11H7M5,15V17H3V15H5M3,19V21H3V19H3Z</Geometry>
+                <Geometry x:Key="Icon.SortZa">M19,7H22L18,3L14,7H17V21H19V7M11,3V5H3V3H11M9,7V9H3V7H9M7,11V13H3V11H7M5,15V17H3V15H5M3,19V21H3V19H3Z</Geometry>
+                <Geometry x:Key="Icon.More">M16,12A2,2 0 0,1 18,10A2,2 0 0,1 20,12A2,2 0 0,1 18,14A2,2 0 0,1 16,12M10,12A2,2 0 0,1 12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12M4,12A2,2 0 0,1 6,10A2,2 0 0,1 8,12A2,2 0 0,1 6,14A2,2 0 0,1 4,12Z</Geometry>
+                <Geometry x:Key="Icon.Filter">M10,18H14V16H10V18M3,6V8H21V6H3M6,13H18V11H6V13Z</Geometry>
+
+                <Style x:Key="PathIconStyle" TargetType="Path">
+                    <Setter Property="Width" Value="18"/>
+                    <Setter Property="Height" Value="18"/>
+                    <Setter Property="Stretch" Value="Uniform"/>
+                    <Setter Property="Fill" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
+                </Style>
+
                 <Style x:Key="ActionButtonStyle" TargetType="Button">
                     <Setter Property="Background" Value="#2D2D30"/>
                     <Setter Property="Foreground" Value="White"/>
@@ -54,6 +70,80 @@
                         </Setter.Value>
                     </Setter>
                 </Style>
+                <Style x:Key="PrimaryActionButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+                    <Setter Property="Background" Value="#007ACC"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#1C97EA"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+                <Style TargetType="ComboBox">
+                    <Setter Property="Background" Value="#2D2D30"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Padding" Value="10,0"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ComboBox">
+                                <Grid>
+                                    <ToggleButton x:Name="ToggleButton" Grid.Column="2" ClickMode="Press" Focusable="false" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" BorderThickness="0">
+                                        <ToggleButton.Template>
+                                            <ControlTemplate TargetType="ToggleButton">
+                                                <Border x:Name="Border" CornerRadius="8" Background="#2D2D30" BorderThickness="0">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="30"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <ContentPresenter Grid.Column="0" Margin="10,0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                                        <TextBlock Grid.Column="1" Text="&#xE70D;" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#888888"/>
+                                                    </Grid>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Border" Property="Background" Value="#3E3E42"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </ToggleButton.Template>
+                                    </ToggleButton>
+                                    <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" Margin="10,0,30,0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                    <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
+                                        <Grid x:Name="DropDown" SnapsToDevicePixels="True" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                            <Border x:Name="DropDownBorder" Background="#252526" BorderThickness="1" BorderBrush="#3E3E42" CornerRadius="0,0,8,8"/>
+                                            <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                                <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                            </ScrollViewer>
+                                        </Grid>
+                                    </Popup>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="Padding" Value="10,8"/>
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ComboBoxItem">
+                                <Border x:Name="Border" Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                                    <ContentPresenter/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#3E3E42"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#007ACC"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
             </Window.Resources>
             <Grid>
                 <Grid.RowDefinitions>
@@ -70,102 +160,249 @@
                     </StackPanel>
                 </Grid>
                 <!-- Main Content Area -->
-                <Grid Grid.Row="1" Margin="20">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <!-- Search Header -->
-                    <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                        <TextBlock Text="Select a Game" FontSize="32" FontWeight="Bold" Margin="0,0,0,10"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" CornerRadius="8" Background="#2D2D30" Height="40">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid Grid.Column="0">
-                                        <TextBlock x:Name="SearchPlaceholder" Text="Search games..." VerticalAlignment="Center" Margin="15,0,0,0" Foreground="#888888" IsHitTestVisible="False">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                <Grid
+                    Grid.Row="1">
+                    <!-- Home View (Game List) -->
+                    <Grid x:Name="HomeView" Margin="20" Visibility="Visible">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <!-- Search Header -->
+                        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock Text="Select a Game" FontSize="32" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" CornerRadius="8" Background="#2D2D30" Height="40">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid Grid.Column="0">
+                                            <TextBlock x:Name="SearchPlaceholder" Text="Search games..." VerticalAlignment="Center" Margin="15,0,0,0" Foreground="#888888" IsHitTestVisible="False">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <TextBox x:Name="SearchBox" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Foreground="White" Padding="15,0,5,0" FontSize="16" CaretBrush="White"/>
+                                        </Grid>
+                                        <Button x:Name="ClearSearchBtn" Grid.Column="1" Background="Transparent" BorderThickness="0" Width="30" Height="40" Click="ClearSearch_Click" Cursor="Hand" Margin="0,0,5,0">
+                                            <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Style="{StaticResource PathIconStyle}" Width="12" Height="12" Fill="#888888"/>
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Visibility" Value="Visible"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
-                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                        <TextBox x:Name="SearchBox" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Foreground="White" Padding="15,0,5,0" FontSize="16" CaretBrush="White"/>
-                                    </Grid>
-                                    <Button x:Name="ClearSearchBtn" Grid.Column="1" Content="&#xE711;" Background="Transparent" BorderThickness="0" Foreground="#888888" FontFamily="Segoe MDL2 Assets" FontSize="12" Width="30" Height="40" Click="ClearSearch_Click" Cursor="Hand" Margin="0,0,5,0">
-                                        <Button.Style>
-                                            <Style TargetType="Button">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                        <Button.Template>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}">
-                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Button.Template>
-                                    </Button>
-                                </Grid>
-                            </Border>
-                            <Button Grid.Column="2" Content="&#xE72C;" Width="40" Height="40" Click="Refresh_Click" Style="{StaticResource ActionButtonStyle}" FontFamily="Segoe MDL2 Assets" FontSize="16" ToolTip="Refresh Game List"/>
-                            <Button Grid.Column="4" Content="&#xE71C;" Width="40" Height="40" Click="Filter_Click" Style="{StaticResource ActionButtonStyle}" ContextMenuService.Placement="Bottom" FontFamily="Segoe MDL2 Assets" FontSize="16" ToolTip="Filter Games">
-                                <Button.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem x:Name="FilterGames" Header="Show Games" IsCheckable="True" IsChecked="True" Click="FilterOption_Click"/>
-                                        <MenuItem x:Name="FilterMods" Header="Show Mods" IsCheckable="True" IsChecked="False" Click="FilterOption_Click"/>
-                                        <MenuItem x:Name="FilterDemos" Header="Show Demos" IsCheckable="True" IsChecked="False" Click="FilterOption_Click"/>
-                                        <MenuItem x:Name="FilterJunk" Header="Show Junk" IsCheckable="True" IsChecked="False" Click="FilterOption_Click"/>
-                                    </ContextMenu>
-                                </Button.ContextMenu>
-                            </Button>
-                        </Grid>
-                    </StackPanel>
-                    <!-- Game Grid -->
-                    <ListView x:Name="GameList" Grid.Row="1" Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                        <ListView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel ItemWidth="220" ItemHeight="150"/>
-                            </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Border Width="200" Height="130" Margin="10" Background="#252526" CornerRadius="12" Padding="0" ClipToBounds="True" MouseLeftButtonUp="Game_Click" Cursor="Hand">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
-                                        <!-- Game Image -->
-                                        <Border Grid.Row="0" Height="70" Background="#333333">
-                                            <Image Source="{Binding Image}" Stretch="UniformToFill"/>
-                                        </Border>
-                                        <TextBlock Grid.Row="1" Text="{Binding Name}" Foreground="White" Margin="10" TextWrapping="Wrap" FontWeight="SemiBold" FontSize="13"/>
+                                            </Button.Style>
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
                                     </Grid>
                                 </Border>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                                <Button Grid.Column="2" Width="40" Height="40" Click="Refresh_Click" Style="{StaticResource ActionButtonStyle}" ToolTip="Refresh Game List">
+                                    <Path Data="{StaticResource Icon.Refresh}" Style="{StaticResource PathIconStyle}"/>
+                                </Button>
+                                <Button Grid.Column="4" Width="40" Height="40" Click="Filter_Click" Style="{StaticResource ActionButtonStyle}" ContextMenuService.Placement="Bottom" ToolTip="Filter Games">
+                                    <Path Data="{StaticResource Icon.Filter}" Style="{StaticResource PathIconStyle}"/>
+                                    <Button.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem x:Name="FilterGames" Header="Show Games" IsCheckable="True" IsChecked="True" Click="FilterOption_Click"/>
+                                            <MenuItem x:Name="FilterMods" Header="Show Mods" IsCheckable="True" IsChecked="False" Click="FilterOption_Click"/>
+                                            <MenuItem x:Name="FilterDemos" Header="Show Demos" IsCheckable="True" IsChecked="False" Click="FilterOption_Click"/>
+                                            <MenuItem x:Name="FilterJunk" Header="Show Junk" IsCheckable="True" IsChecked="False" Click="FilterOption_Click"/>
+                                        </ContextMenu>
+                                    </Button.ContextMenu>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                        <!-- Game Grid Container -->
+                        <Grid Grid.Row="1">
+                            <ListView x:Name="GameList" Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel ItemWidth="220" ItemHeight="150"/>
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Width="200" Height="130" Margin="10" Background="#252526" CornerRadius="12" Padding="0" ClipToBounds="True" MouseLeftButtonUp="Game_Click" Cursor="Hand">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <!-- Game Image -->
+                                                <Border Grid.Row="0" Height="70" Background="#333333">
+                                                    <Image Source="{Binding Image}" Stretch="UniformToFill"/>
+                                                </Border>
+                                                <TextBlock Grid.Row="1" Text="{Binding Name}" Foreground="White" Margin="10" TextWrapping="Wrap" FontWeight="SemiBold" FontSize="13"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+
+                            <!-- Home Loading Overlay -->
+                            <Grid x:Name="HomeLoadingOverlay" Background="#1E1E1E" Visibility="Visible">
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <Path Data="{StaticResource Icon.Refresh}" Width="48" Height="48" Fill="#007ACC" RenderTransformOrigin="0.5,0.5">
+                                        <Path.RenderTransform>
+                                            <RotateTransform x:Name="HomeRotate" Angle="0"/>
+                                        </Path.RenderTransform>
+                                        <Path.Triggers>
+                                            <EventTrigger RoutedEvent="Loaded">
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetName="HomeRotate" Storyboard.TargetProperty="Angle" From="0" To="360" Duration="0:0:1" RepeatBehavior="Forever"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </EventTrigger>
+                                        </Path.Triggers>
+                                    </Path>
+                                    <TextBlock Text="Loading Games..." Margin="0,20,0,0" FontSize="18" Foreground="#888888" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <!-- Game Details View -->
+                    <Grid x:Name="GameDetailsView" Margin="20" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!-- Details Header -->
+                        <Grid Grid.Row="0" Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Width="40" Height="40" Click="Back_Click" Style="{StaticResource ActionButtonStyle}" Margin="0,0,20,0" VerticalAlignment="Top">
+                                <Path Data="{StaticResource Icon.Back}" Style="{StaticResource PathIconStyle}"/>
+                            </Button>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock x:Name="SelectedGameName" Text="Game Name" FontSize="28" FontWeight="Bold"/>
+                                <TextBlock x:Name="SelectedGameInfo" Text="Achievements &amp; Statistics" FontSize="14" Foreground="#888888"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
+                                <ComboBox x:Name="BulkActions" Width="120" Height="40" Margin="5,0" VerticalContentAlignment="Center" SelectionChanged="BulkActions_SelectionChanged" SelectedIndex="0">
+                                    <ComboBoxItem Content="Bulk Actions" IsHitTestVisible="False"/>
+                                    <ComboBoxItem Content="Unlock All" Tag="unlock_all"/>
+                                    <ComboBoxItem Content="Lock All" Tag="lock_all"/>
+                                </ComboBox>
+                                <ComboBox x:Name="AchievementFilter" Width="120" Height="40" Margin="5,0" VerticalContentAlignment="Center" SelectionChanged="AchievementFilter_SelectionChanged" SelectedIndex="0">
+                                    <ComboBoxItem Content="All Achievements" Tag="all"/>
+                                    <ComboBoxItem Content="Locked" Tag="locked"/>
+                                    <ComboBoxItem Content="Unlocked" Tag="unlocked"/>
+                                </ComboBox>
+                                <Button x:Name="SortButton" Width="40" Height="40" Margin="5,0" Click="Sort_Click" Style="{StaticResource ActionButtonStyle}" ToolTip="Sort Alphabetically">
+                                    <Path x:Name="SortIcon" Data="{StaticResource Icon.SortAz}" Style="{StaticResource PathIconStyle}"/>
+                                </Button>
+                                <Button Width="40" Height="40" Margin="5,0" Click="RefreshGame_Click" Style="{StaticResource ActionButtonStyle}" ToolTip="Reload">
+                                    <Path Data="{StaticResource Icon.Refresh}" Style="{StaticResource PathIconStyle}"/>
+                                </Button>
+                                <Button x:Name="StoreButton" Margin="5,0,0,0" Style="{StaticResource PrimaryActionButtonStyle}" Height="40" Click="Store_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="{StaticResource Icon.Save}" Style="{StaticResource PathIconStyle}" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Save" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                        <!-- Achievement List -->
+                        <Grid Grid.Row="1">
+                            <ListView x:Name="AchievementList" Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Width="350" Background="#252526" CornerRadius="8" Margin="0,0,10,10" Padding="10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="64"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Image Grid.Column="0" Source="{Binding Icon}" Width="64" Height="64" Stretch="UniformToFill"/>
+                                                <StackPanel Grid.Column="1" Margin="15,0">
+                                                    <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" Foreground="White"/>
+                                                    <TextBlock Text="{Binding Description}" FontSize="13" Foreground="#888888" TextWrapping="Wrap"/>
+                                                    <TextBlock Text="{Binding UnlockTime, StringFormat='Unlocked: {0}'}" FontSize="12" Foreground="#666666" Margin="0,5,0,0">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding UnlockTime}" Value="{x:Null}">
+                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <CheckBox Grid.Column="2" IsChecked="{Binding IsAchieved, Mode=TwoWay}" VerticalAlignment="Center" Style="{StaticResource {x:Type CheckBox}}">
+                                                    <CheckBox.LayoutTransform>
+                                                        <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                                                    </CheckBox.LayoutTransform>
+                                                </CheckBox>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                            <!-- Loading Overlay -->
+                            <Grid x:Name="LoadingOverlay" Background="#1E1E1E" Visibility="Collapsed">
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <Path Data="{StaticResource Icon.Refresh}" Width="48" Height="48" Fill="#007ACC" RenderTransformOrigin="0.5,0.5">
+                                        <Path.RenderTransform>
+                                            <RotateTransform x:Name="Rotate" Angle="0"/>
+                                        </Path.RenderTransform>
+                                        <Path.Triggers>
+                                            <EventTrigger RoutedEvent="Loaded">
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetName="Rotate" Storyboard.TargetProperty="Angle" From="0" To="360" Duration="0:0:1" RepeatBehavior="Forever"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </EventTrigger>
+                                        </Path.Triggers>
+                                    </Path>
+                                    <TextBlock Text="Fetching Data..." Margin="0,20,0,0" FontSize="18" Foreground="#888888" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                        <!-- Status Bar -->
+                        <Border Grid.Row="2" Background="#252526" Height="30" Margin="-20,20,-20,-20" Padding="15,0">
+                            <TextBlock x:Name="DetailsStatus" Text="Ready" VerticalAlignment="Center" FontSize="12" Foreground="#888888"/>
+                        </Border>
+                    </Grid>
                 </Grid>
             </Grid>
         </Window>

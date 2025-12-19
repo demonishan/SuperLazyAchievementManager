@@ -20,7 +20,6 @@
  *    distribution.
  */
 using System;
-
 namespace SAM.API
 {
     public interface INativeWrapper

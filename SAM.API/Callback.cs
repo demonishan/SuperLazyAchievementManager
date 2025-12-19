@@ -21,7 +21,6 @@
  */
 using System;
 using System.Runtime.InteropServices;
-
 namespace SAM.API
 {
     public abstract class Callback : ICallback
@@ -30,13 +29,11 @@ namespace SAM.API
         public event CallbackFunction OnRun;
         public abstract int Id { get; }
         public abstract bool IsServer { get; }
-
         public void Run(IntPtr param)
         {
             this.OnRun(param);
         }
     }
-
     public abstract class Callback<TParameter> : ICallback
         where TParameter : struct
     {
@@ -44,7 +41,6 @@ namespace SAM.API
         public event CallbackFunction OnRun;
         public abstract int Id { get; }
         public abstract bool IsServer { get; }
-
         public void Run(IntPtr pvParam)
         {
             var data = (TParameter)Marshal.PtrToStructure(pvParam, typeof(TParameter));

@@ -19,7 +19,6 @@ namespace SAM.Game
             InitializeComponent();
             _SteamClient = client;
             _Achievements = achievements;
-           
             InitializeGrid();
         }
         private void InitializeGrid()
@@ -51,7 +50,6 @@ namespace SAM.Game
             }
             _StartButton.Text = "Pause";
             _StatusLabel.Text = "Running...";
-           
              // Start or Resume
             if (_RemainingSeconds > 0)
             {
@@ -83,7 +81,6 @@ namespace SAM.Game
                 delayMinutes = parsedDelay;
             }
             _RemainingSeconds = delayMinutes * 60;
-           
             // If user enters 0 or less, unlock immediately? Let's treat 0 as immediate.
             if (_RemainingSeconds <= 0)
             {
@@ -94,7 +91,6 @@ namespace SAM.Game
             _UnlockTimer.Interval = 1000; // 1 second
             _UnlockTimer.Tick += OnTimerTick;
             _UnlockTimer.Start();
-           
             UpdateStatusLabel();
         }
         private void UpdateStatusLabel()
@@ -106,7 +102,6 @@ namespace SAM.Game
         private void OnTimerTick(object sender, EventArgs e)
         {
             _RemainingSeconds--;
-           
             if (_RemainingSeconds <= 0)
             {
                 _UnlockTimer.Stop();
