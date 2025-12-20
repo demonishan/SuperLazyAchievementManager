@@ -261,7 +261,7 @@ namespace SAM.Picker.Modern {
       else SharedStatusText.Text = $"{unlocked} out of {total} down, {locked} to go. Back to the grind.";
       LoadingOverlay.Visibility = Visibility.Collapsed;
     }
-    private void AchievementFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) { RefreshAchievementFilter(); UpdateIndices(); }
+    private void AchievementFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) { RefreshAchievementFilter(); UpdateTimerMetadata(); }
     private void SortFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) {
       if (_AchievementView == null) return;
       if (SortFilter.SelectedItem is ComboBoxItem item) {
@@ -272,7 +272,7 @@ namespace SAM.Picker.Modern {
         else if (tag == "Rarity_Asc") _AchievementView.SortDescriptions.Add(new SortDescription("GlobalPercent", ListSortDirection.Ascending));
         else if (tag == "Rarity_Desc") _AchievementView.SortDescriptions.Add(new SortDescription("GlobalPercent", ListSortDirection.Descending));
         _AchievementView.Refresh();
-        UpdateIndices();
+        UpdateTimerMetadata();
       }
     }
     private void BulkAction_Click(object sender, RoutedEventArgs e) {
@@ -455,7 +455,7 @@ namespace SAM.Picker.Modern {
         foreach (ComboBoxItem item in AchievementFilter.Items) {
           if (item.Tag?.ToString() == "locked") { AchievementFilter.SelectedItem = item; break; }
         }
-        UpdateIndices();
+        UpdateTimerMetadata();
         RefreshFilter();
         if (SharedStatusText != null) SharedStatusText.Text = "Drag and drop the achievements, set the delay in minutes, and 'Start Timer'.";
       } else {
@@ -592,15 +592,26 @@ namespace SAM.Picker.Modern {
           int newIndex = _Achievements.IndexOf(target);
           if (oldIndex != -1 && newIndex != -1) {
             _Achievements.Move(oldIndex, newIndex);
-            UpdateIndices();
+            UpdateTimerMetadata();
           }
         }
       }
     }
-    private void UpdateIndices() {
+    private void TimerDelay_TextChanged(object sender, TextChangedEventArgs e) => UpdateTimerMetadata();
+    private void UpdateTimerMetadata() {
       if (_AchievementView == null) return;
       int i = 1;
-      foreach (AchievementViewModel ach in _AchievementView) ach.Index = i++;
+      DateTime projection = DateTime.Now;
+      foreach (AchievementViewModel ach in _AchievementView) {
+        ach.Index = i++;
+        if (!ach.IsAchieved && double.TryParse(ach.TimerMinutes, out double minutes) && minutes > 0) {
+          projection = projection.AddMinutes(minutes);
+          ach.ETA = $"{projection:t}";
+          projection = projection.AddSeconds(1);
+        } else {
+          ach.ETA = "";
+        }
+      }
     }
     private static T FindAncestor<T>(DependencyObject current) where T : DependencyObject {
       do {
@@ -668,6 +679,16 @@ namespace SAM.Picker.Modern {
         if (_Index != value) {
           _Index = value;
           OnPropertyChanged(nameof(Index));
+        }
+      }
+    }
+    private string _ETA;
+    public string ETA {
+      get => _ETA;
+      set {
+        if (_ETA != value) {
+          _ETA = value;
+          OnPropertyChanged(nameof(ETA));
         }
       }
     }

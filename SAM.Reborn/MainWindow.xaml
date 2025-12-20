@@ -404,10 +404,26 @@
                       <ColumnDefinition Width="64"/>
                       <ColumnDefinition Width="*"/>
                       <ColumnDefinition Width="150"/>
+                      <ColumnDefinition Width="80"/>
                       <ColumnDefinition Width="120"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,15,0" VerticalAlignment="Center">
-                      <TextBlock Text="{Binding Index, StringFormat='#{0}'}" FontSize="14" FontWeight="Bold" Foreground="#888888" Margin="0,0,10,0" VerticalAlignment="Center">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,5,0" VerticalAlignment="Center">
+                      <Path Data="{StaticResource Icon.DragHandle}" Fill="#666666" Width="16" Height="16" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <Path.Style>
+                          <Style TargetType="Path">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                              </DataTrigger>
+                              <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerRunning}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                              </DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </Path.Style>
+                      </Path>
+                      <TextBlock Text="{Binding Index, StringFormat='#{0}'}" FontSize="14" FontWeight="Bold" Foreground="#888888" VerticalAlignment="Center">
                         <TextBlock.Style>
                           <Style TargetType="TextBlock">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -419,24 +435,9 @@
                           </Style>
                         </TextBlock.Style>
                       </TextBlock>
-                      <Path Data="{StaticResource Icon.DragHandle}" Fill="#666666" Width="16" Height="16" Stretch="Uniform" VerticalAlignment="Center">
-                        <Path.Style>
-                        <Style TargetType="Path">
-                          <Setter Property="Visibility" Value="Collapsed"/>
-                          <Style.Triggers>
-                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
-                              <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerRunning}" Value="True">
-                              <Setter Property="Visibility" Value="Collapsed"/>
-                            </DataTrigger>
-                          </Style.Triggers>
-                        </Style>
-                      </Path.Style>
-                    </Path>
                     </StackPanel>
-                    <Image Grid.Column="1" Source="{Binding Icon}" Width="64" Height="64" VerticalAlignment="Center"/>
-                    <StackPanel Grid.Column="2" Margin="20,0,10,0" VerticalAlignment="Center">
+                    <Image Grid.Column="1" Source="{Binding Icon}" Width="64" Height="64" Margin="5,0" VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="2" Margin="5,0" VerticalAlignment="Center">
                       <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,2"/>
                       <TextBlock Text="{Binding Description}" FontSize="13" Foreground="#BBBBBB" TextWrapping="Wrap" Margin="0,0,10,4"/>
                       <TextBlock Text="{Binding UnlockTime, StringFormat='Unlocked: {0}'}" FontSize="11" Foreground="#888888">
@@ -451,11 +452,25 @@
                         </TextBlock.Style>
                       </TextBlock>
                     </StackPanel>
-                    <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="5,0">
                       <TextBlock Text="{Binding GlobalPercent, StringFormat='{}{0:N1}%'}" FontSize="18" Foreground="#1A9fff" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                      <TextBlock Text="global rarity" FontSize="11" Foreground="#666666" HorizontalAlignment="Center"/>
+                      <TextBlock Text="Global Rarity" FontSize="11" Foreground="#666666" HorizontalAlignment="Center"/>
                     </StackPanel>
-                    <Grid Grid.Column="4">
+                    <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="5,0">
+                      <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                          <Setter Property="Visibility" Value="Collapsed"/>
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
+                              <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </StackPanel.Style>
+                      <TextBlock Text="ETA" FontSize="11" Foreground="#666666" HorizontalAlignment="Right"/>
+                      <TextBlock Text="{Binding ETA}" FontSize="13" FontWeight="SemiBold" Foreground="#1A9fff" HorizontalAlignment="Right"/>
+                    </StackPanel>
+                    <Grid Grid.Column="5" Margin="5,0,0,0">
                       <CheckBox IsChecked="{Binding IsAchieved, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#DDDDDD">
                         <CheckBox.LayoutTransform>
                           <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
@@ -470,7 +485,7 @@
                           </Style>
                         </CheckBox.Style>
                       </CheckBox>
-                      <TextBox Text="{Binding TimerMinutes, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" HorizontalContentAlignment="Center" Background="#333337" Foreground="White" BorderThickness="0" Padding="5">
+                      <TextBox Text="{Binding TimerMinutes, UpdateSourceTrigger=PropertyChanged}" Width="100" VerticalAlignment="Center" HorizontalContentAlignment="Center" Background="#333337" Foreground="White" BorderThickness="0" Padding="5" TextChanged="TimerDelay_TextChanged">
                         <TextBox.Style>
                           <Style TargetType="TextBox">
                             <Setter Property="Visibility" Value="Collapsed"/>

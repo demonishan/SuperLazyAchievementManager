@@ -1,5 +1,9 @@
 ## Version History
 
+### 8.3.3 (2026-12-21)
+- Polished Timer Mode UI: index of the achievement queue, ETA display based on current time, drag handle position, responsiveness.
+- Added comprehensive external links support (Steam Store, Guides, Stats, SteamDB, Completionist.me).
+
 ### 8.2.3 (2026-12-21)
 - Added "Details" button with external links support (Completionist.me).
 - UI polish and layout adjustments.
