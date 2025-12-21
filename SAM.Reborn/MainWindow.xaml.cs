@@ -175,7 +175,8 @@ namespace SAM.Picker.Modern {
         HomeView.Visibility = Visibility.Collapsed;
         GameDetailsView.Visibility = Visibility.Visible;
         SharedStatusText.Text = $"Checking if you actually beat {game.Name}";
-        LoadGameData();
+        SharedStatusText.Text = $"Checking if you actually beat {game.Name}";
+        LoadGameData(true);
       }
     }
     private void ClearAchievementSearch_Click(object sender, RoutedEventArgs e) => AchievementSearchBox.Text = string.Empty;
@@ -197,12 +198,17 @@ namespace SAM.Picker.Modern {
       };
       _AchievementView.Refresh();
     }
-    private void LoadGameData() {
+    private void LoadGameData(bool resetFilters = true) {
       _AchievementView = CollectionViewSource.GetDefaultView(_Achievements);
       AchievementList.ItemsSource = _AchievementView;
-      AchievementFilter.SelectedIndex = 0;
-      if (SortFilter != null) SortFilter.SelectedIndex = 0;
-      if (AchievementSearchBox != null) AchievementSearchBox.Text = string.Empty;
+      if (resetFilters) {
+        AchievementFilter.SelectedIndex = 0;
+        if (SortFilter != null) SortFilter.SelectedIndex = 0;
+        if (AchievementSearchBox != null) AchievementSearchBox.Text = string.Empty;
+      } else {
+        RefreshAchievementFilter();
+        ApplySort();
+      }
       _Achievements.Clear();
       _Achievements.Clear();
       LoadingOverlay.Visibility = Visibility.Visible;
@@ -261,7 +267,7 @@ namespace SAM.Picker.Modern {
       int locked = total - unlocked;
       if (anyProtected) {
         AreModificationsAllowed = false;
-        SharedStatusText.Text = "These achievements are protected. You can't modify them through SAM Reborn.";
+        SharedStatusText.Text = "These achievements are protected. Can't modify them through SAM Reborn.";
         DisplayAlert(SharedStatusText.Text, true);
         UpdateProtectionState();
       }
@@ -275,7 +281,8 @@ namespace SAM.Picker.Modern {
       LoadingOverlay.Visibility = Visibility.Collapsed;
     }
     private void AchievementFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) { RefreshAchievementFilter(); UpdateTimerMetadata(); }
-    private void SortFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+    private void SortFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) => ApplySort();
+    private void ApplySort() {
       if (_AchievementView == null) return;
       if (SortFilter.SelectedItem is ComboBoxItem item) {
         _AchievementView.SortDescriptions.Clear();
@@ -401,8 +408,9 @@ namespace SAM.Picker.Modern {
       _SteamClient = new Client();
       _SteamClient.Initialize(0);
       _CallbackTimer.Start();
+      LoadData(); // Retain filters on Save/Refresh
     }
-    private void RefreshGame_Click(object sender, RoutedEventArgs e) => LoadGameData();
+    private void RefreshGame_Click(object sender, RoutedEventArgs e) => LoadGameData(false);
     private void Store_Click(object sender, RoutedEventArgs e) {
       bool success = true;
       foreach (var ach in _Achievements) {
@@ -410,7 +418,7 @@ namespace SAM.Picker.Modern {
       }
       if (success && _SteamClient.SteamUserStats.StoreStats()) {
         DisplayAlert("Changes stored successfully!", false); 
-        LoadGameData(); 
+        LoadGameData(false); 
       }
       else DisplayAlert("Failed to store changes.", true);
     }
