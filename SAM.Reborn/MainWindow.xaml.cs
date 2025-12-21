@@ -742,4 +742,26 @@ namespace SAM.Picker.Modern {
     public event PropertyChangedEventHandler PropertyChanged;
     protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
   }
+  public class RarityColorConverter : IValueConverter {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+      if (value is float percent) {
+        string mode = parameter as string;
+        if (mode == "Blur") return (percent < 1) ? 25.0 : 8.0;
+        
+        string hex = "#FF8000";
+        if (percent >= 40) hex = "#CCCCCC";
+        else if (percent >= 20) hex = "#1EFF00";
+        else if (percent >= 5) hex = "#0070DD";
+        else if (percent >= 1) hex = "#A335EE";
+        
+        Color color = (Color)ColorConverter.ConvertFromString(hex);
+        if (mode == "Color") return color;
+        return new SolidColorBrush(color);
+      }
+      if (parameter as string == "Blur") return 0.0;
+      if (parameter as string == "Color") return Colors.Transparent;
+      return new SolidColorBrush(Colors.Transparent);
+    }
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+  }
 }

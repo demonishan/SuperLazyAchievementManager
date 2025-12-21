@@ -3,6 +3,7 @@
     <WindowChrome CaptionHeight="40" GlassFrameThickness="0" CornerRadius="10"/>
   </WindowChrome.WindowChrome>
   <Window.Resources>
+    <local:RarityColorConverter x:Key="RarityColorConverter"/>
     <Style x:Key="TitleBarButtonStyle" TargetType="Button">
       <Setter Property="Background" Value="Transparent"/>
       <Setter Property="Foreground" Value="#DDDDDD"/>
@@ -388,21 +389,31 @@
             <ComboBoxItem Content="Unlocked" Tag="unlocked"/>
           </ComboBox>
           <ComboBox x:Name="SortFilter" Grid.Column="2" Height="40" MinWidth="150" Margin="5,0" SelectionChanged="SortFilter_SelectionChanged" SelectedIndex="0" VerticalContentAlignment="Center">
+            <ComboBoxItem Content="Rarity (Common first)" Tag="Rarity_Desc"/>
+            <ComboBoxItem Content="Rarity (Rarest first)" Tag="Rarity_Asc"/>
             <ComboBoxItem Content="Name (A-Z)" Tag="Name_Asc"/>
             <ComboBoxItem Content="Name (Z-A)" Tag="Name_Desc"/>
-            <ComboBoxItem Content="Rarity (Rarest first)" Tag="Rarity_Asc"/>
-            <ComboBoxItem Content="Rarity (Common first)" Tag="Rarity_Desc"/>
           </ComboBox>
         </Grid>
         <Grid Grid.Row="2">
-          <ListView x:Name="AchievementList" Background="Transparent" BorderThickness="0" Margin="20,10,20,20" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" AllowDrop="True" PreviewMouseLeftButtonDown="AchievementList_PreviewMouseLeftButtonDown" PreviewMouseMove="AchievementList_PreviewMouseMove" Drop="AchievementList_Drop">
+          <ListView x:Name="AchievementList" Background="Transparent" BorderThickness="0" Margin="10,5,10,10" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" AllowDrop="True" PreviewMouseLeftButtonDown="AchievementList_PreviewMouseLeftButtonDown" PreviewMouseMove="AchievementList_PreviewMouseMove" Drop="AchievementList_Drop">
             <ListView.ItemTemplate>
               <DataTemplate>
-                <Border Background="#252526" CornerRadius="8" Margin="2,5,2,5" Padding="12">
+                <Border CornerRadius="8" Margin="2,2,2,2" Padding="12">
+                  <Border.Style>
+                    <Style TargetType="Border">
+                      <Setter Property="Background" Value="#292e3b"/>
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsAchieved}" Value="True">
+                          <Setter Property="Background" Value="#20232a"/>
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </Border.Style>
                   <Grid>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto"/>
-                      <ColumnDefinition Width="64"/>
+                      <ColumnDefinition Width="80"/>
                       <ColumnDefinition Width="*"/>
                       <ColumnDefinition Width="150"/>
                       <ColumnDefinition Width="80"/>
@@ -437,7 +448,15 @@
                         </TextBlock.Style>
                       </TextBlock>
                     </StackPanel>
-                    <Image Grid.Column="1" Source="{Binding Icon}" Width="64" Height="64" Margin="5,0" VerticalAlignment="Center"/>
+                    <Border Grid.Column="1" Width="64" Height="64" Margin="5,0" VerticalAlignment="Center" BorderThickness="2" CornerRadius="0">
+                      <Border.Effect>
+                        <DropShadowEffect Color="{Binding GlobalPercent, Converter={StaticResource RarityColorConverter}, ConverterParameter=Color}" BlurRadius="{Binding GlobalPercent, Converter={StaticResource RarityColorConverter}, ConverterParameter=Blur}" ShadowDepth="0" Opacity="0.9"/>
+                      </Border.Effect>
+                      <Border.BorderBrush>
+                        <Binding Path="GlobalPercent" Converter="{StaticResource RarityColorConverter}"/>
+                      </Border.BorderBrush>
+                      <Image Source="{Binding Icon}" Stretch="Uniform"/>
+                    </Border>
                     <StackPanel Grid.Column="2" Margin="5,0" VerticalAlignment="Center">
                       <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,5,2"/>
