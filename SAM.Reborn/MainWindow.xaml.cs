@@ -473,6 +473,8 @@ namespace SAM.Picker.Modern {
       IsTimerMode = !IsTimerMode;
       var visibility = IsTimerMode ? Visibility.Collapsed : Visibility.Visible;
       if (BulkActionsButton != null) BulkActionsButton.Visibility = visibility;
+      if (ToggleSearchButton != null) ToggleSearchButton.Visibility = visibility;
+      if (AchievementSearchRow != null && IsTimerMode) AchievementSearchRow.Visibility = Visibility.Collapsed;
       if (RefreshButton != null) RefreshButton.Visibility = visibility;
       if (SaveButton != null) SaveButton.Visibility = visibility;
       if (AchievementFilter != null) AchievementFilter.Visibility = visibility;
@@ -590,6 +592,8 @@ namespace SAM.Picker.Modern {
         ach.IsAchieved = true; count++;
         SharedStatusText.Text = $"Unlocked '{ach.Name}'!";
         if (_SteamClient.SteamUserStats.SetAchievement(ach.Id, true)) _SteamClient.SteamUserStats.StoreStats();
+        _AchievementView.Refresh();
+        UpdateTimerMetadata();
         await Task.Delay(1000);
       }
       SharedStatusText.Text = originalStatus;
