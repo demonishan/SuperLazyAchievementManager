@@ -1,5 +1,9 @@
 ## Version History
 
+### 8.3.5 (2026-12-21)
+- Implemented local caching for achievement images.
+- Organized cache directory structure (separate folders for games and achievements).
+
 ### 8.3.4 (2026-12-21)
 - Added support for Protected Achievements:
   - Shield icon indicator for protected achievements.

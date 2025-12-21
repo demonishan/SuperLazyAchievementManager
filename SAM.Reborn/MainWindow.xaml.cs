@@ -121,7 +121,7 @@ namespace SAM.Picker.Modern {
       var games = _AllGames.ToList();
       Task.Run(async () => {
         try {
-          var cacheDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cache");
+          var cacheDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cache", "games");
           if (!Directory.Exists(cacheDir)) Directory.CreateDirectory(cacheDir);
           using (var client = new WebClient()) {
             foreach (var game in games) {
@@ -257,7 +257,6 @@ namespace SAM.Picker.Modern {
             IconUrl = $"https://cdn.steamstatic.com/steamcommunity/public/images/apps/{_SelectedGameId}/{(isAchieved ? def.IconNormal : def.IconLocked)}",
             Permission = anyProtected ? 3 : def.Permission
           };
-          LoadIcon(avm);
           _Achievements.Add(avm);
         }
       }
@@ -278,6 +277,7 @@ namespace SAM.Picker.Modern {
         else if (unlocked == 0 && total > 0) SharedStatusText.Text = $"0 down, {total} to go. Do you even play this game?";
         else SharedStatusText.Text = $"{unlocked} out of {total} down, {locked} to go. Back to the grind.";
       }
+      StartAchievementImageCaching(_Achievements.ToList());
       LoadingOverlay.Visibility = Visibility.Collapsed;
     }
     private void AchievementFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) { RefreshAchievementFilter(); UpdateTimerMetadata(); }
@@ -332,15 +332,40 @@ namespace SAM.Picker.Modern {
     private void LockAll_Click(object sender, RoutedEventArgs e) {
       foreach (var ach in _Achievements) ach.IsAchieved = false;
     }
-    private async void LoadIcon(AchievementViewModel vm) {
-      try {
-        var bitmap = new BitmapImage();
-        bitmap.BeginInit();
-        bitmap.UriSource = new Uri(vm.IconUrl);
-        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-        bitmap.EndInit();
-        vm.Icon = bitmap;
-      } catch { }
+    private void StartAchievementImageCaching(List<AchievementViewModel> achievements) {
+      Task.Run(async () => {
+        try {
+          var cacheDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cache", "achievements");
+          if (!Directory.Exists(cacheDir)) Directory.CreateDirectory(cacheDir);
+          using (var client = new WebClient()) {
+            foreach (var ach in achievements) {
+              if (ach.Icon != null) continue;
+              var filename = System.IO.Path.GetFileName(new Uri(ach.IconUrl).LocalPath);
+              var path = Path.Combine(cacheDir, filename);
+              bool needsDownload = !File.Exists(path) || new FileInfo(path).Length == 0;
+              if (needsDownload) {
+                try {
+                  var data = await client.DownloadDataTaskAsync(new Uri(ach.IconUrl));
+                  if (data.Length > 0) File.WriteAllBytes(path, data);
+                } catch { }
+                await Task.Delay(20);
+              }
+              if (File.Exists(path) && new FileInfo(path).Length > 0) {
+                await Dispatcher.InvokeAsync(() => {
+                  try {
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(path, UriKind.Absolute);
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.EndInit();
+                    ach.Icon = bitmap;
+                  } catch { }
+                }, DispatcherPriority.Background);
+              }
+            }
+          }
+        } catch { }
+      });
     }
     private bool LoadUserGameStatsSchema(List<AchievementDefinition> definitions) {
       try {
@@ -695,7 +720,16 @@ namespace SAM.Picker.Modern {
     public string Description { get; set; }
     public float GlobalPercent { get; set; }
     public string IconUrl { get; set; }
-    public System.Windows.Media.ImageSource Icon { get; set; }
+    private System.Windows.Media.ImageSource _Icon;
+    public System.Windows.Media.ImageSource Icon {
+      get => _Icon;
+      set {
+        if (_Icon != value) {
+          _Icon = value;
+          OnPropertyChanged(nameof(Icon));
+        }
+      }
+    }
     private bool _IsAchieved;
     public bool IsAchieved {
       get => _IsAchieved;

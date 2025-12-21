@@ -9,19 +9,19 @@
   </ItemGroup>
   <PropertyGroup>
     <ApplicationIcon>..\Resources\icon.ico</ApplicationIcon>
-    <AssemblyName>SAM.Reborn.2026-8.3.4</AssemblyName>
-    <AssemblyVersion>8.3.4.0</AssemblyVersion>
-    <Authors>Ishan Samanta (666de666)</Authors>
+    <AssemblyName>SAM.Reborn.2026-8.3.5</AssemblyName>
+    <AssemblyVersion>8.3.5.0</AssemblyVersion>
+    <Authors>Ishan Samanta [666de666.com]</Authors>
     <Company>DEMONiZER Corp.</Company>
-    <Copyright>Copyright © Ishan Samanta (666de666) 2025</Copyright>
+    <Copyright>Copyright © 2025 Ishan Samanta</Copyright>
     <Description></Description>
-    <FileVersion>8.3.4.0</FileVersion>
+    <FileVersion>8.3.5.0</FileVersion>
     <LangVersion>10.0</LangVersion>
     <OutputType>WinExe</OutputType>
     <Platforms>x86</Platforms>
     <PlatformTarget>x86</PlatformTarget>
     <TargetFramework>net48</TargetFramework>
     <UseWPF>true</UseWPF>
-    <Version>8.3.4</Version>
+    <Version>8.3.5</Version>
   </PropertyGroup>
 </Project>
