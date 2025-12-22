@@ -84,15 +84,21 @@ namespace SAM.Picker.Modern {
           catch { bytes = System.Text.Encoding.UTF8.GetBytes("<games><game type=\"normal\">480</game></games>"); }
         }
         List<KeyValuePair<uint, string>> pairs = new List<KeyValuePair<uint, string>>();
-        using (MemoryStream stream = new MemoryStream(bytes, false)) {
-          XPathDocument document = new XPathDocument(stream);
-          var navigator = document.CreateNavigator();
-          var nodes = navigator.Select("/games/game");
-          while (nodes.MoveNext()) {
-            string type = nodes.Current.GetAttribute("type", "");
-            if (string.IsNullOrEmpty(type)) type = "normal";
-            pairs.Add(new KeyValuePair<uint, string>((uint)nodes.Current.ValueAsLong, type));
+        try {
+          using (MemoryStream stream = new MemoryStream(bytes, false)) {
+            XPathDocument document = new XPathDocument(stream);
+            var navigator = document.CreateNavigator();
+            var nodes = navigator.Select("/games/game");
+            while (nodes.MoveNext()) {
+              string type = nodes.Current.GetAttribute("type", "");
+              if (string.IsNullOrEmpty(type)) type = "normal";
+              pairs.Add(new KeyValuePair<uint, string>((uint)nodes.Current.ValueAsLong, type));
+            }
           }
+        } catch {
+            // Fallback if XML is corrupt
+            pairs.Clear();
+            pairs.Add(new KeyValuePair<uint, string>(480, "normal"));
         }
         var fetchedGames = new List<GameInfo>();
         foreach (var kv in pairs) {
