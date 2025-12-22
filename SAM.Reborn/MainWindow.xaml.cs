@@ -418,10 +418,10 @@ namespace SAM.Picker.Modern {
             foreach (var ach in achievements) {
               string urlToLoad = ach.RealIconUrl;
               if (string.IsNullOrEmpty(urlToLoad) || urlToLoad.StartsWith("pack://")) {
-                 if (ach.IconUrl.StartsWith("pack://")) {
-                   await Dispatcher.InvokeAsync(() => { try { ach.Icon = new BitmapImage(new Uri(ach.IconUrl)); } catch { } });
-                 }
-                 continue;
+                if (ach.IconUrl.StartsWith("pack://")) {
+                  await Dispatcher.InvokeAsync(() => { try { ach.Icon = new BitmapImage(new Uri(ach.IconUrl)); } catch { } });
+                }
+                continue;
               }
               var filename = System.IO.Path.GetFileName(new Uri(urlToLoad).LocalPath);
               var path = Path.Combine(cacheDir, filename);
@@ -445,10 +445,12 @@ namespace SAM.Picker.Modern {
                     if (!ach.IsHiddenLocked || (RevealHiddenBtn != null && RevealHiddenBtn.IsChecked == true)) {
                       ach.Icon = bitmap;
                     } else if (ach.IsHiddenLocked && ach.Icon == null && ach.IconUrl.StartsWith("pack://")) {
-                         try { ach.Icon = new BitmapImage(new Uri(ach.IconUrl)); } catch { }
+                        try { ach.Icon = new BitmapImage(new Uri(ach.IconUrl)); } catch { }
                     }
                   } catch { }
                 }, DispatcherPriority.Background);
+              } else {
+                await Dispatcher.InvokeAsync(() => { ach.IsBroken = true; }, DispatcherPriority.Background);
               }
             }
           }
@@ -816,6 +818,16 @@ namespace SAM.Picker.Modern {
     public string RealIconUrl { get; set; }
     public System.Windows.Media.ImageSource RealIcon { get; set; }
     public bool IsHiddenLocked { get; set; }
+    private bool _IsBroken;
+    public bool IsBroken {
+      get => _IsBroken;
+      set {
+        if (_IsBroken != value) {
+          _IsBroken = value;
+          OnPropertyChanged(nameof(IsBroken));
+        }
+      }
+    }
     private System.Windows.Media.ImageSource _Icon;
     public System.Windows.Media.ImageSource Icon {
       get => _Icon;

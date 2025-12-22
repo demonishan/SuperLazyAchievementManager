@@ -82,6 +82,7 @@
     <Geometry x:Key="Icon.Shield">M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1Z</Geometry>
     <Geometry x:Key="Icon.Lock">M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8H17V6A5,5 0 0,0 12,1A5,5 0 0,0 7,6V8H6A2,2 0 0,0 4,10V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V10A2,2 0 0,0 18,8M12,3A3,3 0 0,1 15,6V8H9V6A3,3 0 0,1 12,3Z</Geometry>
     <Geometry x:Key="Icon.Unlock">M18,8H17V6A5,5 0 0,0 12,1A5,5 0 0,0 7,6H9C9,4.34 10.34,3 12,3A3,3 0 0,1 15,6V8H6A2,2 0 0,0 4,10V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V10A2,2 0 0,0 18,8M12,17A2,2 0 0,1 10,15A2,2 0 0,1 12,13A2,2 0 0,1 14,15A2,2 0 0,1 12,17Z</Geometry>
+    <Geometry x:Key="Icon.Broken">M3,3H21V10L18,13L15,10L12,13L9,10L6,13L3,10V3M3,21H21V14L18,17L15,14L12,17L9,14L6,17L3,14V21Z</Geometry>
     <Geometry x:Key="Icon.All">M4,4H8V8H4V4M10,4H14V8H10V4M16,4H20V8H16V4M4,10H8V14H4V10M10,10H14V14H10V10M16,10H20V14H16V10M4,16H8V20H4V16M10,16H14V20H10V16M16,16H20V20H16V16Z</Geometry>
     <Style x:Key="ToggleActionButtonStyle" TargetType="ToggleButton">
       <Setter Property="Background" Value="#20232a"/>
@@ -579,6 +580,18 @@
                               <Setter Property="Visibility" Value="Collapsed"/>
                               <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsHidden}" Value="True">
+                                  <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                              </Style.Triggers>
+                            </Style>
+                          </Path.Style>
+                        </Path>
+                        <Path Data="{StaticResource Icon.Broken}" Fill="#FF5555" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" ToolTip="This achievement could potentially be broken" Margin="5,0,0,0">
+                          <Path.Style>
+                            <Style TargetType="Path">
+                              <Setter Property="Visibility" Value="Collapsed"/>
+                              <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsBroken}" Value="True">
                                   <Setter Property="Visibility" Value="Visible"/>
                                 </DataTrigger>
                               </Style.Triggers>
