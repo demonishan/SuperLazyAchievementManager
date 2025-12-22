@@ -78,6 +78,95 @@
     <Geometry x:Key="Icon.Pause">M14,19H18V5H14M6,19H10V5H6V19Z</Geometry>
     <Geometry x:Key="Icon.Web">M10.59,13.41C11,13.8 11,14.44 10.59,14.83C10.2,15.22 9.56,15.22 9.17,14.83C7.22,12.88 7.22,9.71 9.17,7.76V7.76L12.71,4.22C14.66,2.27 17.83,2.27 19.78,4.22C21.73,6.17 21.73,9.34 19.78,11.29L18.29,12.78C18.3,11.96 18.17,11.14 17.89,10.36L18.36,9.88C19.54,8.71 19.54,6.81 18.36,5.64C17.19,4.46 15.29,4.46 14.12,5.64L10.59,9.17C9.41,10.34 9.41,12.24 10.59,13.41M13.41,9.17C13.8,8.78 14.44,8.78 14.83,9.17C16.78,11.12 16.78,14.29 14.83,16.24V16.24L11.29,19.78C9.34,21.73 6.17,21.73 4.22,19.78C2.27,17.83 2.27,14.66 4.22,12.71L5.71,11.22C5.7,12.04 5.83,12.86 6.11,13.64L5.64,14.12C4.46,15.29 4.46,17.19 5.64,18.36C6.81,19.54 8.71,19.54 9.88,18.36L13.41,14.83C14.59,13.66 14.59,11.76 13.41,10.59C13,10.2 13,9.56 13.41,9.17Z</Geometry>
     <Geometry x:Key="Icon.Shield">M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1Z</Geometry>
+    <Geometry x:Key="Icon.Lock">M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8H17V6A5,5 0 0,0 12,1A5,5 0 0,0 7,6V8H6A2,2 0 0,0 4,10V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V10A2,2 0 0,0 18,8M12,3A3,3 0 0,1 15,6V8H9V6A3,3 0 0,1 12,3Z</Geometry>
+    <Geometry x:Key="Icon.Unlock">M18,8H17V6A5,5 0 0,0 12,1A5,5 0 0,0 7,6H9C9,4.34 10.34,3 12,3A3,3 0 0,1 15,6V8H6A2,2 0 0,0 4,10V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V10A2,2 0 0,0 18,8M12,17A2,2 0 0,1 10,15A2,2 0 0,1 12,13A2,2 0 0,1 14,15A2,2 0 0,1 12,17Z</Geometry>
+    <Geometry x:Key="Icon.All">M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z</Geometry>
+    <Style x:Key="ToggleActionButtonStyle" TargetType="ToggleButton">
+      <Setter Property="Background" Value="#20232a"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="10,5"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ToggleButton">
+            <Border x:Name="Border" Background="{TemplateBinding Background}" CornerRadius="4">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Border" Property="Background" Value="#3F3F46"/>
+              </Trigger>
+              <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="Border" Property="Background" Value="#434953"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="ToggleActionButtonStyleLeft" TargetType="ToggleButton" BasedOn="{StaticResource ToggleActionButtonStyle}">
+      <Setter Property="BorderThickness" Value="0,0,1,0"/>
+      <Setter Property="BorderBrush" Value="#3F3F46"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ToggleButton">
+            <Border x:Name="Border" Background="{TemplateBinding Background}" CornerRadius="4,0,0,4" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Border" Property="Background" Value="#3F3F46"/>
+              </Trigger>
+              <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="Border" Property="Background" Value="#434953"/>
+                <Setter TargetName="Border" Property="BorderBrush" Value="#434953"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="ToggleActionButtonStyleCenter" TargetType="ToggleButton" BasedOn="{StaticResource ToggleActionButtonStyle}">
+      <Setter Property="BorderThickness" Value="0,0,1,0"/>
+      <Setter Property="BorderBrush" Value="#3F3F46"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ToggleButton">
+            <Border x:Name="Border" Background="{TemplateBinding Background}" CornerRadius="0" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Border" Property="Background" Value="#3F3F46"/>
+              </Trigger>
+              <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="Border" Property="Background" Value="#434953"/>
+                <Setter TargetName="Border" Property="BorderBrush" Value="#434953"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="ToggleActionButtonStyleRight" TargetType="ToggleButton" BasedOn="{StaticResource ToggleActionButtonStyle}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ToggleButton">
+            <Border x:Name="Border" Background="{TemplateBinding Background}" CornerRadius="0,4,4,0">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Border" Property="Background" Value="#3F3F46"/>
+              </Trigger>
+              <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="Border" Property="Background" Value="#434953"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
     <Style TargetType="ComboBox">
       <Setter Property="Background" Value="#20232a"/>
       <Setter Property="Foreground" Value="White"/>
@@ -383,11 +472,17 @@
               <Button x:Name="ClearAchievementSearchBtn" Grid.Column="2" Content="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="12" Width="40" Background="Transparent" Foreground="#888888" BorderThickness="0" Visibility="Collapsed" Click="ClearAchievementSearch_Click"/>
             </Grid>
           </Border>
-          <ComboBox x:Name="AchievementFilter" Grid.Column="1" Width="120" Height="40" Margin="5,0" SelectionChanged="AchievementFilter_SelectionChanged">
-            <ComboBoxItem Content="All" Tag="all"/>
-            <ComboBoxItem Content="Locked" Tag="locked"/>
-            <ComboBoxItem Content="Unlocked" Tag="unlocked"/>
-          </ComboBox>
+          <StackPanel x:Name="FilterButtonsPanel" Grid.Column="1" Orientation="Horizontal" Margin="5,0">
+            <ToggleButton x:Name="FilterAllBtn" Width="40" Height="40" Margin="0" Style="{StaticResource ToggleActionButtonStyleLeft}" Click="FilterToggle_Click" ToolTip="Show All Achievements" IsChecked="True">
+              <Path Data="{StaticResource Icon.All}" Style="{StaticResource PathIconStyle}"/>
+            </ToggleButton>
+            <ToggleButton x:Name="FilterLockedBtn" Width="40" Height="40" Margin="0" Style="{StaticResource ToggleActionButtonStyleCenter}" Click="FilterToggle_Click" ToolTip="Show Locked Achievements" IsChecked="False">
+              <Path Data="{StaticResource Icon.Lock}" Style="{StaticResource PathIconStyle}"/>
+            </ToggleButton>
+            <ToggleButton x:Name="FilterUnlockedBtn" Width="40" Height="40" Margin="0" Style="{StaticResource ToggleActionButtonStyleRight}" Click="FilterToggle_Click" ToolTip="Show Unlocked Achievements" IsChecked="False">
+              <Path Data="{StaticResource Icon.Unlock}" Style="{StaticResource PathIconStyle}"/>
+            </ToggleButton>
+          </StackPanel>
           <ComboBox x:Name="SortFilter" Grid.Column="2" Height="40" MinWidth="150" Margin="5,0,0,0" SelectionChanged="SortFilter_SelectionChanged" SelectedIndex="0" VerticalContentAlignment="Center">
             <ComboBoxItem Content="Rarity (Common first)" Tag="Rarity_Desc"/>
             <ComboBoxItem Content="Rarity (Rarest first)" Tag="Rarity_Asc"/>

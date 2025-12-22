@@ -207,18 +207,32 @@ namespace SAM.Picker.Modern {
     }
     private void ClearAchievementSearch_Click(object sender, RoutedEventArgs e) => AchievementSearchBox.Text = string.Empty;
     private void AchievementSearchBox_TextChanged(object sender, TextChangedEventArgs e) => RefreshAchievementFilter();
+    private void FilterToggle_Click(object sender, RoutedEventArgs e) {
+      if (sender == FilterAllBtn) {
+        if (FilterAllBtn.IsChecked == true) { FilterLockedBtn.IsChecked = false; FilterUnlockedBtn.IsChecked = false; }
+        else FilterAllBtn.IsChecked = true;
+      }
+      else if (sender == FilterLockedBtn) {
+        if (FilterLockedBtn.IsChecked == true) { FilterAllBtn.IsChecked = false; FilterUnlockedBtn.IsChecked = false; }
+        else FilterLockedBtn.IsChecked = true;
+      }
+      else if (sender == FilterUnlockedBtn) {
+        if (FilterUnlockedBtn.IsChecked == true) { FilterAllBtn.IsChecked = false; FilterLockedBtn.IsChecked = false; }
+        else FilterUnlockedBtn.IsChecked = true;
+      }
+      RefreshAchievementFilter(); UpdateTimerMetadata();
+    }
     private void RefreshAchievementFilter() {
       if (_AchievementView == null) return;
-      var selectedItem = (ComboBoxItem)AchievementFilter.SelectedItem;
-      string filter = selectedItem?.Tag?.ToString();
+      bool showAll = FilterAllBtn.IsChecked == true;
+      bool showLocked = FilterLockedBtn.IsChecked == true;
+      bool showUnlocked = FilterUnlockedBtn.IsChecked == true;
       string searchText = AchievementSearchBox.Text.ToLower(CultureInfo.InvariantCulture);
       if (ClearAchievementSearchBtn != null) ClearAchievementSearchBtn.Visibility = string.IsNullOrEmpty(searchText) ? Visibility.Collapsed : Visibility.Visible;
       _AchievementView.Filter = (item) => {
         var avm = item as AchievementViewModel;
         if (avm == null) return true;
-        bool matchesFilter = true;
-        if (filter == "locked") matchesFilter = !avm.IsAchieved;
-        if (filter == "unlocked") matchesFilter = avm.IsAchieved;
+        bool matchesFilter = showAll || (showLocked && !avm.IsAchieved) || (showUnlocked && avm.IsAchieved);
         bool matchesSearch = string.IsNullOrEmpty(searchText) || avm.Name.ToLower(CultureInfo.InvariantCulture).Contains(searchText) || avm.Description.ToLower(CultureInfo.InvariantCulture).Contains(searchText);
         return matchesFilter && matchesSearch;
       };
@@ -228,7 +242,9 @@ namespace SAM.Picker.Modern {
       _AchievementView = CollectionViewSource.GetDefaultView(_Achievements);
       AchievementList.ItemsSource = _AchievementView;
       if (resetFilters) {
-        AchievementFilter.SelectedIndex = 0;
+        if (FilterAllBtn != null) FilterAllBtn.IsChecked = true;
+        if (FilterLockedBtn != null) FilterLockedBtn.IsChecked = false;
+        if (FilterUnlockedBtn != null) FilterUnlockedBtn.IsChecked = false;
         if (SortFilter != null) SortFilter.SelectedIndex = 0;
         if (AchievementSearchBox != null) AchievementSearchBox.Text = string.Empty;
       } else {
@@ -306,7 +322,7 @@ namespace SAM.Picker.Modern {
       StartAchievementImageCaching(_Achievements.ToList());
       LoadingOverlay.Visibility = Visibility.Collapsed;
     }
-    private void AchievementFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) { RefreshAchievementFilter(); UpdateTimerMetadata(); }
+
     private void SortFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) => ApplySort();
     private void ApplySort() {
       if (_AchievementView == null) return;
@@ -436,17 +452,17 @@ namespace SAM.Picker.Modern {
         if (BulkActionsButton != null) BulkActionsButton.Visibility = Visibility.Visible;
         if (RefreshButton != null) RefreshButton.Visibility = Visibility.Visible;
         if (SaveButton != null) SaveButton.Visibility = Visibility.Visible;
-        if (AchievementFilter != null) AchievementFilter.Visibility = Visibility.Visible;
+
+        if (FilterButtonsPanel != null) FilterButtonsPanel.Visibility = Visibility.Visible;
+        if (FilterLockedBtn != null) FilterLockedBtn.Visibility = Visibility.Visible;
+        if (FilterUnlockedBtn != null) FilterUnlockedBtn.Visibility = Visibility.Visible;
         if (StartTimerButton != null) StartTimerButton.Visibility = Visibility.Collapsed;
         if (RandomTimerButton != null) RandomTimerButton.Visibility = Visibility.Collapsed;
         if (EnableTimerButton != null) EnableTimerButton.Visibility = Visibility.Visible;
         if (SortFilter != null) SortFilter.Visibility = Visibility.Visible;
-        foreach (ComboBoxItem item in AchievementFilter.Items) {
-          if (item.Tag?.ToString() == "all") { 
-            AchievementFilter.SelectedItem = item; 
-            break; 
-          }
-        }
+        if (FilterAllBtn != null) FilterAllBtn.IsChecked = true;
+        if (FilterLockedBtn != null) FilterLockedBtn.IsChecked = false;
+        if (FilterUnlockedBtn != null) FilterUnlockedBtn.IsChecked = false;
       }
       GameDetailsView.Visibility = Visibility.Collapsed;
       HomeView.Visibility = Visibility.Visible;
@@ -528,27 +544,26 @@ namespace SAM.Picker.Modern {
       if (AchievementSearchRow != null && IsTimerMode) AchievementSearchRow.Visibility = Visibility.Collapsed;
       if (RefreshButton != null) RefreshButton.Visibility = visibility;
       if (SaveButton != null) SaveButton.Visibility = visibility;
-      if (AchievementFilter != null) AchievementFilter.Visibility = visibility;
+
+      if (FilterButtonsPanel != null) FilterButtonsPanel.Visibility = visibility;
+      if (FilterAllBtn != null) FilterAllBtn.Visibility = visibility;
       if (StartTimerButton != null) StartTimerButton.Visibility = IsTimerMode ? Visibility.Visible : Visibility.Collapsed;
       if (RandomTimerButton != null) RandomTimerButton.Visibility = IsTimerMode ? Visibility.Visible : Visibility.Collapsed;
       if (EnableTimerText != null) EnableTimerText.Text = IsTimerMode ? "Normal Mode" : "Timer Mode";
       if (IsTimerMode) {
         if (_AchievementView != null) { _AchievementView.SortDescriptions.Clear(); _AchievementView.Refresh(); }
-        foreach (ComboBoxItem item in AchievementFilter.Items) {
-          if (item.Tag?.ToString() == "locked") { AchievementFilter.SelectedItem = item; break; }
-        }
+        if (FilterAllBtn != null) FilterAllBtn.IsChecked = false;
+        if (FilterLockedBtn != null) FilterLockedBtn.IsChecked = true;
+        if (FilterUnlockedBtn != null) FilterUnlockedBtn.IsChecked = false;
         UpdateTimerMetadata();
         RefreshFilter();
         if (SharedStatusText != null) SharedStatusText.Text = "Drag and drop the achievements, set the delay in minutes, and 'Start Timer'.";
       } else {
         _IsTimerActive = false; _IsTimerPaused = false; UpdateTimerButtonState();
         if (SharedStatusText != null) SharedStatusText.Text = "Ready";
-        foreach (ComboBoxItem item in AchievementFilter.Items) {
-          if (item.Tag?.ToString() == "all") {
-            AchievementFilter.SelectedItem = item; 
-            break; 
-          }
-        }
+        if (FilterAllBtn != null) FilterAllBtn.IsChecked = true;
+        if (FilterLockedBtn != null) FilterLockedBtn.IsChecked = false;
+        if (FilterUnlockedBtn != null) FilterUnlockedBtn.IsChecked = false;
         RefreshFilter();
       }
     }
