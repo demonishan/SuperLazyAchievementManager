@@ -77,10 +77,12 @@
     <Geometry x:Key="Icon.Random">M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4H14.5M15,15.41L18.59,19L20,17.59L16.41,14L15,15.41Z</Geometry>
     <Geometry x:Key="Icon.Pause">M14,19H18V5H14M6,19H10V5H6V19Z</Geometry>
     <Geometry x:Key="Icon.Web">M10.59,13.41C11,13.8 11,14.44 10.59,14.83C10.2,15.22 9.56,15.22 9.17,14.83C7.22,12.88 7.22,9.71 9.17,7.76V7.76L12.71,4.22C14.66,2.27 17.83,2.27 19.78,4.22C21.73,6.17 21.73,9.34 19.78,11.29L18.29,12.78C18.3,11.96 18.17,11.14 17.89,10.36L18.36,9.88C19.54,8.71 19.54,6.81 18.36,5.64C17.19,4.46 15.29,4.46 14.12,5.64L10.59,9.17C9.41,10.34 9.41,12.24 10.59,13.41M13.41,9.17C13.8,8.78 14.44,8.78 14.83,9.17C16.78,11.12 16.78,14.29 14.83,16.24V16.24L11.29,19.78C9.34,21.73 6.17,21.73 4.22,19.78C2.27,17.83 2.27,14.66 4.22,12.71L5.71,11.22C5.7,12.04 5.83,12.86 6.11,13.64L5.64,14.12C4.46,15.29 4.46,17.19 5.64,18.36C6.81,19.54 8.71,19.54 9.88,18.36L13.41,14.83C14.59,13.66 14.59,11.76 13.41,10.59C13,10.2 13,9.56 13.41,9.17Z</Geometry>
+    <Geometry x:Key="Icon.EyeOff">M11.83,9L15,12.16C15,12.11 15,12.05 15,12A3,3 0 0,0 12,9C11.94,9 11.89,9 11.83,9M7.53,9.8L9.08,11.35C9.03,11.56 9,11.77 9,12A3,3 0 0,0 12,15C12.22,15 12.44,14.97 12.65,14.92L14.2,16.47C13.53,16.8 12.79,17 12,17A5,5 0 0,1 7,12C7,11.21 7.2,10.47 7.53,9.8M2,4.27L4.28,6.55L4.73,7C3.08,8.3 1.78,10 1,12C2.73,16.39 7,19.5 12,19.5C13.55,19.5 15.03,19.2 16.38,18.66L16.81,19.08L19.73,22L21,20.73L3.27,3M12,7A5,5 0 0,1 17,12C17,12.64 16.87,13.26 16.64,13.82L19.57,16.75C21.07,15.5 22.27,13.86 23,12C21.27,7.61 17,4.5 12,4.5C10.6,4.5 9.27,4.75 8.07,5.17L10.19,7.3C10.77,7.1 11.37,7 12,7Z</Geometry>
+    <Geometry x:Key="Icon.Hidden">M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z</Geometry>
     <Geometry x:Key="Icon.Shield">M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1Z</Geometry>
     <Geometry x:Key="Icon.Lock">M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8H17V6A5,5 0 0,0 12,1A5,5 0 0,0 7,6V8H6A2,2 0 0,0 4,10V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V10A2,2 0 0,0 18,8M12,3A3,3 0 0,1 15,6V8H9V6A3,3 0 0,1 12,3Z</Geometry>
     <Geometry x:Key="Icon.Unlock">M18,8H17V6A5,5 0 0,0 12,1A5,5 0 0,0 7,6H9C9,4.34 10.34,3 12,3A3,3 0 0,1 15,6V8H6A2,2 0 0,0 4,10V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V10A2,2 0 0,0 18,8M12,17A2,2 0 0,1 10,15A2,2 0 0,1 12,13A2,2 0 0,1 14,15A2,2 0 0,1 12,17Z</Geometry>
-    <Geometry x:Key="Icon.All">M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z</Geometry>
+    <Geometry x:Key="Icon.All">M4,4H8V8H4V4M10,4H14V8H10V4M16,4H20V8H16V4M4,10H8V14H4V10M10,10H14V14H10V10M16,10H20V14H16V10M4,16H8V20H4V16M10,16H14V20H10V16M16,16H20V20H16V16Z</Geometry>
     <Style x:Key="ToggleActionButtonStyle" TargetType="ToggleButton">
       <Setter Property="Background" Value="#20232a"/>
       <Setter Property="Foreground" Value="White"/>
@@ -459,8 +461,9 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
-          <Border Background="#20232a" CornerRadius="4" Height="40" Margin="0,0,5,0">
+          <Border Background="#20232a" CornerRadius="4" Height="40" Margin="0,5">
             <Grid>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="40"/>
@@ -472,7 +475,10 @@
               <Button x:Name="ClearAchievementSearchBtn" Grid.Column="2" Content="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="12" Width="40" Background="Transparent" Foreground="#888888" BorderThickness="0" Visibility="Collapsed" Click="ClearAchievementSearch_Click"/>
             </Grid>
           </Border>
-          <StackPanel x:Name="FilterButtonsPanel" Grid.Column="1" Orientation="Horizontal" Margin="5,0">
+          <ToggleButton x:Name="RevealHiddenBtn" Grid.Column="1" Width="40" Height="40" Margin="0,5" Style="{StaticResource ToggleActionButtonStyle}" Click="RevealHidden_Click" ToolTip="Reveal Hidden Achievements" Visibility="Collapsed">
+            <Path Data="{StaticResource Icon.EyeOff}" Style="{StaticResource PathIconStyle}"/>
+          </ToggleButton>
+          <StackPanel x:Name="FilterButtonsPanel" Grid.Column="2" Orientation="Horizontal" Margin="5,0">
             <ToggleButton x:Name="FilterAllBtn" Width="40" Height="40" Margin="0" Style="{StaticResource ToggleActionButtonStyleLeft}" Click="FilterToggle_Click" ToolTip="Show All Achievements" IsChecked="True">
               <Path Data="{StaticResource Icon.All}" Style="{StaticResource PathIconStyle}"/>
             </ToggleButton>
@@ -483,7 +489,7 @@
               <Path Data="{StaticResource Icon.Unlock}" Style="{StaticResource PathIconStyle}"/>
             </ToggleButton>
           </StackPanel>
-          <ComboBox x:Name="SortFilter" Grid.Column="2" Height="40" MinWidth="150" Margin="5,0,0,0" SelectionChanged="SortFilter_SelectionChanged" SelectedIndex="0" VerticalContentAlignment="Center">
+          <ComboBox x:Name="SortFilter" Grid.Column="3" Height="40" MinWidth="150" Margin="5,0,0,0" SelectionChanged="SortFilter_SelectionChanged" SelectedIndex="0" VerticalContentAlignment="Center">
             <ComboBoxItem Content="Rarity (Common first)" Tag="Rarity_Desc"/>
             <ComboBoxItem Content="Rarity (Rarest first)" Tag="Rarity_Asc"/>
             <ComboBoxItem Content="Name (A-Z)" Tag="Name_Asc"/>
@@ -561,6 +567,18 @@
                               <Setter Property="Visibility" Value="Collapsed"/>
                               <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsProtected}" Value="True">
+                                  <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                              </Style.Triggers>
+                            </Style>
+                          </Path.Style>
+                        </Path>
+                        <Path Data="{StaticResource Icon.Hidden}" Fill="#888888" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" ToolTip="Hidden Achievement" Margin="5,0,0,0">
+                          <Path.Style>
+                            <Style TargetType="Path">
+                              <Setter Property="Visibility" Value="Collapsed"/>
+                              <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsHidden}" Value="True">
                                   <Setter Property="Visibility" Value="Visible"/>
                                 </DataTrigger>
                               </Style.Triggers>

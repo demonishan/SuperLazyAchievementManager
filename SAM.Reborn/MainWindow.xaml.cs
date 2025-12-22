@@ -59,6 +59,7 @@ namespace SAM.Picker.Modern {
       public string IconNormal { get; set; }
       public string IconLocked { get; set; }
       public int Permission { get; set; }
+      public int IsHidden { get; set; }
     }
     private void OnWindowStateChanged(object sender, EventArgs e) {
       if (MaximizeBtn == null) return;
@@ -171,7 +172,7 @@ namespace SAM.Picker.Modern {
       } else {
         await Dispatcher.InvokeAsync(() => {
           try {
-              var bitmap = new BitmapImage(new Uri("pack://application:,,,/SAM.Reborn.2026-8.3.6;component/Resources/image-not-found.png"));
+              var bitmap = new BitmapImage(new Uri("pack://application:,,,/SAM.Reborn.2026-8.4.6;component/Resources/image-not-found.png"));
               game.CachedIcon = bitmap;
               var vm = _FilteredGames.FirstOrDefault(x => x.Id == game.Id);
               if (vm != null) vm.Image = bitmap;
@@ -207,6 +208,23 @@ namespace SAM.Picker.Modern {
     }
     private void ClearAchievementSearch_Click(object sender, RoutedEventArgs e) => AchievementSearchBox.Text = string.Empty;
     private void AchievementSearchBox_TextChanged(object sender, TextChangedEventArgs e) => RefreshAchievementFilter();
+    private void RevealHidden_Click(object sender, RoutedEventArgs e) {
+      if (RevealHiddenBtn == null) return;
+      bool showHidden = RevealHiddenBtn.IsChecked == true;
+      foreach (var avm in _Achievements) {
+        if (avm.IsHiddenLocked) {
+          if (showHidden) {
+            avm.Name = avm.OriginalName;
+            avm.Description = avm.OriginalDescription;
+            avm.Icon = avm.RealIcon ?? avm.Icon; // Try to switch to real icon if cached
+          } else {
+            avm.Name = "Hidden Achievement";
+            avm.Description = "Details for this achievement Will be revealed once unlocked";
+            try { avm.Icon = new BitmapImage(new Uri("pack://application:,,,/SAM.Reborn.2026-8.4.6;component/Resources/hidden.png")); } catch { } 
+          }
+        }
+      }
+    }
     private void FilterToggle_Click(object sender, RoutedEventArgs e) {
       if (sender == FilterAllBtn) {
         if (FilterAllBtn.IsChecked == true) { FilterLockedBtn.IsChecked = false; FilterUnlockedBtn.IsChecked = false; }
@@ -289,19 +307,36 @@ namespace SAM.Picker.Modern {
       foreach (var def in definitions) {
         if (_SteamClient.SteamUserStats.GetAchievementAndUnlockTime(def.Id, out bool isAchieved, out uint unlockTime)) {
           _SteamClient.SteamUserStats.GetAchievementAchievedPercent(def.Id, out float globalPercent);
+          string iconUrl = $"https://cdn.steamstatic.com/steamcommunity/public/images/apps/{_SelectedGameId}/{(isAchieved ? def.IconNormal : def.IconLocked)}";
+          string name = def.Name;
+          string description = def.Description;
+          bool isHiddenLocked = def.IsHidden == 1 && !isAchieved;
+          string displayedIconUrl = iconUrl;
+          if (isHiddenLocked) {
+            name = "Hidden Achievement";
+            description = "Details for this achievement Will be revealed once unlocked";
+            displayedIconUrl = "pack://application:,,,/SAM.Reborn.2026-8.4.6;component/Resources/hidden.png";
+          }
           var avm = new AchievementViewModel {
             Id = def.Id,
-            Name = def.Name,
-            Description = def.Description,
+            Name = name,
+            Description = description,
+            OriginalName = def.Name,
+            OriginalDescription = def.Description,
+            RealIconUrl = iconUrl,
+            IsHiddenLocked = isHiddenLocked,
             IsAchieved = isAchieved,
             UnlockTime = isAchieved && unlockTime > 0 ? (DateTime?)DateTimeOffset.FromUnixTimeSeconds(unlockTime).LocalDateTime : null,
             GlobalPercent = globalPercent,
-            IconUrl = $"https://cdn.steamstatic.com/steamcommunity/public/images/apps/{_SelectedGameId}/{(isAchieved ? def.IconNormal : def.IconLocked)}",
-            Permission = anyProtected ? 3 : def.Permission
+            IconUrl = displayedIconUrl,
+            Permission = anyProtected ? 3 : def.Permission,
+            IsHidden = def.IsHidden == 1
           };
           _Achievements.Add(avm);
         }
       }
+      bool hasHiddenLocked = _Achievements.Any(x => x.IsHiddenLocked);
+      if (RevealHiddenBtn != null) RevealHiddenBtn.Visibility = hasHiddenLocked ? Visibility.Visible : Visibility.Collapsed;
       SharedStatusText.Text = $"Loaded {_Achievements.Count} achievements.";
       int unlocked = _Achievements.Count(x => x.IsAchieved);
       int total = _Achievements.Count;
@@ -381,13 +416,19 @@ namespace SAM.Picker.Modern {
           if (!Directory.Exists(cacheDir)) Directory.CreateDirectory(cacheDir);
           using (var client = new WebClient()) {
             foreach (var ach in achievements) {
-              if (ach.Icon != null) continue;
-              var filename = System.IO.Path.GetFileName(new Uri(ach.IconUrl).LocalPath);
+              string urlToLoad = ach.RealIconUrl;
+              if (string.IsNullOrEmpty(urlToLoad) || urlToLoad.StartsWith("pack://")) {
+                 if (ach.IconUrl.StartsWith("pack://")) {
+                   await Dispatcher.InvokeAsync(() => { try { ach.Icon = new BitmapImage(new Uri(ach.IconUrl)); } catch { } });
+                 }
+                 continue;
+              }
+              var filename = System.IO.Path.GetFileName(new Uri(urlToLoad).LocalPath);
               var path = Path.Combine(cacheDir, filename);
               bool needsDownload = !File.Exists(path) || new FileInfo(path).Length == 0;
               if (needsDownload) {
                 try {
-                  var data = await client.DownloadDataTaskAsync(new Uri(ach.IconUrl));
+                  var data = await client.DownloadDataTaskAsync(new Uri(urlToLoad));
                   if (data.Length > 0) File.WriteAllBytes(path, data);
                 } catch { }
                 await Task.Delay(20);
@@ -400,7 +441,12 @@ namespace SAM.Picker.Modern {
                     bitmap.UriSource = new Uri(path, UriKind.Absolute);
                     bitmap.CacheOption = BitmapCacheOption.OnLoad;
                     bitmap.EndInit();
-                    ach.Icon = bitmap;
+                    ach.RealIcon = bitmap;
+                    if (!ach.IsHiddenLocked || (RevealHiddenBtn != null && RevealHiddenBtn.IsChecked == true)) {
+                      ach.Icon = bitmap;
+                    } else if (ach.IsHiddenLocked && ach.Icon == null && ach.IconUrl.StartsWith("pack://")) {
+                         try { ach.Icon = new BitmapImage(new Uri(ach.IconUrl)); } catch { }
+                    }
                   } catch { }
                 }, DispatcherPriority.Background);
               }
@@ -423,7 +469,7 @@ namespace SAM.Picker.Modern {
           if (type == SAM.API.Types.UserStatType.Achievements || type == SAM.API.Types.UserStatType.GroupAchievements) {
             foreach (var bits in stat.Children.Where(b => b.Name.Equals("bits", StringComparison.OrdinalIgnoreCase))) {
               if (bits.Children == null) continue;
-              foreach (var bit in bits.Children) definitions.Add(new AchievementDefinition { Id = bit["name"].AsString(""), Name = GetLocalizedString(bit["display"]["name"], currentLanguage, bit["name"].AsString("")), Description = GetLocalizedString(bit["display"]["desc"], currentLanguage, ""), IconNormal = bit["display"]["icon"].AsString(""), IconLocked = bit["display"]["icon_gray"].AsString(""), Permission = bit["permission"].AsInteger(0) });
+              foreach (var bit in bits.Children) definitions.Add(new AchievementDefinition { Id = bit["name"].AsString(""), Name = GetLocalizedString(bit["display"]["name"], currentLanguage, bit["name"].AsString("")), Description = GetLocalizedString(bit["display"]["desc"], currentLanguage, ""), IconNormal = bit["display"]["icon"].AsString(""), IconLocked = bit["display"]["icon_gray"].AsString(""), Permission = bit["permission"].AsInteger(0), IsHidden = bit["display"]["hidden"].AsInteger(0) });
             }
           }
         }
@@ -547,6 +593,8 @@ namespace SAM.Picker.Modern {
 
       if (FilterButtonsPanel != null) FilterButtonsPanel.Visibility = visibility;
       if (FilterAllBtn != null) FilterAllBtn.Visibility = visibility;
+      bool hasHidden = _Achievements != null && _Achievements.Any(x => x.IsHiddenLocked);
+      if (RevealHiddenBtn != null) RevealHiddenBtn.Visibility = IsTimerMode ? Visibility.Collapsed : (hasHidden ? Visibility.Visible : Visibility.Collapsed);
       if (StartTimerButton != null) StartTimerButton.Visibility = IsTimerMode ? Visibility.Visible : Visibility.Collapsed;
       if (RandomTimerButton != null) RandomTimerButton.Visibility = IsTimerMode ? Visibility.Visible : Visibility.Collapsed;
       if (EnableTimerText != null) EnableTimerText.Text = IsTimerMode ? "Normal Mode" : "Timer Mode";
@@ -757,10 +805,17 @@ namespace SAM.Picker.Modern {
   }
   public class AchievementViewModel : INotifyPropertyChanged {
     public string Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
+    private string _Name;
+    public string Name { get => _Name; set { if (_Name != value) { _Name = value; OnPropertyChanged(nameof(Name)); } } }
+    private string _Description;
+    public string Description { get => _Description; set { if (_Description != value) { _Description = value; OnPropertyChanged(nameof(Description)); } } }
+    public string OriginalName { get; set; }
+    public string OriginalDescription { get; set; }
     public float GlobalPercent { get; set; }
     public string IconUrl { get; set; }
+    public string RealIconUrl { get; set; }
+    public System.Windows.Media.ImageSource RealIcon { get; set; }
+    public bool IsHiddenLocked { get; set; }
     private System.Windows.Media.ImageSource _Icon;
     public System.Windows.Media.ImageSource Icon {
       get => _Icon;
@@ -814,6 +869,7 @@ namespace SAM.Picker.Modern {
     }
     public int Permission { get; set; }
     public bool IsProtected => Permission > 0;
+    public bool IsHidden { get; set; }
     public event PropertyChangedEventHandler PropertyChanged;
     protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
   }

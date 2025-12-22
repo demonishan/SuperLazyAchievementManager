@@ -7,22 +7,23 @@
     </PackageReference>
     <Resource Include="..\Resources\icon.png" Link="Resources\icon.png" />
     <Resource Include="..\Resources\image-not-found.png" Link="Resources\image-not-found.png" />
+    <Resource Include="..\Resources\hidden.png" Link="Resources\hidden.png" />
   </ItemGroup>
   <PropertyGroup>
     <ApplicationIcon>..\Resources\icon.ico</ApplicationIcon>
-    <AssemblyName>SAM.Reborn.2026-8.3.6</AssemblyName>
-    <AssemblyVersion>8.3.6.0</AssemblyVersion>
+    <AssemblyName>SAM.Reborn.2026-8.4.6</AssemblyName>
+    <AssemblyVersion>8.4.6.0</AssemblyVersion>
     <Authors>Ishan Samanta [666de666.com]</Authors>
     <Company>DEMONiZER Corp.</Company>
     <Copyright>Copyright © 2025 Ishan Samanta</Copyright>
     <Description></Description>
-    <FileVersion>8.3.6.0</FileVersion>
+    <FileVersion>8.4.6.0</FileVersion>
     <LangVersion>10.0</LangVersion>
     <OutputType>WinExe</OutputType>
     <Platforms>x86</Platforms>
     <PlatformTarget>x86</PlatformTarget>
     <TargetFramework>net48</TargetFramework>
     <UseWPF>true</UseWPF>
-    <Version>8.3.6</Version>
+    <Version>8.4.6</Version>
   </PropertyGroup>
 </Project>

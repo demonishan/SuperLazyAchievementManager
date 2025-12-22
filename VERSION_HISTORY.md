@@ -1,6 +1,13 @@
 ## Version History
 
-### 8.3.6 (2026-12-23)
+### 8.4.6 (2026-12-22)
+- Hidden achievement handling:
+  - Hidden locked achievements now display as "Hidden Achievement" with a placeholder description and a hidden icon until unlocked or revealed.
+  - Reveal Locked Hidden Achievements. Added a "Reveal Hidden" toggle button to reveal details of hidden achievements.
+- Filter by Locked/Unlocked/All. Replaced dropdown with segmented control buttons using new icons.
+- Optimization: Enhanced image caching for hidden icons and faster filter switching.
+
+### 8.3.6 (2026-12-22)
 - Refactored image caching: Standard download -> Steam API JSON Fallback -> Local Placeholder.
 - Improved game image download reliability with robust fallback for missing hashes.
 
