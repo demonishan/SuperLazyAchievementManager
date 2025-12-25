@@ -272,6 +272,7 @@ namespace SAM.Picker.Modern {
         if (RevealHiddenBtn != null) { RevealHiddenBtn.IsChecked = false; RevealHiddenBtn.Visibility = Visibility.Collapsed; }
         if (SortFilter != null) SortFilter.SelectedIndex = 0;
         if (AchievementSearchBox != null) AchievementSearchBox.Text = string.Empty;
+        ApplySort(); // Apply default sort
       } else {
         RefreshAchievementFilter();
         ApplySort();
