@@ -1,5 +1,9 @@
 ## Version History
 
+### 8.4.8 (2026-12-28)
+- System: Single Instance Enforcement: Launching the app while it's already running now brings the existing window to the foreground.
+- Architecture: Consolidated API libraries and Steam utilities into a unified `SAM.API` for better maintainability (Internal).
+
 ### 8.4.7 (2026-12-23)
 - Feature: Broken Achievement detection. Achievements with missing or zero-byte images now display a specific "Broken" icon with a tooltip explaining potential issues.
 - Fix: Resolved application crash when switching between games, specifically when transitioning from games with no hidden achievements.

@@ -2,10 +2,32 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Threading;
+using System.Threading;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 [assembly: ThemeInfo(ResourceDictionaryLocation.None, ResourceDictionaryLocation.SourceAssembly)]
 namespace SAM.Picker.Modern;
 public partial class App : Application {
+  private static Mutex _mutex = null;
+  [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
+  [DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+  private const int SW_RESTORE = 9;
   protected override void OnStartup(StartupEventArgs e) {
+    const string appName = "Global\\SLAM_SteamAchievementManager_Reborn_Lock";
+    bool createdNew;
+    _mutex = new Mutex(true, appName, out createdNew);
+    if (!createdNew) {
+      Process current = Process.GetCurrentProcess();
+      foreach (Process process in Process.GetProcessesByName(current.ProcessName)) {
+        if (process.Id != current.Id) {
+          ShowWindow(process.MainWindowHandle, SW_RESTORE);
+          SetForegroundWindow(process.MainWindowHandle);
+          break;
+        }
+      }
+      Shutdown();
+      return;
+    }
     base.OnStartup(e);
     DispatcherUnhandledException += App_DispatcherUnhandledException;
     AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
