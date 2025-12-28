@@ -1,5 +1,8 @@
 ## Version History
 
+### 8.4.9 (2026-12-28)
+- Feature: Added new sorting options to sort by Unlock Time (Newest/Oldest), prioritizing unlocked achievements while intelligently sorting remaining locked achievements by rarity.
+
 ### 8.4.8 (2026-12-28)
 - System: Single Instance Enforcement: Launching the app while it's already running now brings the existing window to the foreground.
 - Architecture: Consolidated API libraries and Steam utilities into a unified `SAM.API` for better maintainability (Internal).

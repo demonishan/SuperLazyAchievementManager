@@ -185,7 +185,6 @@ namespace SAM.Picker.Modern {
         }, DispatcherPriority.Background);
       }
     }
-
     private void RefreshFilter() {
       if (SearchBox == null) return;
       var searchText = SearchBox.Text.ToLower(CultureInfo.InvariantCulture);
@@ -392,17 +391,22 @@ namespace SAM.Picker.Modern {
       StartAchievementImageCaching(_Achievements.ToList());
       LoadingOverlay.Visibility = Visibility.Collapsed;
     }
-
     private void SortFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) => ApplySort();
     private void ApplySort() {
       if (_AchievementView == null) return;
       if (SortFilter.SelectedItem is ComboBoxItem item) {
-        _AchievementView.SortDescriptions.Clear();
         string tag = item.Tag?.ToString();
-        if (tag == "Name_Asc") _AchievementView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-        else if (tag == "Name_Desc") _AchievementView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Descending));
-        else if (tag == "Rarity_Asc") _AchievementView.SortDescriptions.Add(new SortDescription("GlobalPercent", ListSortDirection.Ascending));
-        else if (tag == "Rarity_Desc") _AchievementView.SortDescriptions.Add(new SortDescription("GlobalPercent", ListSortDirection.Descending));
+        var lcv = _AchievementView as ListCollectionView;
+        if (tag == "Date_Desc" || tag == "Date_Asc") {
+          if (lcv != null) lcv.CustomSort = new AchievementDateSorter(tag == "Date_Desc");
+        } else {
+          if (lcv != null) lcv.CustomSort = null;
+          _AchievementView.SortDescriptions.Clear();
+          if (tag == "Name_Asc") _AchievementView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+          else if (tag == "Name_Desc") _AchievementView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Descending));
+          else if (tag == "Rarity_Asc") _AchievementView.SortDescriptions.Add(new SortDescription("GlobalPercent", ListSortDirection.Ascending));
+          else if (tag == "Rarity_Desc") _AchievementView.SortDescriptions.Add(new SortDescription("GlobalPercent", ListSortDirection.Descending));
+        }
         _AchievementView.Refresh();
         UpdateTimerMetadata();
       }
@@ -620,7 +624,6 @@ namespace SAM.Picker.Modern {
         UpdateTimerUIState();
       } 
     }
-
     private void UpdateTimerUIState() {
       var visibility = IsTimerMode ? Visibility.Collapsed : Visibility.Visible;
       if (BulkActionsButton != null) BulkActionsButton.Visibility = visibility;
@@ -743,7 +746,6 @@ namespace SAM.Picker.Modern {
       int total = _Achievements.Count;
       AchievementProgressBar.Value = total > 0 ? (double)unlocked / total * 100 : 0;
     }
-
     private async Task<int> RunTimerSequence(List<AchievementViewModel> achievements) {
       string originalStatus = SharedStatusText.Text;
       int count = 0;
@@ -943,6 +945,25 @@ namespace SAM.Picker.Modern {
     public bool IsHidden { get; set; }
     public event PropertyChangedEventHandler PropertyChanged;
     protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+  }
+  public class AchievementDateSorter : System.Collections.IComparer {
+    private readonly bool _descending;
+    public AchievementDateSorter(bool descending) { _descending = descending; }
+    public int Compare(object x, object y) {
+      var a = x as AchievementViewModel;
+      var b = y as AchievementViewModel;
+      if (a == null || b == null) return 0;
+      if (a.IsAchieved && !b.IsAchieved) return -1;
+      if (!a.IsAchieved && b.IsAchieved) return 1;
+      if (a.IsAchieved) {
+        if (!a.UnlockTime.HasValue && !b.UnlockTime.HasValue) return 0;
+        if (!a.UnlockTime.HasValue) return 1;
+        if (!b.UnlockTime.HasValue) return -1;
+        return _descending ? b.UnlockTime.Value.CompareTo(a.UnlockTime.Value) : a.UnlockTime.Value.CompareTo(b.UnlockTime.Value);
+      } else {
+        return b.GlobalPercent.CompareTo(a.GlobalPercent);
+      }
+    }
   }
   public class RarityColorConverter : IValueConverter {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {

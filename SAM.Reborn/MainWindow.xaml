@@ -493,8 +493,12 @@
           <ComboBox x:Name="SortFilter" Grid.Column="3" Height="40" MinWidth="150" Margin="5,0,0,0" SelectionChanged="SortFilter_SelectionChanged" SelectedIndex="0" VerticalContentAlignment="Center">
             <ComboBoxItem Content="Rarity (Common first)" Tag="Rarity_Desc"/>
             <ComboBoxItem Content="Rarity (Rarest first)" Tag="Rarity_Asc"/>
+            <Separator/>
             <ComboBoxItem Content="Name (A-Z)" Tag="Name_Asc"/>
             <ComboBoxItem Content="Name (Z-A)" Tag="Name_Desc"/>
+            <Separator/>
+            <ComboBoxItem Content="Unlock Time (Newest First)" Tag="Date_Desc"/>
+            <ComboBoxItem Content="Unlock Time (Oldest First)" Tag="Date_Asc"/>
           </ComboBox>
         </Grid>
         <Grid Grid.Row="2">
