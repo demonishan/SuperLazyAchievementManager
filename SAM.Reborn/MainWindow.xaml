@@ -491,6 +491,8 @@
             <Path Data="{StaticResource Icon.EyeOff}" Style="{StaticResource PathIconStyle}"/>
           </ToggleButton>
           <ComboBox x:Name="SortFilter" Grid.Column="3" Height="40" MinWidth="150" Margin="5,0,0,0" SelectionChanged="SortFilter_SelectionChanged" SelectedIndex="0" VerticalContentAlignment="Center">
+            <ComboBoxItem Content="Sort by..." Tag="None"/>
+            <Separator/>
             <ComboBoxItem Content="Rarity (Common first)" Tag="Rarity_Desc"/>
             <ComboBoxItem Content="Rarity (Rarest first)" Tag="Rarity_Asc"/>
             <Separator/>
@@ -525,7 +527,7 @@
                       <ColumnDefinition Width="80"/>
                       <ColumnDefinition Width="120"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,5,0" VerticalAlignment="Center">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="5,0" VerticalAlignment="Center">
                       <Path Data="{StaticResource Icon.DragHandle}" Fill="#666666" Width="16" Height="16" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,10,0">
                         <Path.Style>
                           <Style TargetType="Path">

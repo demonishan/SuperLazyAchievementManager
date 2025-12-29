@@ -633,7 +633,7 @@ namespace SAM.Picker.Modern {
       if (FilterButtonsPanel != null) FilterButtonsPanel.Visibility = visibility;
       if (FilterAllBtn != null) FilterAllBtn.Visibility = visibility;
       bool hasHidden = _Achievements != null && _Achievements.Any(x => x.IsHiddenLocked);
-      if (RevealHiddenBtn != null) RevealHiddenBtn.Visibility = IsTimerMode ? Visibility.Collapsed : (hasHidden ? Visibility.Visible : Visibility.Collapsed);
+      if (RevealHiddenBtn != null) RevealHiddenBtn.Visibility = hasHidden ? Visibility.Visible : Visibility.Collapsed;
       if (StartTimerButton != null) StartTimerButton.Visibility = IsTimerMode ? Visibility.Visible : Visibility.Collapsed;
       if (RandomTimerButton != null) RandomTimerButton.Visibility = IsTimerMode ? Visibility.Visible : Visibility.Collapsed;
       if (EnableTimerText != null) EnableTimerText.Text = IsTimerMode ? "Normal Mode" : "Timer Mode";
@@ -752,7 +752,21 @@ namespace SAM.Picker.Modern {
       foreach (var ach in achievements) {
         if (!_IsTimerActive) break;
         if (ach.IsAchieved) continue;
-        if (!double.TryParse(ach.TimerMinutes, out double minutes) || minutes <= 0) continue;
+        if (!double.TryParse(ach.TimerMinutes, out double minutes) || minutes < 0) continue;
+        
+        // If minutes is 0, unlock immediately without delay
+        if (minutes == 0) {
+          if (!_IsTimerActive) break;
+          ach.IsAchieved = true; count++;
+          SharedStatusText.Text = $"Unlocked '{ach.Name}'!";
+          if (_SteamClient.SteamUserStats.SetAchievement(ach.Id, true)) _SteamClient.SteamUserStats.StoreStats();
+          _AchievementView.Refresh();
+          UpdateTimerMetadata();
+          UpdateProgressBar();
+          await Task.Delay(500); // Brief delay before moving to next achievement
+          continue;
+        }
+        
         int totalSeconds = (int)(minutes * 60);
         while (totalSeconds > 0) {
           if (!_IsTimerActive) break;
@@ -798,14 +812,14 @@ namespace SAM.Picker.Modern {
     }
     private void AchievementList_Drop(object sender, DragEventArgs e) {
       if (!IsTimerMode || IsTimerRunning) return;
-      if (_AchievementView.SortDescriptions.Count > 0) {
-        var sd = _AchievementView.SortDescriptions[0];
-        var sorted = _Achievements.ToList();
-        if (sd.PropertyName == "Name") sorted = (sd.Direction == ListSortDirection.Ascending) ? sorted.OrderBy(x => x.Name).ToList() : sorted.OrderByDescending(x => x.Name).ToList();
-        else if (sd.PropertyName == "GlobalPercent") sorted = (sd.Direction == ListSortDirection.Ascending) ? sorted.OrderBy(x => x.GlobalPercent).ToList() : sorted.OrderByDescending(x => x.GlobalPercent).ToList();
+      var lcv = _AchievementView as ListCollectionView;
+      bool isSorted = _AchievementView.SortDescriptions.Count > 0 || (lcv != null && lcv.CustomSort != null);
+
+      if (isSorted) {
+        var sorted = _AchievementView.Cast<AchievementViewModel>().ToList();
         _Achievements.Clear();
         foreach (var item in sorted) _Achievements.Add(item);
-        _AchievementView.SortDescriptions.Clear();
+        
         if (SortFilter != null) SortFilter.SelectedIndex = 0;
       }
       if (e.Data.GetDataPresent("myFormat")) {
@@ -832,6 +846,9 @@ namespace SAM.Picker.Modern {
           projection = projection.AddMinutes(minutes);
           ach.ETA = $"{projection:t}";
           projection = projection.AddSeconds(1);
+        } else if (!ach.IsAchieved && double.TryParse(ach.TimerMinutes, out minutes) && minutes == 0) {
+          // For immediate unlock (0 minutes), use the current projection time
+          ach.ETA = $"{projection:t}";
         } else ach.ETA = "";
       }
     }
