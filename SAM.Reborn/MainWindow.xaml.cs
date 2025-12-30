@@ -432,6 +432,7 @@ namespace SAM.Picker.Modern {
           var steamId = _SteamClient.SteamUser.GetSteamId();
           string url = "";
           if (item.Tag?.ToString() == "completionist") url = $"https://completionist.me/steam/profile/{steamId}/app/{_SelectedGameId}";
+          else if (item.Tag?.ToString() == "steamhunters") url = $"https://steamhunters.com/id/{steamId}/apps/{_SelectedGameId}/achievements";
           else if (item.Tag?.ToString() == "steam_achievements") url = $"https://steamcommunity.com/profiles/{steamId}/stats/{_SelectedGameId}/achievements/";
           else if (item.Tag?.ToString() == "global_stats") url = $"https://steamcommunity.com/stats/{_SelectedGameId}/achievements/";
           else if (item.Tag?.ToString() == "steamdb") url = $"https://steamdb.info/app/{_SelectedGameId}/";

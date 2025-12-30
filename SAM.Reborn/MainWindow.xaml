@@ -386,6 +386,7 @@
                   <MenuItem Header="Guides" Tag="guides" Click="LinkOption_Click"/>
                   <Separator/>
                   <MenuItem Header="Completionist.me" Tag="completionist" Click="LinkOption_Click"/>
+                  <MenuItem Header="SteamHunters.com" Tag="steamhunters" Click="LinkOption_Click"/>
                   <MenuItem Header="SteamDB" Tag="steamdb" Click="LinkOption_Click"/>
                 </ContextMenu>
               </Button.ContextMenu>
@@ -515,15 +516,38 @@
                         <DataTrigger Binding="{Binding IsAchieved}" Value="True">
                           <Setter Property="Background" Value="#20232a"/>
                         </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
+                          <Setter Property="Padding" Value="0,5"/>
+                        </DataTrigger>
                       </Style.Triggers>
                     </Style>
                   </Border.Style>
                   <Grid>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto"/>
-                      <ColumnDefinition Width="80"/>
+                      <ColumnDefinition Width="80">
+                        <ColumnDefinition.Style>
+                          <Style TargetType="ColumnDefinition">
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
+                                <Setter Property="Width" Value="50"/>
+                              </DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </ColumnDefinition.Style>
+                      </ColumnDefinition>
                       <ColumnDefinition Width="*"/>
-                      <ColumnDefinition Width="150"/>
+                      <ColumnDefinition Width="150">
+                        <ColumnDefinition.Style>
+                          <Style TargetType="ColumnDefinition">
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
+                                <Setter Property="Width" Value="100"/>
+                              </DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </ColumnDefinition.Style>
+                      </ColumnDefinition>
                       <ColumnDefinition Width="80"/>
                       <ColumnDefinition Width="120"/>
                     </Grid.ColumnDefinitions>
@@ -556,7 +580,21 @@
                         </TextBlock.Style>
                       </TextBlock>
                     </StackPanel>
-                    <Border Grid.Column="1" Width="64" Height="64" Margin="5,0" VerticalAlignment="Center" BorderThickness="2" CornerRadius="0">
+                    <Border Grid.Column="1" VerticalAlignment="Center" BorderThickness="2" CornerRadius="0">
+                      <Border.Style>
+                        <Style TargetType="Border">
+                          <Setter Property="Width" Value="64"/>
+                          <Setter Property="Height" Value="64"/>
+                          <Setter Property="Margin" Value="5,0"/>
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
+                              <Setter Property="Width" Value="40"/>
+                              <Setter Property="Height" Value="40"/>
+                              <Setter Property="Margin" Value="2,0"/>
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </Border.Style>
                       <Border.Effect>
                         <DropShadowEffect Color="{Binding GlobalPercent, Converter={StaticResource RarityColorConverter}, ConverterParameter=Color}" BlurRadius="{Binding GlobalPercent, Converter={StaticResource RarityColorConverter}, ConverterParameter=Blur}" ShadowDepth="0" Opacity="0.9"/>
                       </Border.Effect>
@@ -567,7 +605,18 @@
                     </Border>
                     <StackPanel Grid.Column="2" Margin="5,0" VerticalAlignment="Center">
                       <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,5,2"/>
+                        <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="White" Margin="0,0,5,2">
+                          <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                              <Setter Property="FontSize" Value="16"/>
+                              <Style.Triggers>
+                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
+                                  <Setter Property="FontSize" Value="12"/>
+                                </DataTrigger>
+                              </Style.Triggers>
+                            </Style>
+                          </TextBlock.Style>
+                        </TextBlock>
                         <Path Data="{StaticResource Icon.Shield}" Fill="#FFC107" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" ToolTip="Protected Achievement">
                           <Path.Style>
                             <Style TargetType="Path">
@@ -605,12 +654,26 @@
                           </Path.Style>
                         </Path>
                       </StackPanel>
-                      <TextBlock Text="{Binding Description}" FontSize="13" Foreground="#BBBBBB" TextWrapping="Wrap" Margin="0,0,10,4"/>
+                      <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="0,0,10,4" Foreground="#BBBBBB">
+                        <TextBlock.Style>
+                          <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="13"/>
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
+                                <Setter Property="FontSize" Value="10"/>
+                              </DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </TextBlock.Style>
+                      </TextBlock>
                       <TextBlock Text="{Binding UnlockTime, StringFormat='Unlocked: {0}'}" FontSize="11" Foreground="#888888">
                         <TextBlock.Style>
                           <Style TargetType="TextBlock">
                             <Style.Triggers>
                               <DataTrigger Binding="{Binding UnlockTime}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                              </DataTrigger>
+                              <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                               </DataTrigger>
                             </Style.Triggers>
@@ -619,6 +682,15 @@
                       </TextBlock>
                     </StackPanel>
                     <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="5,0">
+                      <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
+                              <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </StackPanel.Style>
                       <TextBlock Text="{Binding GlobalPercent, StringFormat='{}{0:N1}%'}" FontSize="18" Foreground="#1A9fff" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                       <TextBlock Text="Global Rarity" FontSize="11" Foreground="#666666" HorizontalAlignment="Center"/>
                     </StackPanel>
