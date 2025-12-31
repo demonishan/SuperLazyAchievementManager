@@ -451,18 +451,28 @@ namespace SAM.Picker.Modern {
       if (SortFilter.SelectedItem is ComboBoxItem item) {
         string tag = item.Tag?.ToString();
         var lcv = _AchievementView as ListCollectionView;
-        if (tag == "Date_Desc" || tag == "Date_Asc") {
+        if (tag?.StartsWith("Date_") == true) {
           if (lcv != null) lcv.CustomSort = new AchievementDateSorter(tag == "Date_Desc");
         } else {
           if (lcv != null) lcv.CustomSort = null;
           _AchievementView.SortDescriptions.Clear();
-          if (tag == "Name_Asc") _AchievementView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
-          else if (tag == "Name_Desc") _AchievementView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Descending));
-          else if (tag == "Rarity_Asc") _AchievementView.SortDescriptions.Add(new SortDescription("GlobalPercent", ListSortDirection.Ascending));
-          else if (tag == "Rarity_Desc") _AchievementView.SortDescriptions.Add(new SortDescription("GlobalPercent", ListSortDirection.Descending));
+          ApplySortByTag(tag);
         }
         _AchievementView.Refresh();
         UpdateTimerMetadata();
+      }
+    }
+    private void ApplySortByTag(string tag) {
+      if (tag == null) return;
+      var sortMap = new Dictionary<string, (string property, ListSortDirection direction, bool addNameSecondary)> {
+        { "Name_Asc", ("Name", ListSortDirection.Ascending, false) },
+        { "Name_Desc", ("Name", ListSortDirection.Descending, false) },
+        { "Rarity_Asc", ("GlobalPercent", ListSortDirection.Ascending, true) },
+        { "Rarity_Desc", ("GlobalPercent", ListSortDirection.Descending, true) }
+      };
+      if (sortMap.TryGetValue(tag, out var config)) {
+        _AchievementView.SortDescriptions.Add(new SortDescription(config.property, config.direction));
+        if (config.addNameSecondary) _AchievementView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
       }
     }
     private void BulkAction_Click(object sender, RoutedEventArgs e) {
