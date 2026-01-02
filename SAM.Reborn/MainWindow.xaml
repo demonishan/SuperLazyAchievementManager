@@ -516,10 +516,10 @@
                 <Border CornerRadius="5" Margin="0,1" Padding="0,10">
                   <Border.Style>
                     <Style TargetType="Border">
-                      <Setter Property="Background" Value="#80292e3b" />
+                      <Setter Property="Background" Value="#80292e5c" />
                       <Style.Triggers>
                         <DataTrigger Binding="{Binding IsAchieved}" Value="True">
-                          <Setter Property="Background" Value="#20232a3b"/>
+                          <Setter Property="Background" Value="#20232a5c"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
                           <Setter Property="Padding" Value="0,5"/>
