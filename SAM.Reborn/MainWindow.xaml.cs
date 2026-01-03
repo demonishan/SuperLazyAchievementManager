@@ -53,6 +53,29 @@ namespace SAM.Picker.Modern {
     }
   }
   public partial class MainWindow : Window {
+    private void CopyGameName_ContextMenu_Click(object sender, RoutedEventArgs e) {
+      if (SelectedGameName != null && !string.IsNullOrWhiteSpace(SelectedGameName.Text))
+        Clipboard.SetText(SelectedGameName.Text);
+    }
+    private void CopyGameId_ContextMenu_Click(object sender, RoutedEventArgs e) {
+      if (SelectedGameName != null && SelectedGameName.DataContext is GameViewModel game)
+        Clipboard.SetText(game.Id.ToString());
+    }
+    private void CopyGameName_Click(object sender, RoutedEventArgs e) {
+      if (sender is Button btn) {
+        var grid = VisualTreeHelper.GetParent(btn);
+        while (grid != null && !(grid is Grid))
+          grid = VisualTreeHelper.GetParent(grid);
+        if (grid is Grid g) {
+          foreach (var child in LogicalTreeHelper.GetChildren(g)) {
+            if (child is TextBlock tb && !string.IsNullOrWhiteSpace(tb.Text)) {
+              Clipboard.SetText(tb.Text);
+              break;
+            }
+          }
+        }
+      }
+    }
     private Client _SteamClient;
     private List<GameInfo> _AllGames = new List<GameInfo>();
     private ObservableCollection<GameViewModel> _FilteredGames = new ObservableCollection<GameViewModel>();
@@ -204,9 +227,7 @@ namespace SAM.Picker.Modern {
       if (game.CachedIcon != null) return;
       var path = Path.Combine(cacheDir, $"{game.Id}.jpg");
       BitmapImage bitmap = null;
-      // Try main image URL
       bitmap = await ImageCacheHelper.GetImageAsync(game.ImageUrl, path);
-      // If failed, try fallback from Steam API
       if (bitmap == null) {
         try {
           var json = await client.DownloadStringTaskAsync($"https://store.steampowered.com/api/appdetails?appids={game.Id}");
@@ -254,6 +275,7 @@ namespace SAM.Picker.Modern {
         if (sender is FrameworkElement element && element.DataContext is GameViewModel game) {
           _SelectedGameId = game.Id;
           SelectedGameName.Text = game.Name;
+          SelectedGameName.DataContext = game;
           if (WindowTitleText != null) WindowTitleText.Text = $"{game.Name} - Super Lazy Achievement Manager";
           if (WindowVersionText != null) WindowVersionText.Text = $"v{_AppVersion}";
           Title = $"{game.Name} - SLAM";
@@ -269,7 +291,6 @@ namespace SAM.Picker.Modern {
           }
           HomeView.Visibility = Visibility.Collapsed;
           GameDetailsView.Visibility = Visibility.Visible;
-          // Show background image for selected game
           SetGameBackgroundImage(game.Id);
           SharedStatusText.Text = $"Checking if you actually beat {game.Name}";
           SharedStatusText.Text = $"Checking if you actually beat {game.Name}";
@@ -650,7 +671,6 @@ namespace SAM.Picker.Modern {
         }
         GameDetailsView.Visibility = Visibility.Collapsed;
         HomeView.Visibility = Visibility.Visible;
-        // Hide background image when returning to home
         if (GameBackgroundImage != null) {
           GameBackgroundImage.Source = null;
           GameBackgroundImage.Visibility = Visibility.Collapsed;
@@ -680,51 +700,37 @@ namespace SAM.Picker.Modern {
       }
     }
 
-    // Fetch and set the background image for the selected game
-    private async void SetGameBackgroundImage(uint appId)
-    {
-        if (GameBackgroundImage == null) return;
-        try
-        {
-          GameBackgroundImage.Visibility = Visibility.Collapsed;
-          string cacheDir = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cache", "backgrounds");
-          string bgPath = System.IO.Path.Combine(cacheDir, $"{appId}.jpg");
-          string bgUrl = null;
-          using (var client = new System.Net.WebClient())
-          {
-            string url = $"https://store.steampowered.com/api/appdetails?appids={appId}";
-            string json = await client.DownloadStringTaskAsync(url);
-            var match = System.Text.RegularExpressions.Regex.Match(json, "\\\"background\\\"\\s*:\\s*\\\"(.*?)\\\"");
-            if (match.Success)
-            {
-              bgUrl = match.Groups[1].Value.Replace("\\/", "/");
-            }
-          }
-          if (!string.IsNullOrEmpty(bgUrl))
-          {
-            var bitmap = await ImageCacheHelper.GetImageAsync(bgUrl, bgPath);
-            if (bitmap != null)
-            {
-              GameBackgroundImage.Source = bitmap;
-              GameBackgroundImage.Visibility = Visibility.Visible;
-            }
-            else
-            {
-              GameBackgroundImage.Source = null;
-              GameBackgroundImage.Visibility = Visibility.Collapsed;
-            }
-          }
-          else
-          {
+    private async void SetGameBackgroundImage(uint appId) {
+      if (GameBackgroundImage == null) return;
+      try {
+        GameBackgroundImage.Visibility = Visibility.Collapsed;
+        string cacheDir = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cache", "backgrounds");
+        string bgPath = System.IO.Path.Combine(cacheDir, $"{appId}.jpg");
+        string bgUrl = null;
+        using (var client = new System.Net.WebClient()) {
+          string url = $"https://store.steampowered.com/api/appdetails?appids={appId}";
+          string json = await client.DownloadStringTaskAsync(url);
+          var match = System.Text.RegularExpressions.Regex.Match(json, "\\\"background\\\"\\s*:\\s*\\\"(.*?)\\\"");
+          if (match.Success)
+            bgUrl = match.Groups[1].Value.Replace("\\/", "/");
+        }
+        if (!string.IsNullOrEmpty(bgUrl)) {
+          var bitmap = await ImageCacheHelper.GetImageAsync(bgUrl, bgPath);
+          if (bitmap != null) {
+            GameBackgroundImage.Source = bitmap;
+            GameBackgroundImage.Visibility = Visibility.Visible;
+          } else {
             GameBackgroundImage.Source = null;
             GameBackgroundImage.Visibility = Visibility.Collapsed;
           }
-        }
-        catch
-        {
+        } else {
           GameBackgroundImage.Source = null;
           GameBackgroundImage.Visibility = Visibility.Collapsed;
         }
+      } catch {
+        GameBackgroundImage.Source = null;
+        GameBackgroundImage.Visibility = Visibility.Collapsed;
+      }
     }
     private void RefreshGame_Click(object sender, RoutedEventArgs e) => LoadGameData(false);
     private void Store_Click(object sender, RoutedEventArgs e) {

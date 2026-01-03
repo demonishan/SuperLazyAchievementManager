@@ -378,7 +378,20 @@
             <Path Data="{StaticResource Icon.Back}" Style="{StaticResource PathIconStyle}"/>
           </Button>
           <StackPanel Grid.Column="1" Margin="20,3,20,2">
-            <TextBlock x:Name="SelectedGameName" FontSize="24" FontWeight="Bold" Foreground="White"/>
+            <TextBlock x:Name="SelectedGameName" FontSize="24" FontWeight="Bold" Foreground="White">
+              <TextBlock.Text>
+                <Binding Path="Name"/>
+              </TextBlock.Text>
+              <TextBlock.DataContext>
+                <Binding/>
+              </TextBlock.DataContext>
+              <TextBlock.ContextMenu>
+                <ContextMenu>
+                  <MenuItem Header="Copy Name" Click="CopyGameName_ContextMenu_Click" />
+                  <MenuItem Header="Copy ID" Click="CopyGameId_ContextMenu_Click" />
+                </ContextMenu>
+              </TextBlock.ContextMenu>
+            </TextBlock>
           </StackPanel>
           <StackPanel Grid.Column="2" Orientation="Horizontal">
             <Button x:Name="LinksButton" Width="40" Height="40" Margin="5,0" Style="{StaticResource ActionButtonStyle}" Click="Links_Click" ToolTip="External Links">
