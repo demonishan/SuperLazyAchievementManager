@@ -349,6 +349,12 @@ namespace SAM.Picker.Modern {
     private void LoadGameData(bool resetFilters = true) {
       try {
         IsTimerMode = false;
+        if (ToggleSearchButton != null) ToggleSearchButton.Visibility = Visibility.Visible;
+        if (EnableTimerButton != null) EnableTimerButton.Visibility = Visibility.Visible;
+        if (LinksButton != null) LinksButton.Visibility = Visibility.Visible;
+        if (RefreshButton != null) RefreshButton.Visibility = Visibility.Visible;
+        if (SaveButton != null) SaveButton.Visibility = Visibility.Visible;
+        if (BulkActionsButton != null) BulkActionsButton.Visibility = Visibility.Visible;
         _AchievementView = CollectionViewSource.GetDefaultView(_Achievements);
         AchievementList.ItemsSource = _AchievementView;
         if (resetFilters) {
@@ -375,12 +381,19 @@ namespace SAM.Picker.Modern {
         try {
           _SteamClient?.Dispose();
           _SteamClient = null;
+          GC.Collect();
+          GC.WaitForPendingFinalizers();
           SAM.API.Steam.Unload();
           _SteamClient = new Client();
           _SteamClient.Initialize(_SelectedGameId);
           _UserStatsReceivedCallback = _SteamClient.CreateAndRegisterCallback<SAM.API.UserStatsReceived>();
           _UserStatsReceivedCallback.OnRun += (p) => {
             Dispatcher.Invoke(() => {
+              if (p.GameId != _SelectedGameId) {
+                DisplayAlert($"Steam returned stats for the wrong game ({p.GameId} vs {_SelectedGameId}). Please restart SAM.", true);
+                LoadingOverlay.Visibility = Visibility.Collapsed;
+                return;
+              }
               if (p.Result == 1) {
                 try { FetchAchievements(); }
                 catch (Exception ex) {
@@ -395,6 +408,13 @@ namespace SAM.Picker.Modern {
               }
             });
           };
+        } catch (ClientInitializeException cie) {
+          if (cie.Failure == ClientInitializeFailure.AppIdMismatch) DisplayAlert("Failed to switch game context (AppId Mismatch). Please restart SAM to switch games.", true);
+          else DisplayAlert("Failed to switch Steam context: " + cie.Message, true);
+          SAM.Picker.Modern.App.LogCrash(cie, "LoadGameData_SteamSwitch_Init");
+          LoadingOverlay.Visibility = Visibility.Collapsed;
+          _CallbackTimer.Start();
+          return;
         } catch (Exception ex) {
           DisplayAlert("Failed to switch Steam context: " + ex.Message, true);
           SAM.Picker.Modern.App.LogCrash(ex, "LoadGameData_SteamSwitch");
@@ -408,6 +428,12 @@ namespace SAM.Picker.Modern {
         if (gameInfo != null && !gameInfo.HasAchievements) {
           if (NoAchievementsMessage != null) NoAchievementsMessage.Visibility = Visibility.Visible;
           if (AchievementList != null) AchievementList.Visibility = Visibility.Collapsed;
+          if (BulkActionsButton != null) BulkActionsButton.Visibility = Visibility.Collapsed;
+          if (ToggleSearchButton != null) ToggleSearchButton.Visibility = Visibility.Collapsed;
+          if (EnableTimerButton != null) EnableTimerButton.Visibility = Visibility.Collapsed;
+          if (AchievementSearchRow != null) AchievementSearchRow.Visibility = Visibility.Collapsed;
+          if (RefreshButton != null) RefreshButton.Visibility = Visibility.Collapsed;
+          if (SaveButton != null) SaveButton.Visibility = Visibility.Collapsed;
           LoadingOverlay.Visibility = Visibility.Collapsed;
           SharedStatusText.Text = "No achievements for this game.";
           return;
@@ -572,13 +598,12 @@ namespace SAM.Picker.Modern {
           foreach (var ach in achievements) {
             string urlToLoad = ach.RealIconUrl;
             if (string.IsNullOrEmpty(urlToLoad) || urlToLoad.StartsWith("pack://")) {
-              if (ach.IconUrl.StartsWith("pack://")) {
+              if (ach.IconUrl.StartsWith("pack://"))
                 await Dispatcher.InvokeAsync(() => {
                   try {
                     ach.Icon = new BitmapImage(new Uri(ach.IconUrl));
                   } catch { }
                 });
-              }
               continue;
             }
             var filename = System.IO.Path.GetFileName(new Uri(urlToLoad).LocalPath);
@@ -684,6 +709,8 @@ namespace SAM.Picker.Modern {
         try {
           _SteamClient?.Dispose();
           _SteamClient = null;
+          GC.Collect();
+          GC.WaitForPendingFinalizers();
           SAM.API.Steam.Unload();
           _SteamClient = new Client();
           _SteamClient.Initialize(0);
