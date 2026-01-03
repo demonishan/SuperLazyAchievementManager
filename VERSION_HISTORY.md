@@ -1,5 +1,10 @@
 ## Version History
 
+### 8.5.10 (2026-01-04)
+- Core: Now parsing `appinfo.vdf` directly to detect installed games, allowing games without achievements to be listed.
+- UI: Replaced dropdown filters with segmented controls for better accessibility.
+- UI: Added exclusive filters for games with and without achievements.
+
 ### 8.4.10 (2025-12-31)
 - Added background image on the achievement list.
 - Improved image caching logic (thread-safe, DRY, UI-thread safe).

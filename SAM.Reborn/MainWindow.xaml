@@ -71,6 +71,8 @@
     <Geometry x:Key="Icon.Back">M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z</Geometry>
     <Geometry x:Key="Icon.SortAz">M19,17H22L18,21L14,17H17V3H19V17M11,3V5H3V3H11M9,7V9H3V7H9M7,11V13H3V11H7M5,15V17H3V15H5M3,19V21H3V19H3Z</Geometry>
     <Geometry x:Key="Icon.Filter">M10,18H14V16H10V18M3,6V8H21V6H3M6,13H18V11H6V13Z</Geometry>
+    <Geometry x:Key="Icon.Trophy">M20.2,2H17V1H7V2H3.8C2.2,2 1,3.2 1,4.8V6.2C1,7.5 2,8.6 3.2,8.9C4.1,11.6 6.5,13.6 9.5,13.9V16H7V18H17V16H14.5V13.9C17.5,13.6 19.9,11.6 20.8,8.9C22,8.6 23,7.5 23,6.2V4.8C23,3.2 21.8,2 20.2,2M3,6.2V4.8C3,4.3 3.3,4 3.8,4H7V8.8C4.9,8.4 3.3,7.5 3,6.2M21,6.2C20.7,7.5 19.1,8.4 17,8.8V4H20.2C20.7,4 21,4.3 21,4.8V6.2Z</Geometry>
+    <Geometry x:Key="Icon.Block">M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12C4,13.85 4.63,15.55 5.68,16.91L16.91,5.68C15.55,4.63 13.85,4 12,4M12,20A8,8 0 0,0 20,12C20,10.15 19.37,8.45 18.32,7.09L7.09,18.32C8.45,19.37 10.15,20 12,20Z</Geometry>
     <Geometry x:Key="Icon.DragHandle">M9,6h2v2h-2v-2z m0,5h2v2h-2v-2z m0,5h2v2h-2v-2z m5,-10h2v2h-2v-2z m0,5h2v2h-2v-2z m0,5h2v2h-2v-2z</Geometry>
     <Geometry x:Key="Icon.Timer">M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z</Geometry>
     <Geometry x:Key="Icon.Play">M8,5.14V19.14L19,12.14L8,5.14Z</Geometry>
@@ -282,17 +284,20 @@
               <Button x:Name="ClearSearchBtn" Grid.Column="2" Content="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="12" Width="40" Background="Transparent" Foreground="#888888" BorderThickness="0" Visibility="Collapsed" Click="ClearSearch_Click"/>
             </Grid>
           </Border>
-          <Button Grid.Column="1" Width="40" Height="40" Margin="10,0,0,0" Click="Filter_Click" Style="{StaticResource ActionButtonStyle}">
-            <Path Data="{StaticResource Icon.Filter}" Style="{StaticResource PathIconStyle}"/>
-            <Button.ContextMenu>
-              <ContextMenu>
-                <MenuItem x:Name="FilterGames" Header="Games" IsCheckable="True" Click="FilterOption_Click"/>
-                <MenuItem x:Name="FilterMods" Header="Mods" IsCheckable="True" Click="FilterOption_Click"/>
-                <MenuItem x:Name="FilterDemos" Header="Demos" IsCheckable="True" Click="FilterOption_Click"/>
-                <MenuItem x:Name="FilterJunk" Header="Junk" IsCheckable="True" Click="FilterOption_Click"/>
-              </ContextMenu>
-            </Button.ContextMenu>
-          </Button>
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,0,0,0">
+            <ToggleButton x:Name="FilterGamesBtn" Height="40" MinWidth="60" Margin="0" Style="{StaticResource ToggleActionButtonStyleLeft}" Click="GameFilterToggle_Click" IsChecked="True" Content="Games"/>
+            <ToggleButton x:Name="FilterModsBtn" Height="40" MinWidth="60" Margin="0" Style="{StaticResource ToggleActionButtonStyleCenter}" Click="GameFilterToggle_Click" IsChecked="False" Content="Mods"/>
+            <ToggleButton x:Name="FilterDemosBtn" Height="40" MinWidth="60" Margin="0" Style="{StaticResource ToggleActionButtonStyleCenter}" Click="GameFilterToggle_Click" IsChecked="False" Content="Demos"/>
+            <ToggleButton x:Name="FilterDlcBtn" Height="40" MinWidth="60" Margin="0" Style="{StaticResource ToggleActionButtonStyleRight}" Click="GameFilterToggle_Click" IsChecked="False" Content="DLC"/>
+            <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
+              <ToggleButton x:Name="FilterWithAchievementsBtn" Height="40" Width="40" Margin="0" Style="{StaticResource ToggleActionButtonStyleLeft}" Click="AchievementFilterToggle_Click" IsChecked="True" ToolTip="With Achievements">
+                <Path Data="{StaticResource Icon.Trophy}" Style="{StaticResource PathIconStyle}"/>
+              </ToggleButton>
+              <ToggleButton x:Name="FilterWithoutAchievementsBtn" Height="40" Width="40" Margin="0" Style="{StaticResource ToggleActionButtonStyleRight}" Click="AchievementFilterToggle_Click" IsChecked="False" ToolTip="Without Achievements">
+                <Path Data="{StaticResource Icon.Block}" Style="{StaticResource PathIconStyle}"/>
+              </ToggleButton>
+            </StackPanel>
+          </StackPanel>
           <Button Grid.Column="2" Width="40" Height="40" Margin="10,0,0,0" Click="Refresh_Click" Style="{StaticResource ActionButtonStyle}">
             <Path Data="{StaticResource Icon.Refresh}" Style="{StaticResource PathIconStyle}"/>
           </Button>
@@ -766,6 +771,11 @@
               </DataTemplate>
             </ListView.ItemTemplate>
           </ListView>
+          <Grid x:Name="NoAchievementsMessage" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel>
+              <TextBlock Text="No achievements found for this game." Foreground="#888888" FontSize="16" HorizontalAlignment="Center"/>
+            </StackPanel>
+          </Grid>
           <Grid x:Name="LoadingOverlay" Background="#B21E1E1E" Visibility="Collapsed">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
               <Path Data="{StaticResource Icon.Refresh}" Width="32" Height="32" Fill="White" RenderTransformOrigin="0.5,0.5">

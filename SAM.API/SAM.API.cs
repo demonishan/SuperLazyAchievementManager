@@ -566,27 +566,30 @@ namespace SAM.API {
     }
     public static KeyValue LoadAsBinary(string path) {
       if (!File.Exists(path)) return null;
-      try { using (var input = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) { KeyValue kv = new(); return kv.ReadAsBinary(input) ? kv : null; } } catch { return null; }
+      try { using (var input = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) { KeyValue kv = new(); kv.ReadAsBinary(input); return kv; } } catch { return null; }
     }
-    public bool ReadAsBinary(Stream input) {
+    public void ReadAsBinary(Stream input, string[] stringTable = null) {
       Children = new List<KeyValue>();
-      try {
-        while (true) {
-          var type = (KeyValueType)input.ReadValueU8();
-          if (type == KeyValueType.End) break;
-          KeyValue current = new() { Type = type, Name = input.ReadStringUnicode() };
-          switch (type) {
-            case KeyValueType.None: current.ReadAsBinary(input); break;
-            case KeyValueType.String: current.Valid = true; current.Value = input.ReadStringUnicode(); break;
-            case KeyValueType.Int32: current.Valid = true; current.Value = input.ReadValueS32(); break;
-            case KeyValueType.UInt64: current.Valid = true; current.Value = input.ReadValueU64(); break;
-            case KeyValueType.Float32: current.Valid = true; current.Value = input.ReadValueF32(); break;
-            default: throw new FormatException();
-          }
-          Children.Add(current);
+      while (true) {
+        var type = (KeyValueType)input.ReadValueU8();
+        if (type == KeyValueType.End) break;
+        string name;
+        if (stringTable != null) {
+          var index = input.ReadValueS32();
+          name = (index >= 0 && index < stringTable.Length) ? stringTable[index] : index.ToString();
+        } else name = input.ReadStringUnicode();
+        KeyValue current = new() { Type = type, Name = name };
+        switch (type) {
+          case KeyValueType.None: current.ReadAsBinary(input, stringTable); break;
+          case KeyValueType.String: current.Valid = true; current.Value = input.ReadStringUnicode(); break;
+          case KeyValueType.Int32: current.Valid = true; current.Value = input.ReadValueS32(); break;
+          case KeyValueType.UInt64: current.Valid = true; current.Value = input.ReadValueU64(); break;
+          case KeyValueType.Float32: current.Valid = true; current.Value = input.ReadValueF32(); break;
+          default: throw new FormatException($"Unknown KV type: {type} at position {input.Position}");
         }
-        Valid = true; return true;
-      } catch { return false; }
+        Children.Add(current);
+      }
+      Valid = true;
     }
   }
 }

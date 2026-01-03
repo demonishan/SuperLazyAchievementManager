@@ -82,7 +82,9 @@ namespace SAM.Picker.Modern {
     private bool _WantGames = true;
     private bool _WantMods = false;
     private bool _WantDemos = false;
-    private bool _WantJunk = false;
+    private bool _WantDlc = false;
+    private bool _WantWithAchievements = true;
+    private bool _WantWithoutAchievements = false;
     private DispatcherTimer _CallbackTimer;
     private ICollectionView _AchievementView;
     private string _AppVersion = "";
@@ -164,34 +166,12 @@ namespace SAM.Picker.Modern {
     }
     private void FetchGames() {
       try {
-        byte[] bytes;
-        using (WebClient downloader = new WebClient()) {
-          try { bytes = downloader.DownloadData(new Uri("https://gib.me/sam/games.xml")); }
-          catch { bytes = System.Text.Encoding.UTF8.GetBytes("<games><game type=\"normal\">480</game></games>"); }
-        }
-        List<KeyValuePair<uint, string>> pairs = new List<KeyValuePair<uint, string>>();
-        try {
-          using (MemoryStream stream = new MemoryStream(bytes, false)) {
-            XPathDocument document = new XPathDocument(stream);
-            var navigator = document.CreateNavigator();
-            var nodes = navigator.Select("/games/game");
-            while (nodes.MoveNext()) {
-              string type = nodes.Current.GetAttribute("type", "");
-              if (string.IsNullOrEmpty(type)) type = "normal";
-              pairs.Add(new KeyValuePair<uint, string>((uint)nodes.Current.ValueAsLong, type));
-            }
-          }
-        } catch {
-          pairs.Clear();
-          pairs.Add(new KeyValuePair<uint, string>(480, "normal"));
-        }
+        var installPath = SAM.API.Steam.GetInstallPath();
+        var allKnownGames = AppInfoReader.GetGames(installPath);
         var fetchedGames = new List<GameInfo>();
-        foreach (var kv in pairs) {
+        foreach (var game in allKnownGames) {
           try {
-            if (_SteamClient.SteamApps008.IsSubscribedApp(kv.Key)) {
-              var name = _SteamClient.SteamApps001.GetAppData(kv.Key, "name") ?? $"App {kv.Key}";
-              fetchedGames.Add(new GameInfo { Id = kv.Key, Name = name, Type = kv.Value, ImageUrl = $"https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/{kv.Key}/header.jpg" });
-            }
+            if (_SteamClient.SteamApps008.IsSubscribedApp(game.Id)) fetchedGames.Add(game);
           } catch { }
         }
         Dispatcher.Invoke(() => {
@@ -201,6 +181,7 @@ namespace SAM.Picker.Modern {
           HomeLoadingOverlay.Visibility = Visibility.Collapsed;
           RefreshFilter();
           StartImageCaching();
+          if (fetchedGames.Count == 0) DisplayAlert("No games found. Check if Steam is running or if appinfo.vdf is readable.", true);
         });
       } catch (Exception ex) {
         Dispatcher.Invoke(() => {
@@ -262,7 +243,7 @@ namespace SAM.Picker.Modern {
       if (SearchBox == null) return;
       var searchText = SearchBox.Text.ToLower(CultureInfo.InvariantCulture);
       if (ClearSearchBtn != null) ClearSearchBtn.Visibility = string.IsNullOrEmpty(searchText) ? Visibility.Collapsed : Visibility.Visible;
-      var filtered = _AllGames.Where(g => (string.IsNullOrEmpty(searchText) || g.Name.ToLower(CultureInfo.InvariantCulture).Contains(searchText)) && ((g.Type == "normal" && _WantGames) || (g.Type == "mod" && _WantMods) || (g.Type == "demo" && _WantDemos) || (g.Type == "junk" && _WantJunk))).OrderBy(g => g.Name).ToList();
+      var filtered = _AllGames.Where(g => (string.IsNullOrEmpty(searchText) || g.Name.ToLower(CultureInfo.InvariantCulture).Contains(searchText)) && ((g.Type == "normal" && _WantGames) || (g.Type == "mod" && _WantMods) || (g.Type == "demo" && _WantDemos) || (g.Type == "dlc" && _WantDlc)) && ((g.HasAchievements && _WantWithAchievements) || (!g.HasAchievements && _WantWithoutAchievements))).OrderBy(g => g.Name).ToList();
       _FilteredGames.Clear();
       foreach (var g in filtered)
         _FilteredGames.Add(new GameViewModel { Id = g.Id, Name = g.Name, Image = g.CachedIcon });
@@ -386,6 +367,8 @@ namespace SAM.Picker.Modern {
           ApplySort();
         }
         _Achievements.Clear();
+        if (NoAchievementsMessage != null) NoAchievementsMessage.Visibility = Visibility.Collapsed;
+        if (AchievementList != null) AchievementList.Visibility = Visibility.Visible;
         LoadingOverlay.Visibility = Visibility.Visible;
         SharedStatusText.Text = "Switching Steam context...";
         _CallbackTimer.Stop();
@@ -420,6 +403,16 @@ namespace SAM.Picker.Modern {
           return;
         }
         _CallbackTimer.Start();
+
+        var gameInfo = _AllGames.FirstOrDefault(g => g.Id == _SelectedGameId);
+        if (gameInfo != null && !gameInfo.HasAchievements) {
+          if (NoAchievementsMessage != null) NoAchievementsMessage.Visibility = Visibility.Visible;
+          if (AchievementList != null) AchievementList.Visibility = Visibility.Collapsed;
+          LoadingOverlay.Visibility = Visibility.Collapsed;
+          SharedStatusText.Text = "No achievements for this game.";
+          return;
+        }
+
         var steamId = _SteamClient.SteamUser.GetSteamId();
         _SteamClient.SteamUserStats.RequestUserStats(steamId);
         _SteamClient.SteamUserStats.RequestGlobalAchievementPercentages();
@@ -470,6 +463,15 @@ namespace SAM.Picker.Modern {
           _Achievements.Add(avm);
         }
       }
+
+      if (_Achievements.Count == 0) {
+        if (NoAchievementsMessage != null) NoAchievementsMessage.Visibility = Visibility.Visible;
+        if (AchievementList != null) AchievementList.Visibility = Visibility.Collapsed;
+      } else {
+        if (NoAchievementsMessage != null) NoAchievementsMessage.Visibility = Visibility.Collapsed;
+        if (AchievementList != null) AchievementList.Visibility = Visibility.Visible;
+      }
+
       bool hasHiddenLocked = _Achievements.Any(x => x.IsHiddenLocked);
       if (RevealHiddenBtn != null) RevealHiddenBtn.Visibility = hasHiddenLocked ? Visibility.Visible : Visibility.Collapsed;
       SharedStatusText.Text = $"Loaded {_Achievements.Count} achievements.";
@@ -753,22 +755,50 @@ namespace SAM.Picker.Modern {
       HomeLoadingOverlay.Visibility = Visibility.Visible;
       LoadData();
     }
-    private void Filter_Click(object sender, RoutedEventArgs e) {
-      if (sender is Button btn && btn.ContextMenu != null) {
-        FilterGames.IsChecked = _WantGames;
-        FilterMods.IsChecked = _WantMods;
-        FilterDemos.IsChecked = _WantDemos;
-        FilterJunk.IsChecked = _WantJunk;
-        btn.ContextMenu.PlacementTarget = btn;
-        btn.ContextMenu.IsOpen = true;
+    private void GameFilterToggle_Click(object sender, RoutedEventArgs e) {
+      if (sender is System.Windows.Controls.Primitives.ToggleButton btn) {
+        if (btn.IsChecked == false) {
+          btn.IsChecked = true;
+          return;
+        }
+        if (btn == FilterGamesBtn) {
+          if (FilterModsBtn != null) FilterModsBtn.IsChecked = false;
+          if (FilterDemosBtn != null) FilterDemosBtn.IsChecked = false;
+          if (FilterDlcBtn != null) FilterDlcBtn.IsChecked = false;
+        } else if (btn == FilterModsBtn) {
+          if (FilterGamesBtn != null) FilterGamesBtn.IsChecked = false;
+          if (FilterDemosBtn != null) FilterDemosBtn.IsChecked = false;
+          if (FilterDlcBtn != null) FilterDlcBtn.IsChecked = false;
+        } else if (btn == FilterDemosBtn) {
+          if (FilterGamesBtn != null) FilterGamesBtn.IsChecked = false;
+          if (FilterModsBtn != null) FilterModsBtn.IsChecked = false;
+          if (FilterDlcBtn != null) FilterDlcBtn.IsChecked = false;
+        } else if (btn == FilterDlcBtn) {
+          if (FilterGamesBtn != null) FilterGamesBtn.IsChecked = false;
+          if (FilterModsBtn != null) FilterModsBtn.IsChecked = false;
+          if (FilterDemosBtn != null) FilterDemosBtn.IsChecked = false;
+        }
+
+        _WantGames = FilterGamesBtn.IsChecked == true;
+        _WantMods = FilterModsBtn.IsChecked == true;
+        _WantDemos = FilterDemosBtn.IsChecked == true;
+        _WantDlc = FilterDlcBtn.IsChecked == true;
+        RefreshFilter();
       }
     }
-    private void FilterOption_Click(object sender, RoutedEventArgs e) {
-      if (sender is MenuItem item) {
-        if (item == FilterGames) _WantGames = item.IsChecked;
-        if (item == FilterMods) _WantMods = item.IsChecked;
-        if (item == FilterDemos) _WantDemos = item.IsChecked;
-        if (item == FilterJunk) _WantJunk = item.IsChecked;
+    private void AchievementFilterToggle_Click(object sender, RoutedEventArgs e) {
+      if (sender is System.Windows.Controls.Primitives.ToggleButton btn) {
+        if (btn.IsChecked == false) {
+          btn.IsChecked = true;
+          return;
+        }
+        if (btn == FilterWithAchievementsBtn) {
+          if (FilterWithoutAchievementsBtn != null) FilterWithoutAchievementsBtn.IsChecked = false;
+        } else if (btn == FilterWithoutAchievementsBtn) {
+          if (FilterWithAchievementsBtn != null) FilterWithAchievementsBtn.IsChecked = false;
+        }
+        _WantWithAchievements = FilterWithAchievementsBtn.IsChecked == true;
+        _WantWithoutAchievements = FilterWithoutAchievementsBtn.IsChecked == true;
         RefreshFilter();
       }
     }
@@ -1023,6 +1053,7 @@ namespace SAM.Picker.Modern {
     public string Type { get; set; }
     public string ImageUrl { get; set; }
     public System.Windows.Media.ImageSource CachedIcon { get; set; }
+    public bool HasAchievements { get; set; }
   }
   public class GameViewModel : INotifyPropertyChanged {
     public uint Id { get; set; }
