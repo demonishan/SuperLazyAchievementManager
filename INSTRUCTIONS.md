@@ -33,6 +33,7 @@
 - **Curly Braces**: Opening curly braces must be on the same line as the statement (K&R style).
 - **Single-Statement If**: Do not use braces for single-statement `if` blocks.
 - **No Extra Newlines**: Do not use consecutive blank lines. Keep code compact.
+- **Struct Formatting**: Do not keep multiple fields on the same line. Break lines to avoid multiple closing semicolons in one line.
 
 ### Technical Constraints
 - **Interop**: Use `[StructLayout(LayoutKind.Sequential, Pack = 1)]` for all Steam interface structs.

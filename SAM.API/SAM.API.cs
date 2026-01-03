@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -32,17 +32,35 @@ namespace SAM.API {
     public enum ItemRequestResult : int { InvalidValue = -1, OK = 0, Denied = 1, ServerError = 2, Timeout = 3, Invalid = 4, NoMatch = 5, UnknownError = 6, NotLoggedOn = 7, }
     public enum UserStatType { Invalid = 0, Integer = 1, Float = 2, AverageRate = 3, Achievements = 4, GroupAchievements = 5, }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct AppDataChanged { public uint Id; public bool Result; }
+    public struct AppDataChanged {
+      public uint Id;
+      public bool Result;
+    }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct CallbackMessage { public int User; public int Id; public IntPtr ParamPointer; public int ParamSize; }
+    public struct CallbackMessage {
+      public int User;
+      public int Id;
+      public IntPtr ParamPointer;
+      public int ParamSize;
+    }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct UserItemsReceived { public ulong GameId; public int Unknown; public int ItemCount; }
+    public struct UserItemsReceived {
+      public ulong GameId;
+      public int Unknown;
+      public int ItemCount;
+    }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct UserStatsReceived { public ulong GameId; public int Result; public ulong SteamIdUser; }
+    public struct UserStatsReceived {
+      public ulong GameId;
+      public int Result;
+      public ulong SteamIdUser;
+    }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct UserStatsStored { public ulong GameId; public int Result; }
+    public struct UserStatsStored {
+      public ulong GameId;
+      public int Result;
+    }
   }
-  #region Callback Infrastructure
   public interface ICallback {
     int Id { get; }
     bool IsServer { get; }
@@ -87,8 +105,6 @@ namespace SAM.API {
     public override int Id => 1201;
     public override bool IsServer => false;
   }
-  #endregion
-  #region Native Wrapper Infrastructure
   public interface INativeWrapper {
     void SetupFunctions(IntPtr objectAddress);
   }
@@ -136,29 +152,28 @@ namespace SAM.API {
     }
     public static unsafe string PointerToString(byte* bytes, int length) => PointerToString((sbyte*)bytes, length);
     public static unsafe string PointerToString(IntPtr nativeData, int length) => PointerToString((sbyte*)nativeData.ToPointer(), length);
+  }
+  public abstract class NativeWrapper<TNativeFunctions> : INativeWrapper {
+    protected IntPtr ObjectAddress;
+    protected TNativeFunctions Functions;
+    private readonly Dictionary<IntPtr, Delegate> _FunctionCache = new();
+    public override string ToString() => $"Steam Interface<{typeof(TNativeFunctions)}> #{ObjectAddress.ToInt32():X8}";
+    public void SetupFunctions(IntPtr objectAddress) {
+      ObjectAddress = objectAddress;
+      var iface = (NativeClass)Marshal.PtrToStructure(ObjectAddress, typeof(NativeClass));
+      Functions = (TNativeFunctions)Marshal.PtrToStructure(iface.VirtualTable, typeof(TNativeFunctions));
     }
-    public abstract class NativeWrapper<TNativeFunctions> : INativeWrapper {
-      protected IntPtr ObjectAddress;
-      protected TNativeFunctions Functions;
-      private readonly Dictionary<IntPtr, Delegate> _FunctionCache = new();
-      public override string ToString() => $"Steam Interface<{typeof(TNativeFunctions)}> #{ObjectAddress.ToInt32():X8}";
-      public void SetupFunctions(IntPtr objectAddress) {
-        ObjectAddress = objectAddress;
-        var iface = (NativeClass)Marshal.PtrToStructure(ObjectAddress, typeof(NativeClass));
-        Functions = (TNativeFunctions)Marshal.PtrToStructure(iface.VirtualTable, typeof(TNativeFunctions));
+    protected Delegate GetDelegate<TDelegate>(IntPtr pointer) {
+      if (_FunctionCache.TryGetValue(pointer, out var function) == false) {
+        function = Marshal.GetDelegateForFunctionPointer(pointer, typeof(TDelegate));
+        _FunctionCache[pointer] = function;
       }
-      protected Delegate GetDelegate<TDelegate>(IntPtr pointer) {
-        if (_FunctionCache.TryGetValue(pointer, out var function) == false) {
-          function = Marshal.GetDelegateForFunctionPointer(pointer, typeof(TDelegate));
-          _FunctionCache[pointer] = function;
-        }
-        return function;
-      }
-      protected TDelegate GetFunction<TDelegate>(IntPtr pointer) where TDelegate : class => (TDelegate)(object)GetDelegate<TDelegate>(pointer);
-      protected void Call<TDelegate>(IntPtr pointer, params object[] args) => GetDelegate<TDelegate>(pointer).DynamicInvoke(args);
-      protected TReturn Call<TReturn, TDelegate>(IntPtr pointer, params object[] args) => (TReturn)GetDelegate<TDelegate>(pointer).DynamicInvoke(args);
+      return function;
     }
-    #endregion
+    protected TDelegate GetFunction<TDelegate>(IntPtr pointer) where TDelegate : class => (TDelegate)(object)GetDelegate<TDelegate>(pointer);
+    protected void Call<TDelegate>(IntPtr pointer, params object[] args) => GetDelegate<TDelegate>(pointer).DynamicInvoke(args);
+    protected TReturn Call<TReturn, TDelegate>(IntPtr pointer, params object[] args) => (TReturn)GetDelegate<TDelegate>(pointer).DynamicInvoke(args);
+  }
   public static class Steam {
     private struct Native {
       [DllImport("kernel32.dll", SetLastError = true, BestFitMapping = false, ThrowOnUnmappableChar = true)]
