@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <ProjectReference Include="..\SAM.API\SAM.API.csproj" />
     <PackageReference Include="Costura.Fody" Version="6.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -13,18 +14,18 @@
   <PropertyGroup>
     <ApplicationIcon>..\Resources\icon.ico</ApplicationIcon>
     <AssemblyName>SLAM</AssemblyName>
-    <AssemblyVersion>8.5.10.0</AssemblyVersion>
+    <AssemblyVersion>8.6.10.0</AssemblyVersion>
     <Authors>Ishan Samanta [666de666.com]</Authors>
     <Company>DEMONiZER Corp.</Company>
     <Copyright>Copyright © 2025 - 2026 Ishan Samanta</Copyright>
     <Description>Super Lazy Achievement Manager</Description>
-    <FileVersion>8.5.10.0</FileVersion>
+    <FileVersion>8.6.10.0</FileVersion>
     <LangVersion>14.0</LangVersion>
     <OutputType>WinExe</OutputType>
     <Platforms>x86</Platforms>
     <PlatformTarget>x86</PlatformTarget>
     <TargetFramework>net48</TargetFramework>
     <UseWPF>true</UseWPF>
-    <Version>8.5.10</Version>
+    <Version>8.6.10</Version>
   </PropertyGroup>
 </Project>

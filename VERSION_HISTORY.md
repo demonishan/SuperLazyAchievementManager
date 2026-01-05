@@ -1,5 +1,12 @@
 ## Version History
 
+### 8.6.10 (2026-01-05)
+- Favorites System.
+  - Added interactive Star icon on game cards (hover to see, click to toggle).
+  - Added "Favorites Only" filter to quickly access pinned games.
+  - Added "Add to Favorites" option in the game context menu.
+  - `config.json` for storing application settings and favorites.
+
 ### 8.5.10 (2026-01-04)
 - Core: Now parsing `appinfo.vdf` directly to detect installed games, allowing games without achievements to be listed.
 - UI: Replaced dropdown filters with segmented controls for better accessibility.

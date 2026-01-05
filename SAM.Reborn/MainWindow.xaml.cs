@@ -17,7 +17,11 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Xml.XPath;
 using SAM.API;
+using Newtonsoft.Json;
 namespace SAM.Picker.Modern {
+  public class AppConfig {
+    public List<uint> FavoriteGames { get; set; } = new List<uint>();
+  }
   public static class ImageCacheHelper {
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, BitmapImage> _memoryCache = new System.Collections.Concurrent.ConcurrentDictionary<string, BitmapImage>();
     public static async Task<BitmapImage> GetImageAsync(string url, string cachePath) {
@@ -76,6 +80,50 @@ namespace SAM.Picker.Modern {
         }
       }
     }
+    private void LoadConfiguration() {
+      try {
+        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+        if (File.Exists(path)) {
+          var json = File.ReadAllText(path);
+          _Config = JsonConvert.DeserializeObject<AppConfig>(json) ?? new AppConfig();
+          _FavoriteGameIds = _Config.FavoriteGames ?? new List<uint>();
+        }
+      } catch {
+        _Config = new AppConfig();
+        _FavoriteGameIds = new List<uint>();
+      }
+    }
+    private void SaveConfiguration() {
+      try {
+        _Config.FavoriteGames = _FavoriteGameIds;
+        var json = JsonConvert.SerializeObject(_Config, Formatting.Indented);
+        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+        File.WriteAllText(path, json);
+      } catch { }
+    }
+    private void ToggleFavorite(uint appId) {
+      if (_FavoriteGameIds.Contains(appId)) _FavoriteGameIds.Remove(appId);
+      else _FavoriteGameIds.Add(appId);
+      SaveConfiguration();
+      var vm = _FilteredGames.FirstOrDefault(x => x.Id == appId);
+      if (vm != null) vm.IsFavorite = _FavoriteGameIds.Contains(appId);
+      if (_WantFavorites) RefreshFilter();
+    }
+    private void FavoritesFilterToggle_Click(object sender, RoutedEventArgs e) {
+      _WantFavorites = (sender as System.Windows.Controls.Primitives.ToggleButton).IsChecked == true;
+      RefreshFilter();
+    }
+    private void ToggleFavorite_Click(object sender, RoutedEventArgs e) {
+      if (sender is MenuItem item && item.DataContext is GameViewModel game) {
+        ToggleFavorite(game.Id);
+      }
+    }
+    private void ToggleFavorite_Btn_Click(object sender, RoutedEventArgs e) {
+      if (sender is System.Windows.Controls.Primitives.ToggleButton btn && btn.DataContext is GameViewModel game) {
+        ToggleFavorite(game.Id);
+        e.Handled = true;
+      }
+    }
     private Client _SteamClient;
     private List<GameInfo> _AllGames = new List<GameInfo>();
     private ObservableCollection<GameViewModel> _FilteredGames = new ObservableCollection<GameViewModel>();
@@ -83,13 +131,17 @@ namespace SAM.Picker.Modern {
     private bool _WantMods = false;
     private bool _WantDemos = false;
     private bool _WantDlc = false;
+    private bool _WantFavorites = false;
     private bool _WantWithAchievements = true;
     private bool _WantWithoutAchievements = false;
     private DispatcherTimer _CallbackTimer;
     private ICollectionView _AchievementView;
     private string _AppVersion = "";
+    private List<uint> _FavoriteGameIds = new List<uint>();
+    private AppConfig _Config = new AppConfig();
     public MainWindow() {
       InitializeComponent();
+      LoadConfiguration();
       try {
         var entry = System.Reflection.Assembly.GetEntryAssembly();
         string ver = null;
@@ -244,9 +296,12 @@ namespace SAM.Picker.Modern {
       var searchText = SearchBox.Text.ToLower(CultureInfo.InvariantCulture);
       if (ClearSearchBtn != null) ClearSearchBtn.Visibility = string.IsNullOrEmpty(searchText) ? Visibility.Collapsed : Visibility.Visible;
       var filtered = _AllGames.Where(g => (string.IsNullOrEmpty(searchText) || g.Name.ToLower(CultureInfo.InvariantCulture).Contains(searchText)) && ((g.Type == "normal" && _WantGames) || (g.Type == "mod" && _WantMods) || (g.Type == "demo" && _WantDemos) || (g.Type == "dlc" && _WantDlc)) && ((g.HasAchievements && _WantWithAchievements) || (!g.HasAchievements && _WantWithoutAchievements))).OrderBy(g => g.Name).ToList();
+      if (_WantFavorites) {
+        filtered = filtered.Where(g => _FavoriteGameIds.Contains(g.Id)).ToList();
+      }
       _FilteredGames.Clear();
       foreach (var g in filtered)
-        _FilteredGames.Add(new GameViewModel { Id = g.Id, Name = g.Name, Image = g.CachedIcon });
+        _FilteredGames.Add(new GameViewModel { Id = g.Id, Name = g.Name, Image = g.CachedIcon, IsFavorite = _FavoriteGameIds.Contains(g.Id) });
     }
     private ObservableCollection<AchievementViewModel> _Achievements = new ObservableCollection<AchievementViewModel>();
     private uint _SelectedGameId;
@@ -1085,6 +1140,16 @@ namespace SAM.Picker.Modern {
   public class GameViewModel : INotifyPropertyChanged {
     public uint Id { get; set; }
     public string Name { get; set; }
+    private bool _IsFavorite;
+    public bool IsFavorite {
+      get => _IsFavorite;
+      set {
+        if (_IsFavorite != value) {
+          _IsFavorite = value;
+          OnPropertyChanged(nameof(IsFavorite));
+        }
+      }
+    }
     private System.Windows.Media.ImageSource _Image;
     public System.Windows.Media.ImageSource Image {
       get => _Image;

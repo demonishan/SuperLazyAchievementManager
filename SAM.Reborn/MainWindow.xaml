@@ -85,6 +85,7 @@
     <Geometry x:Key="Icon.Lock">M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8H17V6A5,5 0 0,0 12,1A5,5 0 0,0 7,6V8H6A2,2 0 0,0 4,10V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V10A2,2 0 0,0 18,8M12,3A3,3 0 0,1 15,6V8H9V6A3,3 0 0,1 12,3Z</Geometry>
     <Geometry x:Key="Icon.Unlock">M18,8H17V6A5,5 0 0,0 12,1A5,5 0 0,0 7,6H9C9,4.34 10.34,3 12,3A3,3 0 0,1 15,6V8H6A2,2 0 0,0 4,10V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V10A2,2 0 0,0 18,8M12,17A2,2 0 0,1 10,15A2,2 0 0,1 12,13A2,2 0 0,1 14,15A2,2 0 0,1 12,17Z</Geometry>
     <Geometry x:Key="Icon.Broken">M3,3H21V10L18,13L15,10L12,13L9,10L6,13L3,10V3M3,21H21V14L18,17L15,14L12,17L9,14L6,17L3,14V21Z</Geometry>
+    <Geometry x:Key="Icon.Star">M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z</Geometry>
     <Geometry x:Key="Icon.All">M4,4H8V8H4V4M10,4H14V8H10V4M16,4H20V8H16V4M4,10H8V14H4V10M10,10H14V14H10V10M16,10H20V14H16V10M4,16H8V20H4V16M10,16H14V20H10V16M16,16H20V20H16V16Z</Geometry>
     <Style x:Key="ToggleActionButtonStyle" TargetType="ToggleButton">
       <Setter Property="Background" Value="#20232a"/>
@@ -286,9 +287,12 @@
           </Border>
           <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,0,0,0">
             <ToggleButton x:Name="FilterGamesBtn" Height="40" MinWidth="60" Margin="0" Style="{StaticResource ToggleActionButtonStyleLeft}" Click="GameFilterToggle_Click" IsChecked="True" Content="Games"/>
+            <ToggleButton x:Name="FilterDlcBtn" Height="40" MinWidth="60" Margin="0" Style="{StaticResource ToggleActionButtonStyleRight}" Click="GameFilterToggle_Click" IsChecked="False" Content="DLC"/>
             <ToggleButton x:Name="FilterModsBtn" Height="40" MinWidth="60" Margin="0" Style="{StaticResource ToggleActionButtonStyleCenter}" Click="GameFilterToggle_Click" IsChecked="False" Content="Mods"/>
             <ToggleButton x:Name="FilterDemosBtn" Height="40" MinWidth="60" Margin="0" Style="{StaticResource ToggleActionButtonStyleCenter}" Click="GameFilterToggle_Click" IsChecked="False" Content="Demos"/>
-            <ToggleButton x:Name="FilterDlcBtn" Height="40" MinWidth="60" Margin="0" Style="{StaticResource ToggleActionButtonStyleRight}" Click="GameFilterToggle_Click" IsChecked="False" Content="DLC"/>
+            <ToggleButton x:Name="FilterFavoritesBtn" Height="40" Width="40" Margin="10,0,0,0" Style="{StaticResource ToggleActionButtonStyle}" Click="FavoritesFilterToggle_Click" IsChecked="False" ToolTip="Favorites Only">
+              <Path Data="{StaticResource Icon.Star}" Style="{StaticResource PathIconStyle}"/>
+            </ToggleButton>
             <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
               <ToggleButton x:Name="FilterWithAchievementsBtn" Height="40" Width="40" Margin="0" Style="{StaticResource ToggleActionButtonStyleLeft}" Click="AchievementFilterToggle_Click" IsChecked="True" ToolTip="With Achievements">
                 <Path Data="{StaticResource Icon.Trophy}" Style="{StaticResource PathIconStyle}"/>
@@ -326,6 +330,22 @@
           <ListView.ItemTemplate>
             <DataTemplate>
               <Border Background="#252526" Margin="3" MouseLeftButtonUp="Game_Click" Cursor="Hand" Width="260" VerticalAlignment="Top">
+                <Border.ContextMenu>
+                  <ContextMenu>
+                    <MenuItem Click="ToggleFavorite_Click">
+                      <MenuItem.Style>
+                        <Style TargetType="MenuItem">
+                          <Setter Property="Header" Value="Add to Favorites"/>
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsFavorite}" Value="True">
+                              <Setter Property="Header" Value="Remove from Favorites"/>
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </MenuItem.Style>
+                    </MenuItem>
+                  </ContextMenu>
+                </Border.ContextMenu>
                 <Grid>
                   <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -334,6 +354,43 @@
                   <Border Grid.Row="0" ClipToBounds="True" Width="260" Height="121" Background="Black">
                     <Image Source="{Binding Image}" Stretch="UniformToFill"/>
                   </Border>
+                  <ToggleButton Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0" IsChecked="{Binding IsFavorite, Mode=OneWay}" Click="ToggleFavorite_Btn_Click" Width="20" Height="20" Cursor="Hand">
+                    <ToggleButton.Style>
+                      <Style TargetType="ToggleButton">
+                        <Setter Property="Template">
+                          <Setter.Value>
+                            <ControlTemplate TargetType="ToggleButton">
+                              <Grid Background="Transparent">
+                                <Path x:Name="Star" Data="{StaticResource Icon.Star}" Stretch="Uniform" Width="16" Height="16" Stroke="#888888" StrokeThickness="1.5" Fill="Transparent">
+                                  <Path.Effect>
+                                    <DropShadowEffect ShadowDepth="0" BlurRadius="2" Color="Black" Opacity="0.8"/>
+                                  </Path.Effect>
+                                </Path>
+                              </Grid>
+                              <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                  <Setter TargetName="Star" Property="Stroke" Value="#FFD700"/>
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                  <Setter TargetName="Star" Property="Fill" Value="#FFD700"/>
+                                  <Setter TargetName="Star" Property="Stroke" Value="#FFD700"/>
+                                </Trigger>
+                              </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                          </Setter.Value>
+                        </Setter>
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding IsFavorite}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                          </DataTrigger>
+                          <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Border}, Path=IsMouseOver}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </ToggleButton.Style>
+                  </ToggleButton>
                   <Border Grid.Row="1" Background="#20232a" Height="50">
                     <TextBlock Text="{Binding Name}" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="SemiBold" TextWrapping="Wrap" TextAlignment="Center" Foreground="White" TextTrimming="None"/>
                   </Border>
@@ -394,6 +451,19 @@
                 <ContextMenu>
                   <MenuItem Header="Copy Name" Click="CopyGameName_ContextMenu_Click" />
                   <MenuItem Header="Copy ID" Click="CopyGameId_ContextMenu_Click" />
+                  <Separator/>
+                  <MenuItem Click="ToggleFavorite_Click">
+                    <MenuItem.Style>
+                      <Style TargetType="MenuItem">
+                        <Setter Property="Header" Value="Add to Favorites"/>
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding IsFavorite}" Value="True">
+                            <Setter Property="Header" Value="Remove from Favorites"/>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </MenuItem.Style>
+                  </MenuItem>
                 </ContextMenu>
               </TextBlock.ContextMenu>
             </TextBlock>
