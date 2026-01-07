@@ -34,6 +34,6 @@ Only the latest version of SLAM is supported with security updates. Please updat
 
 ## Protocol Compliance
 
-- Always follow the guidelines in `CONTRIBUTING.md` to maintain code quality.
+- Always follow the guidelines in `INSTRUCTIONS.md` to maintain code quality.
 
 Thank you for helping keep SLAM and its users safe!

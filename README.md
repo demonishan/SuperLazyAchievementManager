@@ -1,11 +1,14 @@
 # Super Lazy Achievement Manager (SLAM)
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/demonishan/SuperLazyAchievementManager/build-and-release.yml?style=flat&color=f6c544)](https://github.com/demonishan/SuperLazyAchievementManager/actions/workflows/build-and-release.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-f6c544.svg?style=flat&color=f6c544)](LICENSE.txt)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/demonishan/SuperLazyAchievementManager?style=flat&color=f6c544)](https://github.com/demonishan/SuperLazyAchievementManager/releases)
-[![Downloads](https://img.shields.io/github/downloads/demonishan/SuperLazyAchievementManager/total?style=flat&color=f6c544)](https://github.com/demonishan/SuperLazyAchievementManager/releases)
-[![GitHub issues](https://img.shields.io/github/issues/demonishan/SuperLazyAchievementManager?style=flat&color=f6c544)](https://github.com/demonishan/SuperLazyAchievementManager/issues)
-[![GitHub stars](https://img.shields.io/github/stars/demonishan/SuperLazyAchievementManager?style=flat&color=f6c544)](https://github.com/demonishan/SuperLazyAchievementManager/stargazers)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/demonishan/SuperLazyAchievementManager/build-and-release.yml?style=flat)](https://github.com/demonishan/SuperLazyAchievementManager/actions/workflows/build-and-release.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat)](LICENSE.txt)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/demonishan/SuperLazyAchievementManager?style=flat)](https://github.com/demonishan/SuperLazyAchievementManager/releases)
+[![GitHub release date](https://img.shields.io/github/release-date/demonishan/SuperLazyAchievementManager?style=flat)](https://github.com/demonishan/SuperLazyAchievementManager/releases)
+[![Downloads](https://img.shields.io/github/downloads/demonishan/SuperLazyAchievementManager/total?style=flat)](https://github.com/demonishan/SuperLazyAchievementManager/releases)
+[![GitHub issues](https://img.shields.io/github/issues/demonishan/SuperLazyAchievementManager?style=flat)](https://github.com/demonishan/SuperLazyAchievementManager/issues)
+[![GitHub stars](https://img.shields.io/github/stars/demonishan/SuperLazyAchievementManager?style=flat)](https://github.com/demonishan/SuperLazyAchievementManager/stargazers)
+[![GitHub repo size](https://img.shields.io/github/repo-size/demonishan/SuperLazyAchievementManager?style=flat)](https://github.com/demonishan/SuperLazyAchievementManager)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/w/demonishan/SuperLazyAchievementManager?style=flat)](https://github.com/demonishan/SuperLazyAchievementManager/commits)
 
 ![Poster](Resources/poster.png)
 

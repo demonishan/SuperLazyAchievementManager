@@ -9,6 +9,7 @@ Thank you for your interest in contributing! Please follow these guidelines to h
 2. **Follow the Development Protocol** for all code changes:
    - Bump the version in `SAM.Picker.csproj` if releasing a new version.
    - Ensure the solution builds with zero errors (`dotnet build -c Release`).
+   - CI/CD: Your Pull Request will be automatically built and verified by GitHub Actions. Ensure the checks pass.
    - Stage, commit, and push with a clear message.
 3. **Keep code minimal and concise**:
    - Write clean, readable C# code.
