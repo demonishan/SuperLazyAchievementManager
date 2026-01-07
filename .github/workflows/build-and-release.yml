@@ -1,0 +1,67 @@
+name: Build and Release
+
+on:
+  workflow_dispatch: # Allows manual triggering
+  push:
+    tags:
+      - 'v*' # Triggers on tags like v8.6.11, v1.0.0, etc.
+
+jobs:
+  build:
+    name: Build SLAM
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 6.0.x # Helper for MsBuild, though we target 4.8
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Restore NuGet Packages
+      run: dotnet restore SAM.sln
+
+    - name: Build Solution
+      run: dotnet build SAM.sln -c Release
+
+    - name: Locate Artifact
+      id: locate_artifact
+      run: |
+        $path = "SAM.Reborn/bin/Release/net48/SLAM.exe"
+        if (Test-Path $path) {
+          echo "Found SLAM.exe"
+        } else {
+          echo "::error::SLAM.exe not found at expected path!"
+          exit 1
+        }
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: SLAM-Release-Build
+        path: SAM.Reborn/bin/Release/net48/SLAM.exe
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/') # Only run release step if a tag triggered this
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: SLAM-Release-Build
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: SLAM.exe
+        generate_release_notes: true
