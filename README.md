@@ -1,11 +1,11 @@
 # Super Lazy Achievement Manager (SLAM)
 
-[![Build and Release](https://github.com/demonishan/SuperLazyAchievementManager/actions/workflows/build-and-release.yml/badge.svg)](https://github.com/demonishan/SuperLazyAchievementManager/actions/workflows/build-and-release.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.txt)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/demonishan/SuperLazyAchievementManager)](https://github.com/demonishan/SuperLazyAchievementManager/releases)
-[![GitHub all releases](https://img.shields.io/github/downloads/demonishan/SuperLazyAchievementManager/total)](https://github.com/demonishan/SuperLazyAchievementManager/releases)
-[![GitHub issues](https://img.shields.io/github/issues/demonishan/SuperLazyAchievementManager)](https://github.com/demonishan/SuperLazyAchievementManager/issues)
-[![GitHub stars](https://img.shields.io/github/stars/demonishan/SuperLazyAchievementManager?style=social)](https://github.com/demonishan/SuperLazyAchievementManager/stargazers)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/demonishan/SuperLazyAchievementManager/build-and-release.yml?style=for-the-badge)](https://github.com/demonishan/SuperLazyAchievementManager/actions/workflows/build-and-release.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE.txt)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/demonishan/SuperLazyAchievementManager?style=for-the-badge)](https://github.com/demonishan/SuperLazyAchievementManager/releases)
+[![Downloads](https://img.shields.io/github/downloads/demonishan/SuperLazyAchievementManager/total?style=for-the-badge)](https://github.com/demonishan/SuperLazyAchievementManager/releases)
+[![GitHub issues](https://img.shields.io/github/issues/demonishan/SuperLazyAchievementManager?style=for-the-badge)](https://github.com/demonishan/SuperLazyAchievementManager/issues)
+[![GitHub stars](https://img.shields.io/github/stars/demonishan/SuperLazyAchievementManager?style=for-the-badge)](https://github.com/demonishan/SuperLazyAchievementManager/stargazers)
 
 ![Poster](Resources/poster.png)
 
