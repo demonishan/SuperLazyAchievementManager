@@ -30,20 +30,20 @@ To verify the code compiles without creating a public release:
 ### 2. Official Release (Publish)
 To publish a new version to users:
 1. Update version number (e.g., `8.6.11`) in:
-   - `SAM.Reborn/SAM.Picker.csproj` (`<AssemblyVersion>`)
-   - `CHANGELOG.md` (Add new section)
-   - `VERSION_HISTORY.md` (if maintained)
+  - `SAM.Reborn/SAM.Picker.csproj` (`<AssemblyVersion>`)
+  - `CHANGELOG.md` (Add new section)
+  - `VERSION_HISTORY.md` (if maintained)
 2. Commit and push the changes:
-   ```powershell
-   git add .
-   git commit -m "chore: bump version to 8.6.11"
-   git push
-   ```
+  ```powershell
+  git add .
+  git commit -m "chore: bump version to 8.6.11"
+  git push
+  ```
 3. Create and push a tag to trigger the release:
-   ```powershell
-   git tag v8.6.11
-   git push origin v8.6.11
-   ```
+  ```powershell
+  git tag v8.6.11
+  git push origin v8.6.11
+  ```
 - **Result**: GitHub automates the build, creates a "Release" page, and attaches `SLAM.exe`.
 
 --
@@ -60,6 +60,8 @@ To publish a new version to users:
 - **Single-Statement If**: Do not use braces for single-statement `if` blocks.
 - **No Extra Newlines**: Do not use consecutive blank lines. Keep code compact.
 - **Struct Formatting**: Do not keep multiple fields on the same line. Break lines to avoid multiple closing semicolons in one line.
+- **Simplicity**: Always keep the code simple. Do not add unnecessary code.
+- **DRY**: Keep the code DRY. Avoid code duplication.
 
 ### Technical Constraints
 - **Interop**: Use `[StructLayout(LayoutKind.Sequential, Pack = 1)]` for all Steam interface structs.

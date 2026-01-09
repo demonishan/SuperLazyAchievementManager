@@ -448,7 +448,10 @@ namespace SAM.Picker.Modern {
           }
           if (SortFilter != null) SortFilter.SelectedIndex = 0;
           if (AchievementSearchBox != null) AchievementSearchBox.Text = string.Empty;
+          RefreshAchievementFilter();
           ApplySort();
+          ApplySortByTag("Rarity_Desc");
+          _AchievementView.Refresh();
         } else {
           RefreshAchievementFilter();
           ApplySort();
@@ -780,8 +783,8 @@ namespace SAM.Picker.Modern {
         GameDetailsView.Visibility = Visibility.Collapsed;
         HomeView.Visibility = Visibility.Visible;
         if (GameBackgroundImage != null) {
-          GameBackgroundImage.Source = null;
-          GameBackgroundImage.Visibility = Visibility.Collapsed;
+          GameBackgroundImage.Source = new BitmapImage(new Uri("pack://application:,,,/SLAM;component/Resources/bg.png"));
+          GameBackgroundImage.Visibility = Visibility.Visible;
         }
         if (WindowTitleText != null) WindowTitleText.Text = "Super Lazy Achievement Manager";
         if (WindowVersionText != null) WindowVersionText.Text = $"v{_AppVersion}";
@@ -812,12 +815,13 @@ namespace SAM.Picker.Modern {
 
     private async void SetGameBackgroundImage(uint appId) {
       if (GameBackgroundImage == null) return;
+      
+      BitmapImage bitmap = null;
       try {
-        GameBackgroundImage.Visibility = Visibility.Collapsed;
-        string cacheDir = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cache", "backgrounds");
-        string bgPath = System.IO.Path.Combine(cacheDir, $"{appId}.jpg");
+        string cacheDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cache", "backgrounds");
+        string bgPath = Path.Combine(cacheDir, $"{appId}.jpg");
         string bgUrl = null;
-        using (var client = new System.Net.WebClient()) {
+        using (var client = new WebClient()) {
           string url = $"https://store.steampowered.com/api/appdetails?appids={appId}";
           string json = await client.DownloadStringTaskAsync(url);
           var match = System.Text.RegularExpressions.Regex.Match(json, "\\\"background\\\"\\s*:\\s*\\\"(.*?)\\\"");
@@ -825,22 +829,16 @@ namespace SAM.Picker.Modern {
             bgUrl = match.Groups[1].Value.Replace("\\/", "/");
         }
         if (!string.IsNullOrEmpty(bgUrl)) {
-          var bitmap = await ImageCacheHelper.GetImageAsync(bgUrl, bgPath);
-          if (bitmap != null) {
-            GameBackgroundImage.Source = bitmap;
-            GameBackgroundImage.Visibility = Visibility.Visible;
-          } else {
-            GameBackgroundImage.Source = null;
-            GameBackgroundImage.Visibility = Visibility.Collapsed;
-          }
-        } else {
-          GameBackgroundImage.Source = null;
-          GameBackgroundImage.Visibility = Visibility.Collapsed;
+          bitmap = await ImageCacheHelper.GetImageAsync(bgUrl, bgPath);
         }
-      } catch {
-        GameBackgroundImage.Source = null;
-        GameBackgroundImage.Visibility = Visibility.Collapsed;
+      } catch { }
+
+      if (bitmap == null) {
+        bitmap = new BitmapImage(new Uri("pack://application:,,,/SLAM;component/Resources/bg.png"));
       }
+      
+      GameBackgroundImage.Source = bitmap;
+      GameBackgroundImage.Visibility = Visibility.Visible;
     }
     private void RefreshGame_Click(object sender, RoutedEventArgs e) => LoadGameData(false);
     private void Store_Click(object sender, RoutedEventArgs e) {

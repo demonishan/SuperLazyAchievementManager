@@ -66,7 +66,6 @@
       <Setter Property="Stretch" Value="Uniform"/>
     </Style>
     <Geometry x:Key="Icon.Search">M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z</Geometry>
-    <Geometry x:Key="Icon.Save">M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z</Geometry>
     <Geometry x:Key="Icon.Back">M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z</Geometry>
     <Geometry x:Key="Icon.SortAz">M19,17H22L18,21L14,17H17V3H19V17M11,3V5H3V3H11M9,7V9H3V7H9M7,11V13H3V11H7M5,15V17H3V15H5M3,19V21H3V19H3Z</Geometry>
     <Geometry x:Key="Icon.Filter">M10,18H14V16H10V18M3,6V8H21V6H3M6,13H18V11H6V13Z</Geometry>
@@ -259,6 +258,7 @@
       </StackPanel>
     </Grid>
     <Grid Grid.Row="1">
+      <Image x:Name="GameBackgroundImage" Stretch="UniformToFill" Opacity="1" Panel.ZIndex="0" Source="pack://application:,,,/SLAM;component/Resources/bg.png"/>
       <Grid x:Name="HomeView" Visibility="Visible">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -403,7 +403,7 @@
             </DataTemplate>
           </ListView.ItemTemplate>
         </ListView>
-        <Grid x:Name="HomeLoadingOverlay" Grid.Row="1" Background="#B21E1E1E" Visibility="Visible">
+        <Grid x:Name="HomeLoadingOverlay" Grid.Row="1" Visibility="Visible">
           <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
             <Image Source="pack://application:,,,/SLAM;component/Resources/reload.png" Width="32" Height="32" RenderTransformOrigin="0.5,0.5" RenderOptions.BitmapScalingMode="HighQuality">
               <Image.RenderTransform>
@@ -429,7 +429,6 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Image x:Name="GameBackgroundImage" Grid.RowSpan="3" Stretch="UniformToFill" Opacity="1" Visibility="Collapsed" Panel.ZIndex="0"/>
         <Grid Grid.Row="0" Margin="20,10,20,10">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -549,7 +548,7 @@
             </Button>
             <Button x:Name="SaveButton" Margin="5,0,0,0" Style="{StaticResource PrimaryActionButtonStyle}" Width="80" Height="40" Click="Store_Click">
               <StackPanel Orientation="Horizontal">
-                <Path Data="{StaticResource Icon.Save}" Style="{StaticResource PathIconStyle}" Margin="0,0,8,0"/>
+                <Image Source="pack://application:,,,/SLAM;component/Resources/icon-installed.png" Width="16" Height="16" Stretch="Uniform" Margin="0,0,8,0" RenderOptions.BitmapScalingMode="HighQuality"/>
                 <TextBlock Text="Save" VerticalAlignment="Center"/>
               </StackPanel>
             </Button>
@@ -608,10 +607,10 @@
                 <Border CornerRadius="5" Margin="0,1" Padding="0,10">
                   <Border.Style>
                     <Style TargetType="Border">
-                      <Setter Property="Background" Value="#80292e5c" />
+                      <Setter Property="Background" Value="#80292e7a" />
                       <Style.Triggers>
                         <DataTrigger Binding="{Binding IsAchieved}" Value="True">
-                          <Setter Property="Background" Value="#20232a5c"/>
+                          <Setter Property="Background" Value="#20232a7a"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
                           <Setter Property="Padding" Value="0,5"/>
@@ -850,7 +849,7 @@
               <TextBlock Text="No achievements found for this game." Foreground="#888888" FontSize="16" HorizontalAlignment="Center"/>
             </StackPanel>
           </Grid>
-          <Grid x:Name="LoadingOverlay" Background="#B21E1E1E" Visibility="Collapsed">
+          <Grid x:Name="LoadingOverlay" Visibility="Collapsed">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
               <Image Source="pack://application:,,,/SLAM;component/Resources/reload.png" Width="32" Height="32" RenderTransformOrigin="0.5,0.5" RenderOptions.BitmapScalingMode="HighQuality">
                 <Image.RenderTransform>
