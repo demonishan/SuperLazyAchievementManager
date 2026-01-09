@@ -1,4 +1,4 @@
-# Instructions for Super Lazy Achievement Manager (SLAM)
+# Copilot Instructions for Super Lazy Achievement Manager (SLAM)
 
 ## Project Overview
 - **SLAM** is a modern C#/WPF desktop app for managing Steam achievements, based on the original Steam Achievement Manager.
