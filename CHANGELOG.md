@@ -1,5 +1,11 @@
 ## Change Log
 
+### 8.6.13 (2026-01-09)
+- Added Warning Module ("SLAM Alert") to prevent accidental actions.
+- Added warnings when attempting to open DLC content without the base game.
+- Added warnings when attempting to unlock achievements for uninstalled games.
+- Added warnings when attempting to instantly unlock multiple achievements (>2) to encourage safe usage.
+
 ### 8.6.12 (2026-01-07)
 - Merged status icons (Installed, Favorite) into a unified indicator area.
 - Added visual "Installed" indicator to game cards and the filter area.

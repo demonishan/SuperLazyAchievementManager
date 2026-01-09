@@ -327,7 +327,7 @@ namespace SAM.Picker.Modern {
 
       _FilteredGames.Clear();
       foreach (var g in filtered)
-        _FilteredGames.Add(new GameViewModel { Id = g.Id, Name = g.Name, Image = g.CachedIcon, IsFavorite = _FavoriteGameIds.Contains(g.Id), IsInstalled = g.IsInstalled });
+        _FilteredGames.Add(new GameViewModel { Id = g.Id, Name = g.Name, Type = g.Type, Image = g.CachedIcon, IsFavorite = _FavoriteGameIds.Contains(g.Id), IsInstalled = g.IsInstalled });
     }
     private ObservableCollection<AchievementViewModel> _Achievements = new ObservableCollection<AchievementViewModel>();
     private uint _SelectedGameId;
@@ -335,6 +335,16 @@ namespace SAM.Picker.Modern {
     private void Game_Click(object sender, MouseButtonEventArgs e) {
       try {
         if (sender is FrameworkElement element && element.DataContext is GameViewModel game) {
+          if (game.Type == "dlc") {
+            var warning = new WarningWindow($"Does \"{game.Name}\" even exist without the base game? Attempting to find out might anger Lord Gaben. Risk it?", "I Fear Nothing!", "Forgive Me!", "Uncharted Territory");
+            warning.ShowDialog();
+            if (!warning.IsConfirmed) return;
+          }
+          if (!game.IsInstalled) {
+            var warning = new WarningWindow($"\"{game.Name}\" is not installed. Unlocking achievements for a game you can't even launch? That is peak laziness. I respect it, but Steam might not like it.", "Who Cares?", "My Bad!", "404: Game Not Found");
+            warning.ShowDialog();
+            if (!warning.IsConfirmed) return;
+          }
           _SelectedGameId = game.Id;
           SelectedGameName.Text = game.Name;
           SelectedGameName.DataContext = game;
@@ -493,7 +503,7 @@ namespace SAM.Picker.Modern {
             });
           };
         } catch (ClientInitializeException cie) {
-          if (cie.Failure == ClientInitializeFailure.AppIdMismatch) DisplayAlert("Failed to switch game context (AppId Mismatch). Please restart SAM to switch games.", true);
+          if (cie.Failure == ClientInitializeFailure.AppIdMismatch) DisplayAlert("Identity Crisis! I think I'm in the wrong game. Please restart to fix my brain.", true);
           else DisplayAlert("Failed to switch Steam context: " + cie.Message, true);
           SAM.Picker.Modern.App.LogCrash(cie, "LoadGameData_SteamSwitch_Init");
           LoadingOverlay.Visibility = Visibility.Collapsed;
@@ -519,14 +529,14 @@ namespace SAM.Picker.Modern {
           if (RefreshButton != null) RefreshButton.Visibility = Visibility.Collapsed;
           if (SaveButton != null) SaveButton.Visibility = Visibility.Collapsed;
           LoadingOverlay.Visibility = Visibility.Collapsed;
-          SharedStatusText.Text = "No achievements for this game.";
+          SharedStatusText.Text = "No achievements here. You're just here for the card drops, aren't you? I won't tell.";
           return;
         }
 
         var steamId = _SteamClient.SteamUser.GetSteamId();
         _SteamClient.SteamUserStats.RequestUserStats(steamId);
         _SteamClient.SteamUserStats.RequestGlobalAchievementPercentages();
-        SharedStatusText.Text = "Requesting stats from Steam...";
+        SharedStatusText.Text = "Fetching stats... don't rush me.";
       } catch (Exception ex) {
         DisplayAlert($"Critical error loading game data: {ex.Message}", true);
         SAM.Picker.Modern.App.LogCrash(ex, "LoadGameData_Critical");
@@ -536,7 +546,7 @@ namespace SAM.Picker.Modern {
     }
     private void FetchAchievements() {
       var definitions = new List<AchievementDefinition>();
-      if (!LoadUserGameStatsSchema(definitions)) SharedStatusText.Text = "Failed to load schema. Some info might be missing.";
+      if (!LoadUserGameStatsSchema(definitions)) SharedStatusText.Text = "Steam ghosted my request for the schema. Expect some missing info. Use your imagination or restart SLAM.";
       bool anyProtected = definitions.Any(x => x.Permission > 0);
       _Achievements.Clear();
       foreach (var def in definitions) {
@@ -561,6 +571,7 @@ namespace SAM.Picker.Modern {
             Description = description,
             OriginalName = def.Name,
             OriginalDescription = def.Description,
+            OriginalIsAchieved = isAchieved,
             RealIconUrl = iconUrl,
             IsHiddenLocked = isHiddenLocked,
             IsAchieved = isAchieved,
@@ -592,7 +603,7 @@ namespace SAM.Picker.Modern {
       UpdateProgressBar();
       if (anyProtected) {
         AreModificationsAllowed = false;
-        SharedStatusText.Text = "These achievements are protected. Can't modify them through SLAM.";
+        SharedStatusText.Text = "These achievements are protected! SLAM is lazy, not magical. Can't touch 'em.";
         DisplayAlert(SharedStatusText.Text, true);
         UpdateProtectionState();
       }
@@ -842,6 +853,14 @@ namespace SAM.Picker.Modern {
     }
     private void RefreshGame_Click(object sender, RoutedEventArgs e) => LoadGameData(false);
     private void Store_Click(object sender, RoutedEventArgs e) {
+      if (_Achievements != null) {
+        int unlockCount = _Achievements.Count(a => !a.OriginalIsAchieved && a.IsAchieved);
+        if (unlockCount > 2) {
+          var warning = new WarningWindow($"You're about to pop {unlockCount} achievements at once. That's very efficient, but also suspicious. Why not use the Timer Mode to look like a human?", "I am a machine!", "I am smart!", "The \"reckless\" set");
+          warning.ShowDialog();
+          if (!warning.IsConfirmed) return;
+        }
+      }
       bool success = true;
       foreach (var ach in _Achievements) {
         if (!_SteamClient.SteamUserStats.SetAchievement(ach.Id, ach.IsAchieved)) success = false;
@@ -964,7 +983,7 @@ namespace SAM.Picker.Modern {
           if (!ach.IsAchieved) ach.TimerMinutes = random.Next(min, max + 1).ToString();
         }
         if (RandomTimerPopup != null) RandomTimerPopup.IsOpen = false;
-      } else DisplayAlert("Please enter valid numeric values for Min and Max minutes.", true);
+      } else DisplayAlert("Math is hard. Please use actual numbers so I don't have to think.", true);
     }
     private void SmartRandom_Click(object sender, RoutedEventArgs e) {
       if (int.TryParse(RandMinInput.Text, out int min) && int.TryParse(RandMaxInput.Text, out int max)) {
@@ -986,7 +1005,7 @@ namespace SAM.Picker.Modern {
           pending[i].TimerMinutes = val.ToString();
         }
         if (RandomTimerPopup != null) RandomTimerPopup.IsOpen = false;
-      } else DisplayAlert("Please enter valid numeric values for Min and Max minutes.", true);
+      } else DisplayAlert("Math is hard. Please use actual numbers so I don't have to think.", true);
     }
     private bool _IsTimerActive = false;
     private bool _IsTimerPaused = false;
@@ -1029,8 +1048,8 @@ namespace SAM.Picker.Modern {
         SetTimerUIState(true);
         int processedCount = await RunTimerSequence(achievements);
         if (_IsTimerActive) {
-          if (processedCount == 0) DisplayAlert("No locked achievements with a valid timer were found.", false);
-          else DisplayAlert($"Timer sequence complete. {processedCount} achievements unlocked.", false);
+          if (processedCount == 0) DisplayAlert("I can't find any timers. I can't read your mind, you have to type the numbers.", false);
+          else DisplayAlert($"Job's done! I unlocked {processedCount} achievements for you. You're welcome.", false);
         }
       } catch (Exception ex) {
         DisplayAlert($"Error running timer: {ex.Message}", true);
@@ -1186,6 +1205,7 @@ namespace SAM.Picker.Modern {
   public class GameViewModel : INotifyPropertyChanged {
     public uint Id { get; set; }
     public string Name { get; set; }
+    public string Type { get; set; }
     public bool IsInstalled { get; set; }
     private bool _IsFavorite;
     public bool IsFavorite {
@@ -1234,6 +1254,7 @@ namespace SAM.Picker.Modern {
     }
     public string OriginalName { get; set; }
     public string OriginalDescription { get; set; }
+    public bool OriginalIsAchieved { get; set; }
     public float GlobalPercent { get; set; }
     public string IconUrl { get; set; }
     public string RealIconUrl { get; set; }
