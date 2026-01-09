@@ -9,7 +9,7 @@ skip_commits:
     - README.md
 max_jobs: 1
 image: Visual Studio 2019
-clone_folder: c:\projects\SAM
+clone_folder: c:\projects\SLAM
 cache:
   - packages -> **\packages.config
   - '%LocalAppData%\NuGet\Cache'
@@ -26,7 +26,7 @@ dotnet_csproj:
   file_version: '{version}'
   informational_version: '{version}'
 build:
-  project: SAM.sln
+  project: SLAM.sln
   parallel: true
   verbosity: minimal
 before_build:

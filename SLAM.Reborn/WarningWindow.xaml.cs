@@ -1,5 +1,5 @@
 using System.Windows;
-namespace SAM.Picker.Modern {
+namespace SLAM.Reborn {
   public partial class WarningWindow : Window {
     public bool IsConfirmed { get; private set; }
     public WarningWindow(string message, string confirmText = "Okay", string cancelText = "Nope!", string title = "Warning") {

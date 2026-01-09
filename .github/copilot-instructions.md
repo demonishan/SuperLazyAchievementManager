@@ -4,7 +4,7 @@
 - **SLAM** is a modern C#/WPF desktop app for managing Steam achievements, based on the original Steam Achievement Manager.
 - The solution contains two main projects:
   - `SAM.API`: Low-level Steam API interop and wrappers (unsafe code, P/Invoke, structs for Steam interfaces).
-  - `SAM.Reborn`: WPF GUI, user interaction, and business logic. References `SAM.API`.
+  - `SLAM.Reborn`: WPF GUI, user interaction, and business logic. References `SAM.API`.
 
 ## Architecture & Patterns
 - **Interop Layer**: `SAM.API/Interfaces.cs` defines structs mapping to Steam interfaces. Many fields are `IntPtr` for function pointers.
@@ -30,7 +30,7 @@ To verify the code compiles without creating a public release:
 ### 2. Official Release (Publish)
 To publish a new version to users:
 1. Update version number (e.g., `8.6.11`) in:
-  - `SAM.Reborn/SAM.Picker.csproj` (`<AssemblyVersion>`)
+  - `SLAM.Reborn/SLAM.Picker.csproj` (`<AssemblyVersion>`)
   - `CHANGELOG.md` (Add new section)
   - `VERSION_HISTORY.md` (if maintained)
 2. Commit and push the changes:
@@ -74,8 +74,8 @@ To publish a new version to users:
 ## Key Files & Directories
 - `SAM.API/Interfaces.cs`: Steam API interface definitions.
 - `SAM.API/GlobalSuppressions.cs`: Code analysis suppressions for interop.
-- `SAM.Reborn/MainWindow.xaml`: Main WPF UI.
-- `SAM.Reborn/SAM.Picker.csproj`: GUI project file, resource linking.
+- `SLAM.Reborn/MainWindow.xaml`: Main WPF UI.
+- `SLAM.Reborn/SLAM.Picker.csproj`: GUI project file, resource linking.
 - `.appveyor.yml`: CI build config.
 - `INFO.md`: Do NOT read this file.
 

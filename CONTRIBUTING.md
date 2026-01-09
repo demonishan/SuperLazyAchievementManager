@@ -7,7 +7,7 @@ Thank you for your interest in contributing! Please follow these guidelines to h
 
 1. **Fork the repository** and create your branch from `master`.
 2. **Follow the Development Protocol** for all code changes:
-   - Bump the version in `SAM.Picker.csproj` if releasing a new version.
+   - Bump the version in `SLAM.Picker.csproj` if releasing a new version.
    - Ensure the solution builds with zero errors (`dotnet build -c Release`).
    - CI/CD: Your Pull Request will be automatically built and verified by GitHub Actions. Ensure the checks pass.
    - Stage, commit, and push with a clear message.

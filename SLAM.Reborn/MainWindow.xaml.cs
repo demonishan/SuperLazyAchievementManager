@@ -18,7 +18,7 @@ using System.Windows.Threading;
 using System.Xml.XPath;
 using SAM.API;
 using Newtonsoft.Json;
-namespace SAM.Picker.Modern {
+namespace SLAM.Reborn {
   public class AppConfig {
     public List<uint> FavoriteGames { get; set; } = new List<uint>();
   }
@@ -181,18 +181,18 @@ namespace SAM.Picker.Modern {
       _CallbackTimer.Interval = TimeSpan.FromMilliseconds(100);
       _CallbackTimer.Tick += (s, e) => {
         try { _SteamClient?.RunCallbacks(false); }
-        catch (Exception ex) { SAM.Picker.Modern.App.LogCrash(ex, "CallbackTimer_RunCallbacks"); }
+        catch (Exception ex) { SLAM.Reborn.App.LogCrash(ex, "CallbackTimer_RunCallbacks"); }
       };
       _CallbackTimer.Start();
       AppDomain.CurrentDomain.UnhandledException += (s, e) => {
-        if (e.ExceptionObject is Exception ex) SAM.Picker.Modern.App.LogCrash(ex, "AppDomain_UnhandledException");
+        if (e.ExceptionObject is Exception ex) SLAM.Reborn.App.LogCrash(ex, "AppDomain_UnhandledException");
       };
       TaskScheduler.UnobservedTaskException += (s, e) => {
-        SAM.Picker.Modern.App.LogCrash(e.Exception, "TaskScheduler_UnobservedTaskException");
+        SLAM.Reborn.App.LogCrash(e.Exception, "TaskScheduler_UnobservedTaskException");
         e.SetObserved();
       };
       if (Application.Current != null) Application.Current.DispatcherUnhandledException += (s, e) => {
-        SAM.Picker.Modern.App.LogCrash(e.Exception, "DispatcherUnhandledException");
+        SLAM.Reborn.App.LogCrash(e.Exception, "DispatcherUnhandledException");
         e.Handled = true;
       };
       LoadData();
@@ -234,8 +234,8 @@ namespace SAM.Picker.Modern {
         foreach (var game in allKnownGames) {
           try {
             if (_SteamClient.SteamApps008.IsSubscribedApp(game.Id)) {
-               game.IsInstalled = _SteamClient.SteamApps008.IsAppInstalled(game.Id);
-               fetchedGames.Add(game);
+              game.IsInstalled = _SteamClient.SteamApps008.IsAppInstalled(game.Id);
+              fetchedGames.Add(game);
             }
           } catch { }
         }
@@ -309,7 +309,6 @@ namespace SAM.Picker.Modern {
       var searchText = SearchBox.Text.ToLower(CultureInfo.InvariantCulture);
       if (ClearSearchBtn != null) ClearSearchBtn.Visibility = string.IsNullOrEmpty(searchText) ? Visibility.Collapsed : Visibility.Visible;
       var filtered = _AllGames.Where(g => (string.IsNullOrEmpty(searchText) || g.Name.ToLower(CultureInfo.InvariantCulture).Contains(searchText)) && ((g.Type == "normal" && _WantGames) || (g.Type == "mod" && _WantMods) || (g.Type == "demo" && _WantDemos) || (g.Type == "dlc" && _WantDlc))).OrderBy(g => g.Name).ToList();
-
       switch (_CurrentFilterMode) {
         case GameFilterMode.Favorites:
           filtered = filtered.Where(g => _FavoriteGameIds.Contains(g.Id)).ToList();
@@ -370,7 +369,7 @@ namespace SAM.Picker.Modern {
         }
       } catch (Exception ex) {
         DisplayAlert($"Error switching game: {ex.Message}", true);
-        SAM.Picker.Modern.App.LogCrash(ex, "Game_Click");
+        SLAM.Reborn.App.LogCrash(ex, "Game_Click");
         HomeView.Visibility = Visibility.Visible;
         GameDetailsView.Visibility = Visibility.Collapsed;
       }
@@ -484,7 +483,7 @@ namespace SAM.Picker.Modern {
           _UserStatsReceivedCallback.OnRun += (p) => {
             Dispatcher.Invoke(() => {
               if (p.GameId != _SelectedGameId) {
-                DisplayAlert($"Steam returned stats for the wrong game ({p.GameId} vs {_SelectedGameId}). Please restart SAM.", true);
+                DisplayAlert($"Steam returned stats for the wrong game ({p.GameId} vs {_SelectedGameId}). Please restart SLAM.", true);
                 LoadingOverlay.Visibility = Visibility.Collapsed;
                 return;
               }
@@ -492,7 +491,7 @@ namespace SAM.Picker.Modern {
                 try { FetchAchievements(); }
                 catch (Exception ex) {
                   DisplayAlert("Error fetching achievements: " + ex.Message, true);
-                  SAM.Picker.Modern.App.LogCrash(ex, "LoadGameData_FetchAchievements");
+                  SLAM.Reborn.App.LogCrash(ex, "LoadGameData_FetchAchievements");
                   LoadingOverlay.Visibility = Visibility.Collapsed;
                 }
               }
@@ -505,13 +504,13 @@ namespace SAM.Picker.Modern {
         } catch (ClientInitializeException cie) {
           if (cie.Failure == ClientInitializeFailure.AppIdMismatch) DisplayAlert("Identity Crisis! I think I'm in the wrong game. Please restart to fix my brain.", true);
           else DisplayAlert("Failed to switch Steam context: " + cie.Message, true);
-          SAM.Picker.Modern.App.LogCrash(cie, "LoadGameData_SteamSwitch_Init");
+          SLAM.Reborn.App.LogCrash(cie, "LoadGameData_SteamSwitch_Init");
           LoadingOverlay.Visibility = Visibility.Collapsed;
           _CallbackTimer.Start();
           return;
         } catch (Exception ex) {
           DisplayAlert("Failed to switch Steam context: " + ex.Message, true);
-          SAM.Picker.Modern.App.LogCrash(ex, "LoadGameData_SteamSwitch");
+          SLAM.Reborn.App.LogCrash(ex, "LoadGameData_SteamSwitch");
           LoadingOverlay.Visibility = Visibility.Collapsed;
           _CallbackTimer.Start();
           return;
@@ -539,7 +538,7 @@ namespace SAM.Picker.Modern {
         SharedStatusText.Text = "Fetching stats... don't rush me.";
       } catch (Exception ex) {
         DisplayAlert($"Critical error loading game data: {ex.Message}", true);
-        SAM.Picker.Modern.App.LogCrash(ex, "LoadGameData_Critical");
+        SLAM.Reborn.App.LogCrash(ex, "LoadGameData_Critical");
         LoadingOverlay.Visibility = Visibility.Collapsed;
         _CallbackTimer.Start();
       }
@@ -769,7 +768,8 @@ namespace SAM.Picker.Modern {
       try {
         AreModificationsAllowed = true;
         UpdateProtectionState();
-        DisplayAlert("Select a game to manage achievements.", false);
+        SharedStatusText.Text = "Select a game to manage achievements.";
+        if (SharedStatusText.Parent is Border b) b.Background = new SolidColorBrush(Color.FromRgb(0, 122, 204));
         if (_IsTimerActive || IsTimerMode) {
           _IsTimerActive = false;
           _IsTimerPaused = false;
@@ -811,7 +811,7 @@ namespace SAM.Picker.Modern {
           _SteamClient.Initialize(0);
         } catch (Exception ex) {
           DisplayAlert($"Failed to reinitialize Steam on back: {ex.Message}", true);
-          SAM.Picker.Modern.App.LogCrash(ex, "Back_Click_SteamReinit");
+          SLAM.Reborn.App.LogCrash(ex, "Back_Click_SteamReinit");
           _SteamClient = null;
           _CallbackTimer.Start();
           return;
@@ -820,7 +820,7 @@ namespace SAM.Picker.Modern {
         LoadData();
       } catch (Exception ex) {
         DisplayAlert($"Error returning to game list: {ex.Message}", true);
-        SAM.Picker.Modern.App.LogCrash(ex, "Back_Click");
+        SLAM.Reborn.App.LogCrash(ex, "Back_Click");
       }
     }
 

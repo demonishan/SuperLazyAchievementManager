@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using SAM.API;
-namespace SAM.Picker.Modern {
+namespace SLAM.Reborn {
   public static class AppInfoReader {
     public static List<GameInfo> GetGames(string steamPath) {
       var games = new List<GameInfo>();

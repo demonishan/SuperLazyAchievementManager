@@ -24,15 +24,15 @@ jobs:
       uses: microsoft/setup-msbuild@v2
 
     - name: Restore NuGet Packages
-      run: dotnet restore SAM.sln
+      run: dotnet restore SLAM.sln
 
     - name: Build Solution
-      run: dotnet build SAM.sln -c Release
+      run: dotnet build SLAM.sln -c Release
 
     - name: Locate Artifact
       id: locate_artifact
       run: |
-        $path = "SAM.Reborn/bin/Release/net48/SLAM.exe"
+        $path = "SLAM.Reborn/bin/Release/net48/SLAM.exe"
         if (Test-Path $path) {
           echo "Found SLAM.exe"
         } else {
@@ -44,7 +44,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: SLAM-Release-Build
-        path: SAM.Reborn/bin/Release/net48/SLAM.exe
+        path: SLAM.Reborn/bin/Release/net48/SLAM.exe
 
   release:
     name: Create GitHub Release
