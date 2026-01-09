@@ -1083,6 +1083,7 @@ namespace SAM.Picker.Modern {
             if (!_IsTimerActive) break;
           }
           if (!_IsTimerActive) break;
+          await Dispatcher.InvokeAsync(() => UpdateTimerMetadata(ach, totalSeconds / 60.0));
           SharedStatusText.Text = $"Unlocking '{ach.Name}' in {TimeSpan.FromSeconds(totalSeconds):mm\\:ss}...";
           await Task.Delay(1000);
           totalSeconds--;
@@ -1142,17 +1143,27 @@ namespace SAM.Picker.Modern {
       }
     }
     private void TimerDelay_TextChanged(object sender, TextChangedEventArgs e) => UpdateTimerMetadata();
-    private void UpdateTimerMetadata() {
+    private void UpdateTimerMetadata(AchievementViewModel activeItem = null, double activeRemainingMinutes = -1) {
       if (_AchievementView == null) return;
       int i = 1;
       DateTime projection = DateTime.Now;
       foreach (AchievementViewModel ach in _AchievementView) {
         ach.Index = i++;
-        if (!ach.IsAchieved && double.TryParse(ach.TimerMinutes, out double minutes) && minutes > 0) {
+        if (ach.IsAchieved) {
+          ach.ETA = "";
+          continue;
+        }
+        double minutes = 0;
+        bool isParsed = double.TryParse(ach.TimerMinutes, out minutes);
+        if (activeItem != null && ach == activeItem && activeRemainingMinutes >= 0) {
+          minutes = activeRemainingMinutes;
+          isParsed = true;
+        }
+        if (isParsed && minutes > 0) {
           projection = projection.AddMinutes(minutes);
           ach.ETA = $"{projection:t}";
           projection = projection.AddSeconds(1);
-        } else if (!ach.IsAchieved && double.TryParse(ach.TimerMinutes, out minutes) && minutes == 0) {
+        } else if (isParsed && minutes == 0) {
           ach.ETA = $"{projection:t}";
         } else ach.ETA = "";
       }

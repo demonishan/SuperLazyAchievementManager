@@ -7,7 +7,7 @@
 [![Downloads](https://img.shields.io/github/downloads/demonishan/SuperLazyAchievementManager/total?style=flat)](https://github.com/demonishan/SuperLazyAchievementManager/releases)
 [![GitHub issues](https://img.shields.io/github/issues/demonishan/SuperLazyAchievementManager?style=flat)](https://github.com/demonishan/SuperLazyAchievementManager/issues)
 [![GitHub stars](https://img.shields.io/github/stars/demonishan/SuperLazyAchievementManager?style=flat)](https://github.com/demonishan/SuperLazyAchievementManager/stargazers)
-<!-- [![GitHub repo size](https://img.shields.io/github/repo-size/demonishan/SuperLazyAchievementManager?style=flat)](https://github.com/demonishan/SuperLazyAchievementManager) -->
+[![GitHub repo size](https://img.shields.io/github/repo-size/demonishan/SuperLazyAchievementManager?style=flat)](https://github.com/demonishan/SuperLazyAchievementManager)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/w/demonishan/SuperLazyAchievementManager?style=flat)](https://github.com/demonishan/SuperLazyAchievementManager/commits)
 
 ![Poster](Resources/poster.png)

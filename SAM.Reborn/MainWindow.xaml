@@ -533,7 +533,7 @@
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                       <TextBlock Text="Max (m)" Foreground="#BBBBBB" FontSize="11" Margin="0,0,0,2"/>
-                      <TextBox x:Name="RandMaxInput" Background="#20232a" Foreground="White" BorderThickness="0" Padding="5" Text="60" HorizontalContentAlignment="Center"/>
+                      <TextBox x:Name="RandMaxInput" Background="#20232a" Foreground="White" BorderThickness="0" Padding="5" Text="20" HorizontalContentAlignment="Center"/>
                     </StackPanel>
                   </Grid>
                   <Button Content="Totally Random" Margin="0,15,0,0" Style="{StaticResource PrimaryActionButtonStyle}" Click="ApplyRandomTimer_Click" Height="30"/>
