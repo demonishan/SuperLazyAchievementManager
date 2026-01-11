@@ -612,9 +612,7 @@ namespace SLAM.Reborn {
       else {
         AreModificationsAllowed = true;
         UpdateProtectionState();
-        if (unlocked == total && total > 0) SharedStatusText.Text = $"Unlocked all {total}. Please, go touch some grass.";
-        else if (unlocked == 0 && total > 0) SharedStatusText.Text = $"0 down, {total} to go. Do you even play this game?";
-        else SharedStatusText.Text = $"{unlocked} out of {total} down, {locked} to go. Back to the grind.";
+        UpdateStatsMessage();
       }
       StartAchievementImageCaching(_Achievements.ToList());
       LoadingOverlay.Visibility = Visibility.Collapsed;
@@ -771,7 +769,7 @@ namespace SLAM.Reborn {
       try {
         AreModificationsAllowed = true;
         UpdateProtectionState();
-        SharedStatusText.Text = "Select a game to manage achievements.";
+        SharedStatusText.Text = $"{_AllGames.Count} games detected! Your wallet sends its regards.";
         if (SharedStatusText.Parent is Border b) b.Background = new SolidColorBrush(Color.FromRgb(0, 122, 204));
         if (_IsTimerActive || IsTimerMode) {
           _IsTimerActive = false;
@@ -950,6 +948,19 @@ namespace SLAM.Reborn {
       get { return (bool)GetValue(AreModificationsAllowedProperty); }
       set { SetValue(AreModificationsAllowedProperty, value); }
     }
+    private void UpdateStatsMessage() {
+      int unlocked = _Achievements.Count(x => x.IsAchieved);
+      int total = _Achievements.Count;
+      int locked = total - unlocked;
+      if (!AreModificationsAllowed) {
+        SharedStatusText.Text = "These achievements are protected! SLAM is lazy, not magical. Can't touch 'em.";
+      } else {
+        if (unlocked == total && total > 0) SharedStatusText.Text = $"Unlocked all {total}. Please, touch some grass.";
+        else if (unlocked == 0 && total > 0) SharedStatusText.Text = $"0 down, {total} to go. Do you even play this game?";
+        else SharedStatusText.Text = $"{unlocked} out of {total} popped. Standing between me and my nap are the remaining {locked}.";
+      }
+    }
+
     private void EnableTimer_Click(object sender, RoutedEventArgs e) {
       IsTimerMode = !IsTimerMode;
       if (IsTimerMode) {
@@ -970,7 +981,7 @@ namespace SLAM.Reborn {
         _IsTimerActive = false;
         _IsTimerPaused = false;
         UpdateTimerButtonState();
-        if (SharedStatusText != null) SharedStatusText.Text = "Ready";
+        if (SharedStatusText != null) UpdateStatsMessage();
         if (FilterAllBtn != null) FilterAllBtn.IsChecked = true;
         if (FilterLockedBtn != null) FilterLockedBtn.IsChecked = false;
         if (FilterUnlockedBtn != null) FilterUnlockedBtn.IsChecked = false;
@@ -1002,7 +1013,7 @@ namespace SLAM.Reborn {
           max = temp;
         }
         var random = new Random();
-        var pending = _Achievements.Where(a => !a.IsAchieved).ToList();
+        var pending = (_AchievementView != null ? _AchievementView.Cast<AchievementViewModel>() : _Achievements).Where(a => !a.IsAchieved).ToList();
         int count = pending.Count;
         int spread = max - min;
         int jitterLimit = Math.Max(1, (int)(spread * 0.15));
