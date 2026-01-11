@@ -601,7 +601,7 @@
           </ComboBox>
         </Grid>
         <Grid Grid.Row="2">
-          <ListView x:Name="AchievementList" Background="Transparent" BorderThickness="0" Margin="15,5,15,10" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" AllowDrop="True" PreviewMouseLeftButtonDown="AchievementList_PreviewMouseLeftButtonDown" PreviewMouseMove="AchievementList_PreviewMouseMove" Drop="AchievementList_Drop">
+          <ListView x:Name="AchievementList" Background="Transparent" BorderThickness="0" Margin="15,5,15,10" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" AllowDrop="True" PreviewMouseLeftButtonDown="AchievementList_PreviewMouseLeftButtonDown" PreviewMouseMove="AchievementList_PreviewMouseMove" Drop="AchievementList_Drop" DragOver="AchievementList_DragOver">
             <ListView.ItemTemplate>
               <DataTemplate>
                 <Border CornerRadius="5" Margin="0,1" Padding="0,10">
@@ -621,9 +621,10 @@
                   <Grid>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto"/>
-                      <ColumnDefinition Width="80">
+                      <ColumnDefinition>
                         <ColumnDefinition.Style>
                           <Style TargetType="ColumnDefinition">
+                            <Setter Property="Width" Value="80"/>
                             <Style.Triggers>
                               <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
                                 <Setter Property="Width" Value="50"/>
@@ -633,18 +634,19 @@
                         </ColumnDefinition.Style>
                       </ColumnDefinition>
                       <ColumnDefinition Width="*"/>
-                      <ColumnDefinition Width="150">
+                      <ColumnDefinition Width="150" />
+                      <ColumnDefinition>
                         <ColumnDefinition.Style>
                           <Style TargetType="ColumnDefinition">
+                            <Setter Property="Width" Value="80"/>
                             <Style.Triggers>
                               <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
-                                <Setter Property="Width" Value="100"/>
+                                <Setter Property="Width" Value="130"/>
                               </DataTrigger>
                             </Style.Triggers>
                           </Style>
                         </ColumnDefinition.Style>
                       </ColumnDefinition>
-                      <ColumnDefinition Width="80"/>
                       <ColumnDefinition Width="120"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="5,0" VerticalAlignment="Center">
@@ -777,22 +779,15 @@
                         </TextBlock.Style>
                       </TextBlock>
                     </StackPanel>
-                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="5,0">
-                      <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                          <Style.Triggers>
-                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
-                              <Setter Property="Visibility" Value="Collapsed"/>
-                            </DataTrigger>
-                          </Style.Triggers>
-                        </Style>
-                      </StackPanel.Style>
-                      <TextBlock Text="{Binding GlobalPercent, StringFormat='{}{0:N1}%'}" FontSize="18" Foreground="#1A9fff" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                      <TextBlock Text="Global Rarity" FontSize="11" Foreground="#666666" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="5,0">
-                      <StackPanel.Style>
-                        <Style TargetType="StackPanel">
+                    <Grid Grid.Column="3" VerticalAlignment="Center" Margin="5,0">
+                      <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11">
+                        <Run Text="Global Stats: " Foreground="#666666"/>
+                        <Run Text="{Binding GlobalPercent, StringFormat='{}{0:N1}%'}" Foreground="#1A9fff" FontWeight="SemiBold"/>
+                      </TextBlock>
+                    </Grid>
+                    <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0" FontSize="11">
+                      <TextBlock.Style>
+                        <Style TargetType="TextBlock">
                           <Setter Property="Visibility" Value="Collapsed"/>
                           <Style.Triggers>
                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
@@ -800,10 +795,10 @@
                             </DataTrigger>
                           </Style.Triggers>
                         </Style>
-                      </StackPanel.Style>
-                      <TextBlock Text="ETA" FontSize="11" Foreground="#666666" HorizontalAlignment="Right"/>
-                      <TextBlock Text="{Binding ETA}" FontSize="13" FontWeight="SemiBold" Foreground="#1A9fff" HorizontalAlignment="Right"/>
-                    </StackPanel>
+                      </TextBlock.Style>
+                      <Run Text="ETA: " Foreground="#666666"/>
+                      <Run Text="{Binding ETA}" Foreground="#1A9fff" FontWeight="SemiBold"/>
+                    </TextBlock>
                     <Grid Grid.Column="5" Margin="5,0,0,0">
                       <CheckBox IsChecked="{Binding IsAchieved, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#DDDDDD">
                         <CheckBox.LayoutTransform>

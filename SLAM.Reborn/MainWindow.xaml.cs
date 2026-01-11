@@ -198,6 +198,9 @@ namespace SLAM.Reborn {
       LoadData();
     }
     private void DisplayAlert(string message, bool isError) {
+      if (isError) {
+        new WarningWindow(message, "Okay", null, "Error").ShowDialog();
+      }
       var color = isError ? new SolidColorBrush(Color.FromRgb(232, 17, 35)) : new SolidColorBrush(Color.FromRgb(0, 122, 204));
       SharedStatusText.Text = message;
       if (SharedStatusText.Parent is Border b) b.Background = color;
@@ -950,7 +953,13 @@ namespace SLAM.Reborn {
     private void EnableTimer_Click(object sender, RoutedEventArgs e) {
       IsTimerMode = !IsTimerMode;
       if (IsTimerMode) {
-        if (_AchievementView != null) _AchievementView.Refresh();
+        if (SortFilter != null) SortFilter.SelectedIndex = 0;
+        if (_AchievementView != null) {
+          _AchievementView.SortDescriptions.Clear();
+          var lcv = _AchievementView as ListCollectionView;
+          if (lcv != null) lcv.CustomSort = null;
+          _AchievementView.Refresh();
+        }
         if (FilterAllBtn != null) FilterAllBtn.IsChecked = false;
         if (FilterLockedBtn != null) FilterLockedBtn.IsChecked = true;
         if (FilterUnlockedBtn != null) FilterUnlockedBtn.IsChecked = false;
@@ -1135,6 +1144,14 @@ namespace SLAM.Reborn {
         DataObject dragData = new DataObject("myFormat", contact);
         DragDrop.DoDragDrop(listViewItem, dragData, DragDropEffects.Move);
       }
+    }
+    private void AchievementList_DragOver(object sender, DragEventArgs e) {
+      if (!IsTimerMode || IsTimerRunning || !e.Data.GetDataPresent("myFormat")) {
+        e.Effects = DragDropEffects.None;
+      } else {
+        e.Effects = DragDropEffects.Move;
+      }
+      e.Handled = true;
     }
     private void AchievementList_Drop(object sender, DragEventArgs e) {
       if (!IsTimerMode || IsTimerRunning) return;
