@@ -904,7 +904,7 @@ namespace SLAM.Reborn {
     private void UpdateTimerUIState() {
       var visibility = IsTimerMode ? Visibility.Collapsed : Visibility.Visible;
       if (BulkActionsButton != null) BulkActionsButton.Visibility = visibility;
-      if (AchievementSearchRow != null) AchievementSearchRow.Visibility = IsTimerMode ? Visibility.Collapsed : Visibility.Visible;
+      if (AchievementSearchRow != null) AchievementSearchRow.Visibility = Visibility.Visible;
       if (RefreshButton != null) RefreshButton.Visibility = visibility;
       if (SaveButton != null) SaveButton.Visibility = visibility;
       if (FilterButtonsPanel != null) FilterButtonsPanel.Visibility = visibility;

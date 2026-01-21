@@ -441,8 +441,8 @@
           <Button Width="40" Height="40" Click="Back_Click" Style="{StaticResource ActionButtonStyle}">
             <Path Data="{StaticResource Icon.Back}" Style="{StaticResource PathIconStyle}"/>
           </Button>
-          <StackPanel Grid.Column="1" Margin="20,3,20,2">
-            <TextBlock x:Name="SelectedGameName" FontSize="24" FontWeight="Bold" Foreground="White">
+          <StackPanel Grid.Column="1" Margin="20,3,20,0">
+            <TextBlock x:Name="SelectedGameName" FontSize="20" FontWeight="Bold" Foreground="White">
               <TextBlock.Text>
                 <Binding Path="Name"/>
               </TextBlock.Text>
@@ -469,7 +469,7 @@
                 </ContextMenu>
               </TextBlock.ContextMenu>
             </TextBlock>
-            <TextBlock x:Name="SelectedGamePlayTime" FontSize="12" Foreground="#AAAAAA" Text="" Visibility="Collapsed"/>
+            <TextBlock x:Name="SelectedGamePlayTime" FontSize="10" Foreground="#AAAAAA" Text="" Visibility="Collapsed"/>
           </StackPanel>
           <StackPanel Grid.Column="2" Orientation="Horizontal">
             <Button x:Name="LinksButton" Width="40" Height="40" Margin="5,0" Style="{StaticResource ActionButtonStyle}" Click="Links_Click" ToolTip="External Links">
@@ -499,7 +499,7 @@
                 </ContextMenu>
               </Button.ContextMenu>
             </Button>
-            <Button x:Name="RefreshButton" Width="40" Height="40" Margin="5,0" Click="RefreshGame_Click" Style="{StaticResource ActionButtonStyle}">
+            <Button x:Name="RefreshButton" Width="40" Height="40" Margin="5,0" Click="RefreshGame_Click" Style="{StaticResource ActionButtonStyle}" ToolTip="Reload Achievements">
               <Image Source="pack://application:,,,/SLAM;component/Resources/reload.png" Width="16" Height="16" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
             </Button>
             <Button x:Name="EnableTimerButton" Width="120" Height="40" Margin="5,0" Style="{StaticResource ActionButtonStyle}" Click="EnableTimer_Click">
