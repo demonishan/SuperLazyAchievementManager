@@ -552,9 +552,10 @@
             </Button>
           </StackPanel>
         </Grid>
-        <Grid x:Name="AchievementSearchRow" Grid.Row="1" Margin="20,0,20,10" Visibility="Visible">
+        <Grid x:Name="AchievementSearchRow" Grid.Row="1" Margin="20,0,20,0" Visibility="Visible">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
@@ -571,7 +572,13 @@
               <Button x:Name="ClearAchievementSearchBtn" Grid.Column="2" Content="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="12" Width="40" Background="Transparent" Foreground="#888888" BorderThickness="0" Visibility="Collapsed" Click="ClearAchievementSearch_Click"/>
             </Grid>
           </Border>
-          <StackPanel x:Name="FilterButtonsPanel" Grid.Column="2" Orientation="Horizontal" Margin="5,0">
+          <ToggleButton x:Name="ToggleIconsBtn" Grid.Column="1" Width="40" Height="40" Margin="5,0" Style="{StaticResource ToggleActionButtonStyle}" Click="ToggleIcons_Click" ToolTip="Show/Hide Achievement Icons" IsChecked="True">
+            <Path Data="{StaticResource Icon.EyeOff}" Style="{StaticResource PathIconStyle}"/>
+          </ToggleButton>
+          <ToggleButton x:Name="RevealHiddenBtn" Grid.Column="2" Width="40" Height="40" Margin="5,0" Style="{StaticResource ToggleActionButtonStyle}" Click="RevealHidden_Click" ToolTip="Reveal Hidden Achievements" Visibility="Collapsed">
+            <Path Data="{StaticResource Icon.EyeOff}" Style="{StaticResource PathIconStyle}"/>
+          </ToggleButton>
+          <StackPanel x:Name="FilterButtonsPanel" Grid.Column="3" Orientation="Horizontal" Margin="5,0">
             <ToggleButton x:Name="FilterAllBtn" Width="40" Height="40" Margin="0" Style="{StaticResource ToggleActionButtonStyleLeft}" Click="FilterToggle_Click" ToolTip="Show All Achievements" IsChecked="True">
               <Path Data="{StaticResource Icon.All}" Style="{StaticResource PathIconStyle}"/>
             </ToggleButton>
@@ -582,10 +589,7 @@
               <Path Data="{StaticResource Icon.Unlock}" Style="{StaticResource PathIconStyle}"/>
             </ToggleButton>
           </StackPanel>
-          <ToggleButton x:Name="RevealHiddenBtn" Grid.Column="1" Width="40" Height="40" Margin="5,0" Style="{StaticResource ToggleActionButtonStyle}" Click="RevealHidden_Click" ToolTip="Reveal Hidden Achievements" Visibility="Collapsed">
-            <Path Data="{StaticResource Icon.EyeOff}" Style="{StaticResource PathIconStyle}"/>
-          </ToggleButton>
-          <ComboBox x:Name="SortFilter" Grid.Column="3" Height="40" MinWidth="150" Margin="5,0,0,0" SelectionChanged="SortFilter_SelectionChanged" SelectedIndex="0" VerticalContentAlignment="Center">
+          <ComboBox x:Name="SortFilter" Grid.Column="4" Height="40" MinWidth="150" Margin="5,0,0,0" SelectionChanged="SortFilter_SelectionChanged" SelectedIndex="0" VerticalContentAlignment="Center">
             <ComboBoxItem Content="Sort by..." Tag="None"/>
             <Separator/>
             <ComboBoxItem Content="Rarity (Common first)" Tag="Rarity_Desc"/>
@@ -626,6 +630,9 @@
                             <Style.Triggers>
                               <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
                                 <Setter Property="Width" Value="50"/>
+                              </DataTrigger>
+                              <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=ShowAchievementIcons}" Value="False">
+                                <Setter Property="Width" Value="0"/>
                               </DataTrigger>
                             </Style.Triggers>
                           </Style>
@@ -682,11 +689,15 @@
                           <Setter Property="Width" Value="64"/>
                           <Setter Property="Height" Value="64"/>
                           <Setter Property="Margin" Value="5,0"/>
+                          <Setter Property="Visibility" Value="Visible"/>
                           <Style.Triggers>
                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
                               <Setter Property="Width" Value="40"/>
                               <Setter Property="Height" Value="40"/>
                               <Setter Property="Margin" Value="2,0"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=ShowAchievementIcons}" Value="False">
+                              <Setter Property="Visibility" Value="Collapsed"/>
                             </DataTrigger>
                           </Style.Triggers>
                         </Style>
@@ -757,6 +768,9 @@
                             <Style.Triggers>
                               <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=IsTimerMode}" Value="True">
                                 <Setter Property="FontSize" Value="10"/>
+                              </DataTrigger>
+                              <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=ShowAchievementIcons}" Value="False">
+                                <Setter Property="Visibility" Value="Collapsed"/>
                               </DataTrigger>
                             </Style.Triggers>
                           </Style>

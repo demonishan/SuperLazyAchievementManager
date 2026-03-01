@@ -432,6 +432,12 @@ namespace SAM.API {
       public bool GetAchievementAchievedPercent(string name, out float percent) {
         using (var nativeName = NativeStrings.StringToStringHandle(name)) return GetFunction<NativeGetAchievementAchievedPercent>(Functions.GetAchievementAchievedPercent)(ObjectAddress, nativeName.Handle, out percent);
       }
+      [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+      private delegate uint NativeGetNumAchievements(IntPtr self);
+      [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+      private delegate IntPtr NativeGetAchievementName(IntPtr self, uint index);
+      public uint GetNumAchievements() => Call<uint, NativeGetNumAchievements>(Functions.GetNumAchievements, ObjectAddress);
+      public string GetAchievementName(uint index) => NativeStrings.PointerToString(Call<IntPtr, NativeGetAchievementName>(Functions.GetAchievementName, ObjectAddress, index));
       public bool ResetAllStats(bool achievementsToo) => Call<bool, NativeResetAllStats>(Functions.ResetAllStats, ObjectAddress, achievementsToo);
     }
     public class SteamUtils005 : NativeWrapper<ISteamUtils005> {

@@ -312,6 +312,11 @@ namespace SLAM.Reborn {
     private ObservableCollection<AchievementViewModel> _Achievements = new ObservableCollection<AchievementViewModel>();
     private uint _SelectedGameId;
     private SAM.API.UserStatsReceived _UserStatsReceivedCallback;
+    public static readonly DependencyProperty ShowAchievementIconsProperty = DependencyProperty.Register(nameof(ShowAchievementIcons), typeof(bool), typeof(MainWindow), new PropertyMetadata(true));
+    public bool ShowAchievementIcons {
+      get => (bool)GetValue(ShowAchievementIconsProperty);
+      set => SetValue(ShowAchievementIconsProperty, value);
+    }
     private void Game_Click(object sender, MouseButtonEventArgs e) {
       try {
         if (sender is FrameworkElement element && element.DataContext is GameViewModel game) {
@@ -532,7 +537,28 @@ namespace SLAM.Reborn {
     }
     private void FetchAchievements() {
       var definitions = new List<AchievementDefinition>();
-      if (!LoadUserGameStatsSchema(definitions)) SharedStatusText.Text = "Steam ghosted my request for the schema. Expect some missing info. Use your imagination or restart SLAM.";
+      LoadUserGameStatsSchema(definitions);
+      
+      if (definitions.Count == 0) {
+         try {
+             uint count = _SteamClient.SteamUserStats.GetNumAchievements();
+             for (uint i = 0; i < count; i++) {
+                 string id = _SteamClient.SteamUserStats.GetAchievementName(i);
+                 if (!string.IsNullOrEmpty(id)) {
+                      definitions.Add(new AchievementDefinition {
+                          Id = id,
+                          Name = _SteamClient.SteamUserStats.GetAchievementDisplayAttribute(id, "name"),
+                          Description = _SteamClient.SteamUserStats.GetAchievementDisplayAttribute(id, "desc"),
+                          IsHidden = _SteamClient.SteamUserStats.GetAchievementDisplayAttribute(id, "hidden") == "1" ? 1 : 0,
+                          Permission = 0,
+                          IconNormal = "",
+                          IconLocked = ""
+                      });
+                 }
+             }
+         } catch { } 
+         if (definitions.Count == 0) SharedStatusText.Text = "Steam ghosted my request for the schema. Expect some missing info. Use your imagination or restart SLAM.";
+      }
       bool anyProtected = definitions.Any(x => x.Permission > 0);
       _Achievements.Clear();
       foreach (var def in definitions) {
@@ -671,6 +697,29 @@ namespace SLAM.Reborn {
     private void LockAll_Click(object sender, RoutedEventArgs e) {
       foreach (var ach in _Achievements) ach.IsAchieved = false;
     }
+
+    private void ToggleIcons_Click(object sender, RoutedEventArgs e) {
+      try { ShowAchievementIcons = !ShowAchievementIcons; }
+      catch { }
+    }
+    private BitmapSource GetSteamImage(int handle) {
+      if (handle <= 0) return null;
+      if (_SteamClient.SteamUtils.GetImageSize(handle, out int width, out int height)) {
+        int size = width * height * 4;
+        byte[] data = new byte[size];
+        if (_SteamClient.SteamUtils.GetImageRGBA(handle, data)) {
+          for (int i = 0; i < size; i += 4) {
+            byte r = data[i];
+            data[i] = data[i + 2];
+            data[i + 2] = r;
+          }
+          var bitmap = BitmapSource.Create(width, height, 96, 96, System.Windows.Media.PixelFormats.Bgra32, null, data, width * 4);
+          bitmap.Freeze();
+          return bitmap;
+        }
+      }
+      return null;
+    }
     private void StartAchievementImageCaching(List<AchievementViewModel> achievements) {
       Task.Run(async () => {
         try {
@@ -678,7 +727,29 @@ namespace SLAM.Reborn {
           if (!Directory.Exists(cacheDir)) Directory.CreateDirectory(cacheDir);
           foreach (var ach in achievements) {
             string urlToLoad = ach.RealIconUrl;
-            if (string.IsNullOrEmpty(urlToLoad) || urlToLoad.StartsWith("pack://")) {
+            if (string.IsNullOrEmpty(urlToLoad) || urlToLoad.EndsWith("/")) {
+               int handle = _SteamClient.SteamUserStats.GetAchievementIcon(ach.Id);
+               var steamBmp = GetSteamImage(handle);
+               if (steamBmp != null) {
+                   await Dispatcher.InvokeAsync(() => {
+                       ach.RealIcon = steamBmp;
+                       ach.Icon = steamBmp;
+                       ach.IsBroken = false;
+                   });
+               } else {
+                   await Dispatcher.InvokeAsync(() => {
+                        // Only show broken if not hidden/pack
+                        if (ach.IsHiddenLocked && ach.IconUrl.StartsWith("pack://")) {
+                           try { ach.Icon = new BitmapImage(new Uri(ach.IconUrl)); } catch {}
+                        } else {
+                           ach.IsBroken = true;
+                        }
+                   }, DispatcherPriority.Background);
+               }
+               continue;
+            }
+
+            if (urlToLoad.StartsWith("pack://")) {
               if (ach.IconUrl.StartsWith("pack://"))
                 await Dispatcher.InvokeAsync(() => {
                   try {
@@ -705,9 +776,21 @@ namespace SLAM.Reborn {
                 } catch { }
               }, DispatcherPriority.Background);
             } else {
-              await Dispatcher.InvokeAsync(() => {
-                ach.IsBroken = true;
-              }, DispatcherPriority.Background);
+              // Try Steam fallback if web download failed? 
+              // Usually if URL is valid, we expect it to work. But we can Try Steam.
+               int handle = _SteamClient.SteamUserStats.GetAchievementIcon(ach.Id);
+               var steamBmp = GetSteamImage(handle);
+               if (steamBmp != null) {
+                   await Dispatcher.InvokeAsync(() => {
+                       ach.RealIcon = steamBmp;
+                       ach.Icon = steamBmp;
+                       ach.IsBroken = false;
+                   });
+               } else {
+                  await Dispatcher.InvokeAsync(() => {
+                    ach.IsBroken = true;
+                  }, DispatcherPriority.Background);
+               }
             }
           }
         } catch { }
