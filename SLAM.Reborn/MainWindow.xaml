@@ -573,7 +573,7 @@
             </Grid>
           </Border>
           <ToggleButton x:Name="ToggleIconsBtn" Grid.Column="1" Width="40" Height="40" Margin="5,0" Style="{StaticResource ToggleActionButtonStyle}" Click="ToggleIcons_Click" ToolTip="Show/Hide Achievement Icons" IsChecked="True">
-            <Path Data="{StaticResource Icon.EyeOff}" Style="{StaticResource PathIconStyle}"/>
+            <Image Source="pack://application:,,,/SLAM;component/Resources/icon-image.png" Width="18" Height="18" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
           </ToggleButton>
           <ToggleButton x:Name="RevealHiddenBtn" Grid.Column="2" Width="40" Height="40" Margin="5,0" Style="{StaticResource ToggleActionButtonStyle}" Click="RevealHidden_Click" ToolTip="Reveal Hidden Achievements" Visibility="Collapsed">
             <Path Data="{StaticResource Icon.EyeOff}" Style="{StaticResource PathIconStyle}"/>
