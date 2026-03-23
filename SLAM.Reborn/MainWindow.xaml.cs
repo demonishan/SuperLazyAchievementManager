@@ -1048,6 +1048,7 @@ namespace SLAM.Reborn {
           _AchievementView.SortDescriptions.Clear();
           var lcv = _AchievementView as ListCollectionView;
           if (lcv != null) lcv.CustomSort = null;
+          ApplySortByTag("Rarity_Desc");
           _AchievementView.Refresh();
         }
         if (FilterAllBtn != null) FilterAllBtn.IsChecked = false;
@@ -1208,14 +1209,23 @@ namespace SLAM.Reborn {
         finally { SetTimerUIState(false); }
     }
     private void SetTimerUIState(bool active) {
-      _IsTimerActive = active;
-      _IsTimerPaused = false;
-      IsTimerRunning = active;
-      UpdateTimerButtonState();
-      var visibility = active ? Visibility.Collapsed : Visibility.Visible;
-      if (SortFilter != null) SortFilter.Visibility = visibility;
-      if (EnableTimerButton != null) EnableTimerButton.Visibility = visibility;
-      if (RandomTimerButton != null) RandomTimerButton.Visibility = active ? Visibility.Collapsed : (IsTimerMode ? Visibility.Visible : Visibility.Collapsed);
+        _IsTimerActive = active;
+        _IsTimerPaused = false;
+        IsTimerRunning = active;
+        UpdateTimerButtonState();
+        if (active) {
+            if (EnableTimerButton != null) EnableTimerButton.Visibility = Visibility.Collapsed;
+            if (RandomTimerButton != null) RandomTimerButton.Visibility = Visibility.Collapsed;
+            if (ExactTimeButton != null) ExactTimeButton.Visibility = Visibility.Collapsed;
+            if (SortFilter != null) SortFilter.Visibility = Visibility.Collapsed;
+        } else {
+            if (EnableTimerButton != null) EnableTimerButton.Visibility = Visibility.Visible;
+            if (IsTimerMode) {
+                if (RandomTimerButton != null) RandomTimerButton.Visibility = Visibility.Visible;
+                if (ExactTimeButton != null) ExactTimeButton.Visibility = Visibility.Visible;
+                if (SortFilter != null) SortFilter.Visibility = Visibility.Collapsed;
+            }
+        }
     }
     private void UpdateProgressBar() {
       if (AchievementProgressBar == null) return;
