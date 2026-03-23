@@ -3,7 +3,19 @@
 ### 8.X.XX (2026-01-XX)
 - UI: On-brand background image and loader icon.
 
-### 8.6.14 (2026-01-13)
+## [8.6.15] - 2026-03-23
+### Added
+- Exact Time Generator feature in Timer Mode to distribute a total time across achievements.
+- Validation to ensure total time is sufficient for the number of achievements.
+- Pseudo-random, sorted distribution for more natural unlock patterns.
+- MaxLength validation for timer inputs.
+### Fixed
+- Fixed a race condition causing crashes when switching between games rapidly.
+- Corrected various code style and semantic issues to align with project conventions.
+- Resolved compilation errors related to missing `async` modifiers and incorrect type names during refactoring.
+- Fixed an issue where the `ExactTimeButton` icon was not displaying due to an incorrect resource definition.
+
+## [8.6.14] - 2026-03-23
 - UI: Added Play Time and Last Played under the title of the game in the details view.
 - Core: Implemented a `keep alive` timer to update Steam every 5 minutes, ensuring the total playtime is tracked correctly.
 

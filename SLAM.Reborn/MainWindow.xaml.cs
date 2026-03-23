@@ -103,14 +103,15 @@ namespace SLAM.Reborn {
     private bool _WantDlc = false;
     private enum GameFilterMode { Favorites, Installed, WithAchievements, WithoutAchievements }
     private GameFilterMode _CurrentFilterMode = GameFilterMode.Installed;
-    private void SetFilterMode(GameFilterMode mode) {
-      if (_CurrentFilterMode == mode) return;
-      _CurrentFilterMode = mode;
-      if (FilterFavoritesBtn != null) FilterFavoritesBtn.IsChecked = mode == GameFilterMode.Favorites;
-      if (FilterInstalledBtn != null) FilterInstalledBtn.IsChecked = mode == GameFilterMode.Installed;
-      if (FilterWithAchievementsBtn != null) FilterWithAchievementsBtn.IsChecked = mode == GameFilterMode.WithAchievements;
-      if (FilterWithoutAchievementsBtn != null) FilterWithoutAchievementsBtn.IsChecked = mode == GameFilterMode.WithoutAchievements;
-      RefreshFilter();
+    private void SetFilterMode(GameFilterMode mode)
+    {
+        if (_CurrentFilterMode == mode) return;
+        _CurrentFilterMode = mode;
+        if (FilterFavoritesBtn != null) FilterFavoritesBtn.IsChecked = mode == GameFilterMode.Favorites;
+        if (FilterInstalledBtn != null) FilterInstalledBtn.IsChecked = mode == GameFilterMode.Installed;
+        if (FilterWithAchievementsBtn != null) FilterWithAchievementsBtn.IsChecked = mode == GameFilterMode.WithAchievements;
+        if (FilterWithoutAchievementsBtn != null) FilterWithoutAchievementsBtn.IsChecked = mode == GameFilterMode.WithoutAchievements;
+        RefreshFilter();
     }
     private DispatcherTimer _CallbackTimer;
     private DispatcherTimer _KeepAliveTimer;
@@ -118,6 +119,7 @@ namespace SLAM.Reborn {
     private string _AppVersion = "";
     private List<uint> _FavoriteGameIds = new List<uint>();
     private AppConfig _Config = new AppConfig();
+    private bool _IsSwitchingContext = false;
     public MainWindow() {
       InitializeComponent();
       LoadConfiguration();
@@ -149,6 +151,7 @@ namespace SLAM.Reborn {
       _CallbackTimer = new DispatcherTimer();
       _CallbackTimer.Interval = TimeSpan.FromMilliseconds(100);
       _CallbackTimer.Tick += (s, e) => {
+        if (_IsSwitchingContext) return;
         try { _SteamClient?.RunCallbacks(false); }
         catch (Exception ex) { SLAM.Reborn.App.LogCrash(ex, "CallbackTimer_RunCallbacks"); }
       };
@@ -156,6 +159,7 @@ namespace SLAM.Reborn {
       _KeepAliveTimer = new DispatcherTimer();
       _KeepAliveTimer.Interval = TimeSpan.FromMinutes(5);
       _KeepAliveTimer.Tick += (s, e) => {
+        if (_IsSwitchingContext) return;
         try {
           if (_SteamClient != null) {
             _SteamClient.SteamUserStats.StoreStats();
@@ -193,9 +197,10 @@ namespace SLAM.Reborn {
       public int Permission { get; set; }
       public int IsHidden { get; set; }
     }
-    private void OnWindowStateChanged(object sender, EventArgs e) {
-      if (MaximizeBtn == null) return;
-      MaximizeBtn.Content = WindowState == WindowState.Maximized ? "\uE923" : "\uE922";
+    private void OnWindowStateChanged(object sender, EventArgs e)
+    {
+        if (MaximizeBtn == null) return;
+        MaximizeBtn.Content = WindowState == WindowState.Maximized ? "\uE923" : "\uE922";
     }
     protected override void OnClosed(EventArgs e) {
       _CallbackTimer?.Stop();
@@ -382,30 +387,21 @@ namespace SLAM.Reborn {
         }
       }
     }
+    private void SetAchievementFilter(System.Windows.Controls.Primitives.ToggleButton activeBtn) {
+        if (activeBtn.IsChecked == false) {
+            activeBtn.IsChecked = true;
+            return;
+        }
+        var buttons = new[] { FilterAllBtn, FilterLockedBtn, FilterUnlockedBtn };
+        foreach (var btn in buttons)
+            if (btn != activeBtn && btn != null)
+                btn.IsChecked = false;
+        RefreshAchievementFilter();
+        UpdateTimerMetadata();
+    }
     private void FilterToggle_Click(object sender, RoutedEventArgs e) {
-      if (sender == FilterAllBtn) {
-        if (FilterAllBtn.IsChecked == true) {
-          FilterLockedBtn.IsChecked = false;
-          FilterUnlockedBtn.IsChecked = false;
-        }
-        else FilterAllBtn.IsChecked = true;
-      }
-      else if (sender == FilterLockedBtn) {
-        if (FilterLockedBtn.IsChecked == true) {
-          FilterAllBtn.IsChecked = false;
-          FilterUnlockedBtn.IsChecked = false;
-        }
-        else FilterLockedBtn.IsChecked = true;
-      }
-      else if (sender == FilterUnlockedBtn) {
-        if (FilterUnlockedBtn.IsChecked == true) {
-          FilterAllBtn.IsChecked = false;
-          FilterLockedBtn.IsChecked = false;
-        }
-        else FilterUnlockedBtn.IsChecked = true;
-      }
-      RefreshAchievementFilter();
-      UpdateTimerMetadata();
+        if (sender is System.Windows.Controls.Primitives.ToggleButton btn)
+            SetAchievementFilter(btn);
     }
     private void RefreshAchievementFilter() {
       if (_AchievementView == null) return;
@@ -456,7 +452,9 @@ namespace SLAM.Reborn {
         if (AchievementList != null) AchievementList.Visibility = Visibility.Visible;
         LoadingOverlay.Visibility = Visibility.Visible;
         SharedStatusText.Text = "Switching Steam context...";
+        _IsSwitchingContext = true;
         _CallbackTimer.Stop();
+        _KeepAliveTimer.Stop();
         try {
           _SteamClient?.Dispose();
           _SteamClient = null;
@@ -500,15 +498,18 @@ namespace SLAM.Reborn {
           else DisplayAlert("Failed to switch Steam context: " + cie.Message, true);
           SLAM.Reborn.App.LogCrash(cie, "LoadGameData_SteamSwitch_Init");
           LoadingOverlay.Visibility = Visibility.Collapsed;
+          _IsSwitchingContext = false;
           _CallbackTimer.Start();
           return;
         } catch (Exception ex) {
           DisplayAlert("Failed to switch Steam context: " + ex.Message, true);
           SLAM.Reborn.App.LogCrash(ex, "LoadGameData_SteamSwitch");
           LoadingOverlay.Visibility = Visibility.Collapsed;
+          _IsSwitchingContext = false;
           _CallbackTimer.Start();
           return;
         }
+        _IsSwitchingContext = false;
         _CallbackTimer.Start();
         var gameInfo = _AllGames.FirstOrDefault(g => g.Id == _SelectedGameId);
         if (gameInfo != null && !gameInfo.HasAchievements) {
@@ -532,6 +533,7 @@ namespace SLAM.Reborn {
         DisplayAlert($"Critical error loading game data: {ex.Message}", true);
         SLAM.Reborn.App.LogCrash(ex, "LoadGameData_Critical");
         LoadingOverlay.Visibility = Visibility.Collapsed;
+        _IsSwitchingContext = false;
         _CallbackTimer.Start();
       }
     }
@@ -854,6 +856,7 @@ namespace SLAM.Reborn {
           if (FilterUnlockedBtn != null) FilterUnlockedBtn.Visibility = Visibility.Visible;
           if (StartTimerButton != null) StartTimerButton.Visibility = Visibility.Collapsed;
           if (RandomTimerButton != null) RandomTimerButton.Visibility = Visibility.Collapsed;
+          if (ExactTimeButton != null) ExactTimeButton.Visibility = Visibility.Collapsed;
           if (EnableTimerButton != null) EnableTimerButton.Visibility = Visibility.Visible;
           if (SortFilter != null) SortFilter.Visibility = Visibility.Visible;
           if (FilterAllBtn != null) FilterAllBtn.IsChecked = true;
@@ -950,35 +953,24 @@ namespace SLAM.Reborn {
       HomeLoadingOverlay.Visibility = Visibility.Visible;
       LoadData();
     }
-    private void GameFilterToggle_Click(object sender, RoutedEventArgs e) {
-      if (sender is System.Windows.Controls.Primitives.ToggleButton btn) {
-        if (btn.IsChecked == false) {
-          btn.IsChecked = true;
-          return;
+    private void SetGameFilter(System.Windows.Controls.Primitives.ToggleButton activeBtn) {
+        if (activeBtn.IsChecked == false) {
+            activeBtn.IsChecked = true;
+            return;
         }
-        if (btn == FilterGamesBtn) {
-          if (FilterModsBtn != null) FilterModsBtn.IsChecked = false;
-          if (FilterDemosBtn != null) FilterDemosBtn.IsChecked = false;
-          if (FilterDlcBtn != null) FilterDlcBtn.IsChecked = false;
-        } else if (btn == FilterModsBtn) {
-          if (FilterGamesBtn != null) FilterGamesBtn.IsChecked = false;
-          if (FilterDemosBtn != null) FilterDemosBtn.IsChecked = false;
-          if (FilterDlcBtn != null) FilterDlcBtn.IsChecked = false;
-        } else if (btn == FilterDemosBtn) {
-          if (FilterGamesBtn != null) FilterGamesBtn.IsChecked = false;
-          if (FilterModsBtn != null) FilterModsBtn.IsChecked = false;
-          if (FilterDlcBtn != null) FilterDlcBtn.IsChecked = false;
-        } else if (btn == FilterDlcBtn) {
-          if (FilterGamesBtn != null) FilterGamesBtn.IsChecked = false;
-          if (FilterModsBtn != null) FilterModsBtn.IsChecked = false;
-          if (FilterDemosBtn != null) FilterDemosBtn.IsChecked = false;
-        }
+        var buttons = new[] { FilterGamesBtn, FilterModsBtn, FilterDemosBtn, FilterDlcBtn };
+        foreach (var btn in buttons)
+            if (btn != activeBtn && btn != null)
+                btn.IsChecked = false;
         _WantGames = FilterGamesBtn.IsChecked == true;
         _WantMods = FilterModsBtn.IsChecked == true;
         _WantDemos = FilterDemosBtn.IsChecked == true;
         _WantDlc = FilterDlcBtn.IsChecked == true;
         RefreshFilter();
-      }
+    }
+    private void GameFilterToggle_Click(object sender, RoutedEventArgs e) {
+        if (sender is System.Windows.Controls.Primitives.ToggleButton btn)
+            SetGameFilter(btn);
     }
     private void AchievementFilterToggle_Click(object sender, RoutedEventArgs e) {
       if (sender == FilterWithAchievementsBtn) SetFilterMode(GameFilterMode.WithAchievements);
@@ -1004,6 +996,7 @@ namespace SLAM.Reborn {
       if (RevealHiddenBtn != null) RevealHiddenBtn.Visibility = hasHidden ? Visibility.Visible : Visibility.Collapsed;
       if (StartTimerButton != null) StartTimerButton.Visibility = IsTimerMode ? Visibility.Visible : Visibility.Collapsed;
       if (RandomTimerButton != null) RandomTimerButton.Visibility = IsTimerMode ? Visibility.Visible : Visibility.Collapsed;
+      if (ExactTimeButton != null) ExactTimeButton.Visibility = IsTimerMode ? Visibility.Visible : Visibility.Collapsed;
       if (EnableTimerText != null) EnableTimerText.Text = IsTimerMode ? "Normal Mode" : "Timer Mode";
     }
     public static readonly DependencyProperty IsTimerRunningProperty = DependencyProperty.Register("IsTimerRunning", typeof(bool), typeof(MainWindow), new PropertyMetadata(false));
@@ -1075,7 +1068,7 @@ namespace SLAM.Reborn {
       }
     }
     private void RandomTimerButton_Click(object sender, RoutedEventArgs e) {
-      if (RandomTimerPopup != null) RandomTimerPopup.IsOpen = true;
+        RandomTimerPopup.IsOpen = true;
     }
     private void ApplyRandomTimer_Click(object sender, RoutedEventArgs e) {
       if (int.TryParse(RandMinInput.Text, out int min) && int.TryParse(RandMaxInput.Text, out int max)) {
@@ -1092,26 +1085,67 @@ namespace SLAM.Reborn {
       } else DisplayAlert("Math is hard. Please use actual numbers so I don't have to think.", true);
     }
     private void SmartRandom_Click(object sender, RoutedEventArgs e) {
-      if (int.TryParse(RandMinInput.Text, out int min) && int.TryParse(RandMaxInput.Text, out int max)) {
-        if (min > max) {
-          int temp = min;
-          min = max;
-          max = temp;
+        RandomTimerPopup.IsOpen = false;
+        SmartRandomize();
+    }
+    private void SmartRandomize() {
+        if (int.TryParse(RandMinInput.Text, out int min) && int.TryParse(RandMaxInput.Text, out int max)) {
+            if (min > max) {
+                int temp = min;
+                min = max;
+                max = temp;
+            }
+            var achievementsToProcess = _Achievements.Where(a => !a.IsAchieved).ToList();
+            if (achievementsToProcess.Count == 0) return;
+            var random = new Random();
+            achievementsToProcess = achievementsToProcess.OrderBy(a => random.Next()).ToList();
+            double step = (achievementsToProcess.Count > 1) ? (double)(max - min) / (achievementsToProcess.Count - 1) : 0;
+            double currentMinutes = min;
+            foreach (var ach in achievementsToProcess) {
+                ach.TimerMinutes = Math.Round(currentMinutes).ToString();
+                currentMinutes += step;
+            }
+            UpdateTimerMetadata();
+        } else {
+            DisplayAlert("Invalid min/max values. Please enter numbers.", true);
         }
-        var random = new Random();
-        var pending = (_AchievementView != null ? _AchievementView.Cast<AchievementViewModel>() : _Achievements).Where(a => !a.IsAchieved).ToList();
-        int count = pending.Count;
-        int spread = max - min;
-        int jitterLimit = Math.Max(1, (int)(spread * 0.15));
-        for (int i = 0; i < count; i++) {
-          double progress = (double)i / (count > 1 ? count - 1 : 1);
-          int target = (int)(min + spread * progress);
-          int jitter = random.Next(-jitterLimit, jitterLimit + 1);
-          int val = Math.Max(min, Math.Min(max, target + jitter));
-          pending[i].TimerMinutes = val.ToString();
+    }
+    private void ExactTimeButton_Click(object sender, RoutedEventArgs e) {
+        ExactTimePopup.IsOpen = true;
+    }
+    private void ApplyExactTime_Click(object sender, RoutedEventArgs e) {
+        if (!int.TryParse(ExactHourInput.Text, out int hours) || !int.TryParse(ExactMinuteInput.Text, out int minutes) || hours < 0 || minutes < 0) {
+            DisplayAlert("Invalid hour or minute. Please enter positive numbers.", true);
+            return;
         }
-        if (RandomTimerPopup != null) RandomTimerPopup.IsOpen = false;
-      } else DisplayAlert("Math is hard. Please use actual numbers so I don't have to think.", true);
+        var achievementsToProcess = _AchievementView.Cast<AchievementViewModel>().Where(a => !a.IsAchieved).ToList();
+        int achievementCount = achievementsToProcess.Count;
+        if (achievementCount == 0) {
+            DisplayAlert("No achievements to process.", false);
+            ExactTimePopup.IsOpen = false;
+            return;
+        }
+        int totalMinutes = (hours * 60) + minutes;
+        if (totalMinutes < achievementCount) {
+            DisplayAlert($"Total time ({totalMinutes}m) is less than the number of achievements ({achievementCount}). Please increase the time.", true);
+            return;
+        }
+        if (achievementCount > 0) {
+            var random = new Random();
+            var parts = new List<int>();
+            for (int i = 0; i < achievementCount; i++)
+                parts.Add(1);
+            int remainingMinutes = totalMinutes - achievementCount;
+            for (int i = 0; i < remainingMinutes; i++) {
+                int indexToIncrement = random.Next(0, achievementCount);
+                parts[indexToIncrement]++;
+            }
+            parts.Sort();
+            for (int i = 0; i < achievementCount; i++)
+                achievementsToProcess[i].TimerMinutes = parts[i].ToString();
+        }
+        UpdateTimerMetadata();
+        ExactTimePopup.IsOpen = false;
     }
     private bool _IsTimerActive = false;
     private bool _IsTimerPaused = false;
@@ -1127,40 +1161,51 @@ namespace SLAM.Reborn {
         StartTimerIcon.Data = (Geometry)FindResource("Icon.Pause");
       }
     }
-    private void UpdateProtectionState() {
-      if (!AreModificationsAllowed) {
-        if (BulkActionsButton != null) BulkActionsButton.Visibility = Visibility.Collapsed;
-        if (EnableTimerButton != null) EnableTimerButton.Visibility = Visibility.Collapsed;
-        if (SaveButton != null) SaveButton.Visibility = Visibility.Collapsed;
-      } else {
-        var vis = IsTimerMode ? Visibility.Collapsed : Visibility.Visible;
-        if (BulkActionsButton != null) BulkActionsButton.Visibility = vis;
-        if (EnableTimerButton != null) EnableTimerButton.Visibility = Visibility.Visible;
-        if (SaveButton != null) SaveButton.Visibility = vis;
-      }
-    }
-    private async void StartTimer_Click(object sender, RoutedEventArgs e) {
-      if (_IsTimerActive) {
-        _IsTimerPaused = !_IsTimerPaused;
-        UpdateTimerButtonState();
-        return;
-      }
-      var achievements = _AchievementView.Cast<AchievementViewModel>().ToList();
-      if (!achievements.Any()) {
-        DisplayAlert("No achievements in the collection.", true);
-        return;
-      }
-      try {
-        SetTimerUIState(true);
-        int processedCount = await RunTimerSequence(achievements);
-        if (_IsTimerActive) {
-          if (processedCount == 0) DisplayAlert("I can't find any timers. I can't read your mind, you have to type the numbers.", false);
-          else DisplayAlert($"Job's done! I unlocked {processedCount} achievements for you. You're welcome.", false);
+    private void UpdateProtectionState()
+    {
+        if (!AreModificationsAllowed)
+        {
+            if (BulkActionsButton != null) BulkActionsButton.Visibility = Visibility.Collapsed;
+            if (EnableTimerButton != null) EnableTimerButton.Visibility = Visibility.Collapsed;
+            if (SaveButton != null) SaveButton.Visibility = Visibility.Collapsed;
         }
-      } catch (Exception ex) {
-        DisplayAlert($"Error running timer: {ex.Message}", true);
-      }
-      finally { SetTimerUIState(false); }
+        else
+        {
+            var vis = IsTimerMode ? Visibility.Collapsed : Visibility.Visible;
+            if (BulkActionsButton != null) BulkActionsButton.Visibility = vis;
+            if (EnableTimerButton != null) EnableTimerButton.Visibility = Visibility.Visible;
+            if (SaveButton != null) SaveButton.Visibility = vis;
+        }
+    }
+    private async void StartTimer_Click(object sender, RoutedEventArgs e)
+    {
+        if (_IsTimerActive)
+        {
+            _IsTimerPaused = !_IsTimerPaused;
+            UpdateTimerButtonState();
+            return;
+        }
+        var achievements = _AchievementView.Cast<AchievementViewModel>().ToList();
+        if (!achievements.Any())
+        {
+            DisplayAlert("No achievements in the collection.", true);
+            return;
+        }
+        try
+        {
+            SetTimerUIState(true);
+            int processedCount = await RunTimerSequence(achievements);
+            if (_IsTimerActive)
+            {
+                if (processedCount == 0) DisplayAlert("I can't find any timers. I can't read your mind, you have to type the numbers.", false);
+                else DisplayAlert($"Job's done! I unlocked {processedCount} achievements for you. You're welcome.", false);
+            }
+        }
+        catch (Exception ex)
+        {
+            DisplayAlert($"Error running timer: {ex.Message}", true);
+        }
+        finally { SetTimerUIState(false); }
     }
     private void SetTimerUIState(bool active) {
       _IsTimerActive = active;
@@ -1242,13 +1287,17 @@ namespace SLAM.Reborn {
         DragDrop.DoDragDrop(listViewItem, dragData, DragDropEffects.Move);
       }
     }
-    private void AchievementList_DragOver(object sender, DragEventArgs e) {
-      if (!IsTimerMode || IsTimerRunning || !e.Data.GetDataPresent("myFormat")) {
-        e.Effects = DragDropEffects.None;
-      } else {
-        e.Effects = DragDropEffects.Move;
-      }
-      e.Handled = true;
+    private void AchievementList_DragOver(object sender, DragEventArgs e)
+    {
+        if (!IsTimerMode || IsTimerRunning || !e.Data.GetDataPresent("myFormat"))
+        {
+            e.Effects = DragDropEffects.None;
+        }
+        else
+        {
+            e.Effects = DragDropEffects.Move;
+        }
+        e.Handled = true;
     }
     private void AchievementList_Drop(object sender, DragEventArgs e) {
       if (!IsTimerMode || IsTimerRunning) return;

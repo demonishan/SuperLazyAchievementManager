@@ -8,21 +8,23 @@
     <Resource Include="..\Resources\bg.png" Link="Resources\bg.png" />
     <Resource Include="..\Resources\hidden.png" Link="Resources\hidden.png" />
     <Resource Include="..\Resources\icon-achievement.png" Link="Resources\icon-achievement.png" />
+    <Resource Include="..\Resources\icon-exact-time.png" Link="Resources\icon-exact-time.png" />
     <Resource Include="..\Resources\icon-favorite.png" Link="Resources\icon-favorite.png" />
+    <Resource Include="..\Resources\icon-image.png" Link="Resources\icon-image.png" />
     <Resource Include="..\Resources\icon-installed.png" Link="Resources\icon-installed.png" />
     <Resource Include="..\Resources\icon-no-achievement.png" Link="Resources\icon-no-achievement.png" />
     <Resource Include="..\Resources\icon-not-favorite.png" Link="Resources\icon-not-favorite.png" />
+    <Resource Include="..\Resources\icon-random.png" Link="Resources\icon-random.png" />
     <Resource Include="..\Resources\icon.ico" Link="Resources\icon.ico" />
     <Resource Include="..\Resources\icon.png" Link="Resources\icon.png" />
     <Resource Include="..\Resources\image-not-found.png" Link="Resources\image-not-found.png" />
     <Resource Include="..\Resources\loader.png" Link="Resources\loader.png" />
-    <Resource Include="..\Resources\reload.png" Link="Resources\reload.png" />
-    <Resource Include="..\Resources\icon-image.png" Link="Resources\icon-image.png" />
+    <Resource Include="..\Resources\icon-reload.png" Link="Resources\icon-reload.png" />
   </ItemGroup>
   <PropertyGroup>
     <ApplicationIcon>..\Resources\icon.ico</ApplicationIcon>
     <AssemblyName>SLAM</AssemblyName>
-    <AssemblyVersion>8.6.14.0</AssemblyVersion>
+    <AssemblyVersion>8.6.15.0</AssemblyVersion>
     <Authors>Ishan Samanta [666de666.com]</Authors>
     <Company>DEMONiZER Corp.</Company>
     <Copyright>Copyright © 2025 - 2026 Ishan Samanta</Copyright>
