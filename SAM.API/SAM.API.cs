@@ -269,7 +269,6 @@ namespace SAM.API {
       [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
       [return: MarshalAs(UnmanagedType.I1)]
       private delegate bool NativeIsAppInstalled(IntPtr self, uint gameId);
-
       public bool IsSubscribedApp(uint gameId) => Call<bool, NativeIsSubscribedApp>(Functions.IsSubscribedApp, ObjectAddress, gameId);
       public string GetCurrentGameLanguage() => NativeStrings.PointerToString(Call<IntPtr, NativeGetCurrentGameLanguage>(Functions.GetCurrentGameLanguage, ObjectAddress));
       public bool IsAppInstalled(uint gameId) => Call<bool, NativeIsAppInstalled>(Functions.IsAppInstalled, ObjectAddress, gameId);

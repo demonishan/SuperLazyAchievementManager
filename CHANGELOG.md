@@ -1,7 +1,17 @@
 ## Change Log
 
-### 8.X.XX (2026-01-XX)
-- UI: On-brand background image and loader icon.
+## [8.7.0] - 2026-06-04
+### Added
+- Timer Mode: Added a "Stop Timer" button to let users cancel a running timer.
+- Timer Mode: ETA now displays the date (e.g., "5 June") if the completion time extends beyond the current day.
+### Changed
+- Major architectural refactoring to eliminate "God Object" anti-pattern in MainWindow.
+- Abstracted background image processing and Steam API downloads to `ImageCacheService.cs`.
+- Abstracted Steam appcache and stats parsing to `SteamDataService.cs`.
+- Centralized UI state into `AppState.cs`.
+- Centralized hardcoded URLs into `SteamConstants.cs` and magic UI colors into `UIConstants.cs`.
+### Fixed
+- Replaced over 15 empty catch blocks acting as silent failure points with proper diagnostic logging.
 
 ## [8.6.15] - 2026-03-23
 ### Added

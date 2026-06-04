@@ -16,7 +16,7 @@ namespace SLAM.Reborn {
             if (data.Length > 0) System.IO.File.WriteAllBytes(cachePath, data);
           }
         }
-        catch { }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"ImageCacheHelper Download Error: {ex.Message}"); }
       }
       if (System.IO.File.Exists(cachePath) && new System.IO.FileInfo(cachePath).Length > 0) {
         try {
@@ -31,7 +31,7 @@ namespace SLAM.Reborn {
           _memoryCache[cachePath] = bitmap;
           return bitmap;
         }
-        catch { }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"ImageCacheHelper Load Error: {ex.Message}"); }
       }
       return null;
     }

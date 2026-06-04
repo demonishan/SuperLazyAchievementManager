@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -52,34 +52,34 @@ namespace SLAM.Reborn {
         if (File.Exists(path)) {
           var json = File.ReadAllText(path);
           _Config = JsonConvert.DeserializeObject<AppConfig>(json) ?? new AppConfig();
-          _FavoriteGameIds = _Config.FavoriteGames ?? new List<uint>();
+          State.FavoriteGameIds = _Config.FavoriteGames ?? new List<uint>();
         }
       } catch {
         _Config = new AppConfig();
-        _FavoriteGameIds = new List<uint>();
+        State.FavoriteGameIds = new List<uint>();
       }
     }
     private void SaveConfiguration() {
       try {
-        _Config.FavoriteGames = _FavoriteGameIds;
+        _Config.FavoriteGames = State.FavoriteGameIds;
         var json = JsonConvert.SerializeObject(_Config, Formatting.Indented);
         var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
         File.WriteAllText(path, json);
-      } catch { }
+      } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Config save error: {ex.Message}"); }
     }
     private void ToggleFavorite(uint appId) {
-      if (_FavoriteGameIds.Contains(appId)) _FavoriteGameIds.Remove(appId);
-      else _FavoriteGameIds.Add(appId);
+      if (State.FavoriteGameIds.Contains(appId)) State.FavoriteGameIds.Remove(appId);
+      else State.FavoriteGameIds.Add(appId);
       SaveConfiguration();
-      var vm = _FilteredGames.FirstOrDefault(x => x.Id == appId);
-      if (vm != null) vm.IsFavorite = _FavoriteGameIds.Contains(appId);
-      if (_CurrentFilterMode == GameFilterMode.Favorites) RefreshFilter();
+      var vm = State.FilteredGames.FirstOrDefault(x => x.Id == appId);
+      if (vm != null) vm.IsFavorite = State.FavoriteGameIds.Contains(appId);
+      if (State.CurrentFilterMode == AppState.GameFilterMode.Favorites) RefreshFilter();
     }
     private void FavoritesFilterToggle_Click(object sender, RoutedEventArgs e) {
-      SetFilterMode(GameFilterMode.Favorites);
+      SetFilterMode(AppState.GameFilterMode.Favorites);
     }
     private void InstalledFilterToggle_Click(object sender, RoutedEventArgs e) {
-      SetFilterMode(GameFilterMode.Installed);
+      SetFilterMode(AppState.GameFilterMode.Installed);
     }
     private void ToggleFavorite_Click(object sender, RoutedEventArgs e) {
       if (sender is MenuItem item && item.DataContext is GameViewModel game) {
@@ -95,29 +95,26 @@ namespace SLAM.Reborn {
     private Client _SteamClient;
     private int _StartPlayTimeMinutes = 0;
     private DateTime _SessionStartTime = DateTime.MinValue;
-    private List<GameInfo> _AllGames = new List<GameInfo>();
-    private ObservableCollection<GameViewModel> _FilteredGames = new ObservableCollection<GameViewModel>();
+    public AppState State { get; } = new AppState();
     private bool _WantGames = true;
     private bool _WantMods = false;
     private bool _WantDemos = false;
     private bool _WantDlc = false;
-    private enum GameFilterMode { Favorites, Installed, WithAchievements, WithoutAchievements }
-    private GameFilterMode _CurrentFilterMode = GameFilterMode.Installed;
-    private void SetFilterMode(GameFilterMode mode)
+    private void SetFilterMode(AppState.GameFilterMode mode)
     {
-        if (_CurrentFilterMode == mode) return;
-        _CurrentFilterMode = mode;
-        if (FilterFavoritesBtn != null) FilterFavoritesBtn.IsChecked = mode == GameFilterMode.Favorites;
-        if (FilterInstalledBtn != null) FilterInstalledBtn.IsChecked = mode == GameFilterMode.Installed;
-        if (FilterWithAchievementsBtn != null) FilterWithAchievementsBtn.IsChecked = mode == GameFilterMode.WithAchievements;
-        if (FilterWithoutAchievementsBtn != null) FilterWithoutAchievementsBtn.IsChecked = mode == GameFilterMode.WithoutAchievements;
+        if (State.CurrentFilterMode == mode) return;
+        State.CurrentFilterMode = mode;
+        if (FilterFavoritesBtn != null) FilterFavoritesBtn.IsChecked = mode == AppState.GameFilterMode.Favorites;
+        if (FilterInstalledBtn != null) FilterInstalledBtn.IsChecked = mode == AppState.GameFilterMode.Installed;
+        if (FilterWithAchievementsBtn != null) FilterWithAchievementsBtn.IsChecked = mode == AppState.GameFilterMode.WithAchievements;
+        if (FilterWithoutAchievementsBtn != null) FilterWithoutAchievementsBtn.IsChecked = mode == AppState.GameFilterMode.WithoutAchievements;
         RefreshFilter();
     }
     private DispatcherTimer _CallbackTimer;
     private DispatcherTimer _KeepAliveTimer;
     private ICollectionView _AchievementView;
     private string _AppVersion = "";
-    private List<uint> _FavoriteGameIds = new List<uint>();
+
     private AppConfig _Config = new AppConfig();
     private bool _IsSwitchingContext = false;
     public MainWindow() {
@@ -145,7 +142,7 @@ namespace SLAM.Reborn {
         HomeLoadingOverlay.Visibility = Visibility.Collapsed;
         return;
       }
-      GamesList.ItemsSource = _FilteredGames;
+      GamesList.ItemsSource = State.FilteredGames;
       SearchBox.TextChanged += (s, e) => RefreshFilter();
       this.StateChanged += OnWindowStateChanged;
       _CallbackTimer = new DispatcherTimer();
@@ -165,7 +162,7 @@ namespace SLAM.Reborn {
             _SteamClient.SteamUserStats.StoreStats();
             Dispatcher.Invoke(() => UpdatePlayTimeDisplay());
           }
-        } catch { }
+        } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"KeepAlive error: {ex.Message}"); }
       };
       AppDomain.CurrentDomain.UnhandledException += (s, e) => {
         if (e.ExceptionObject is Exception ex) SLAM.Reborn.App.LogCrash(ex, "AppDomain_UnhandledException");
@@ -187,15 +184,6 @@ namespace SLAM.Reborn {
       var color = isError ? new SolidColorBrush(Color.FromRgb(232, 17, 35)) : new SolidColorBrush(Color.FromRgb(0, 122, 204));
       SharedStatusText.Text = message;
       if (SharedStatusText.Parent is Border b) b.Background = color;
-    }
-    internal class AchievementDefinition {
-      public string Id { get; set; }
-      public string Name { get; set; }
-      public string Description { get; set; }
-      public string IconNormal { get; set; }
-      public string IconLocked { get; set; }
-      public int Permission { get; set; }
-      public int IsHidden { get; set; }
     }
     private void OnWindowStateChanged(object sender, EventArgs e)
     {
@@ -225,11 +213,11 @@ namespace SLAM.Reborn {
               game.IsInstalled = _SteamClient.SteamApps008.IsAppInstalled(game.Id);
               fetchedGames.Add(game);
             }
-          } catch { }
+          } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Fetch game info error: {ex.Message}"); }
         }
         Dispatcher.Invoke(() => {
-          _AllGames.Clear();
-          _AllGames.AddRange(fetchedGames);
+          State.AllGames.Clear();
+          State.AllGames.AddRange(fetchedGames);
           SharedStatusText.Text = $"{fetchedGames.Count} games detected! Your wallet sends its regards.";
           HomeLoadingOverlay.Visibility = Visibility.Collapsed;
           RefreshFilter();
@@ -244,7 +232,7 @@ namespace SLAM.Reborn {
       }
     }
     private void StartImageCaching() {
-      var games = _AllGames.OrderBy(g => g.Name).ToList();
+      var games = State.AllGames.OrderBy(g => g.Name).ToList();
       Task.Run(async () => {
         try {
           var cacheDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cache", "games");
@@ -254,68 +242,42 @@ namespace SLAM.Reborn {
               await ProcessGameImage(game, client, cacheDir);
             }
           }
-        } catch { }
+        } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Image processing loop error: {ex.Message}"); }
       });
     }
     private async Task ProcessGameImage(GameInfo game, WebClient client, string cacheDir) {
-      if (game.CachedIcon != null) return;
-      var path = Path.Combine(cacheDir, $"{game.Id}.jpg");
-      BitmapImage bitmap = null;
-      bitmap = await ImageCacheHelper.GetImageAsync(game.ImageUrl, path);
-      if (bitmap == null) {
+      await ImageCacheService.ProcessGameImageAsync(game, client, Dispatcher);
+      await Dispatcher.InvokeAsync(() => {
         try {
-          var json = await client.DownloadStringTaskAsync($"https://store.steampowered.com/api/appdetails?appids={game.Id}");
-          var match = System.Text.RegularExpressions.Regex.Match(json, "\"header_image\"\\s*:\\s*\"(.*?)\"");
-          if (match.Success) {
-            var url = match.Groups[1].Value.Replace("\\/", "/");
-            bitmap = await ImageCacheHelper.GetImageAsync(url, path);
-          }
-        } catch { }
-      }
-      if (bitmap != null) {
-        await Dispatcher.InvokeAsync(() => {
-          try {
-            game.CachedIcon = bitmap;
-            var vm = _FilteredGames.FirstOrDefault(x => x.Id == game.Id);
-            if (vm != null) vm.Image = bitmap;
-          } catch { }
-        }, DispatcherPriority.Background);
-      } else {
-        await Dispatcher.InvokeAsync(() => {
-          try {
-            var fallback = new BitmapImage(new Uri("pack://application:,,,/SLAM;component/Resources/image-not-found.png"));
-            game.CachedIcon = fallback;
-            var vm = _FilteredGames.FirstOrDefault(x => x.Id == game.Id);
-            if (vm != null) vm.Image = fallback;
-          } catch { }
-        }, DispatcherPriority.Background);
-      }
+          var vm = State.FilteredGames.FirstOrDefault(x => x.Id == game.Id);
+          if (vm != null) vm.Image = game.CachedIcon as BitmapImage;
+        } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Dispatcher image assignment error: {ex.Message}"); }
+      }, DispatcherPriority.Background);
     }
     private void RefreshFilter() {
       if (SearchBox == null) return;
       var searchText = SearchBox.Text.ToLower(CultureInfo.InvariantCulture);
       if (ClearSearchBtn != null) ClearSearchBtn.Visibility = string.IsNullOrEmpty(searchText) ? Visibility.Collapsed : Visibility.Visible;
-      var filtered = _AllGames.Where(g => (string.IsNullOrEmpty(searchText) || g.Name.ToLower(CultureInfo.InvariantCulture).Contains(searchText)) && ((g.Type == "normal" && _WantGames) || (g.Type == "mod" && _WantMods) || (g.Type == "demo" && _WantDemos) || (g.Type == "dlc" && _WantDlc))).OrderBy(g => g.Name).ToList();
-      switch (_CurrentFilterMode) {
-        case GameFilterMode.Favorites:
-          filtered = filtered.Where(g => _FavoriteGameIds.Contains(g.Id)).ToList();
+      var filtered = State.AllGames.Where(g => (string.IsNullOrEmpty(searchText) || g.Name.ToLower(CultureInfo.InvariantCulture).Contains(searchText)) && ((g.Type == "normal" && _WantGames) || (g.Type == "mod" && _WantMods) || (g.Type == "demo" && _WantDemos) || (g.Type == "dlc" && _WantDlc))).OrderBy(g => g.Name).ToList();
+      switch (State.CurrentFilterMode) {
+        case AppState.GameFilterMode.Favorites:
+          filtered = filtered.Where(g => State.FavoriteGameIds.Contains(g.Id)).ToList();
           break;
-        case GameFilterMode.Installed:
+        case AppState.GameFilterMode.Installed:
           filtered = filtered.Where(g => g.IsInstalled).ToList();
           break;
-        case GameFilterMode.WithAchievements:
+        case AppState.GameFilterMode.WithAchievements:
           filtered = filtered.Where(g => g.HasAchievements).ToList();
           break;
-        case GameFilterMode.WithoutAchievements:
+        case AppState.GameFilterMode.WithoutAchievements:
           filtered = filtered.Where(g => !g.HasAchievements).ToList();
           break;
       }
-      _FilteredGames.Clear();
+      State.FilteredGames.Clear();
       foreach (var g in filtered)
-        _FilteredGames.Add(new GameViewModel { Id = g.Id, Name = g.Name, Type = g.Type, Image = g.CachedIcon, IsFavorite = _FavoriteGameIds.Contains(g.Id), IsInstalled = g.IsInstalled });
+        State.FilteredGames.Add(new GameViewModel { Id = g.Id, Name = g.Name, Type = g.Type, Image = g.CachedIcon, IsFavorite = State.FavoriteGameIds.Contains(g.Id), IsInstalled = g.IsInstalled });
     }
-    private ObservableCollection<AchievementViewModel> _Achievements = new ObservableCollection<AchievementViewModel>();
-    private uint _SelectedGameId;
+
     private SAM.API.UserStatsReceived _UserStatsReceivedCallback;
     public static readonly DependencyProperty ShowAchievementIconsProperty = DependencyProperty.Register(nameof(ShowAchievementIcons), typeof(bool), typeof(MainWindow), new PropertyMetadata(true));
     public bool ShowAchievementIcons {
@@ -335,7 +297,7 @@ namespace SLAM.Reborn {
             warning.ShowDialog();
             if (!warning.IsConfirmed) return;
           }
-          _SelectedGameId = game.Id;
+          State.SelectedGameId = game.Id;
           SelectedGameName.Text = game.Name;
           SelectedGameName.DataContext = game;
           if (WindowTitleText != null) WindowTitleText.Text = $"{game.Name} - Super Lazy Achievement Manager";
@@ -371,7 +333,7 @@ namespace SLAM.Reborn {
     private void RevealHidden_Click(object sender, RoutedEventArgs e) {
       if (RevealHiddenBtn == null) return;
       bool showHidden = RevealHiddenBtn.IsChecked == true;
-      foreach (var avm in _Achievements) {
+      foreach (var avm in State.Achievements) {
         if (avm.IsHiddenLocked) {
           if (showHidden) {
             avm.Name = avm.OriginalName;
@@ -382,7 +344,7 @@ namespace SLAM.Reborn {
             avm.Description = "Details for this achievement Will be revealed once unlocked";
             try {
               avm.Icon = new BitmapImage(new Uri("pack://application:,,,/SLAM;component/Resources/hidden.png"));
-            } catch { }
+            } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Hidden icon load error: {ex.Message}"); }
           }
         }
       }
@@ -427,7 +389,7 @@ namespace SLAM.Reborn {
         if (RefreshButton != null) RefreshButton.Visibility = Visibility.Visible;
         if (SaveButton != null) SaveButton.Visibility = Visibility.Visible;
         if (BulkActionsButton != null) BulkActionsButton.Visibility = Visibility.Visible;
-        _AchievementView = CollectionViewSource.GetDefaultView(_Achievements);
+        _AchievementView = CollectionViewSource.GetDefaultView(State.Achievements);
         AchievementList.ItemsSource = _AchievementView;
         if (resetFilters) {
           if (FilterAllBtn != null) FilterAllBtn.IsChecked = true;
@@ -447,7 +409,7 @@ namespace SLAM.Reborn {
           RefreshAchievementFilter();
           ApplySort();
         }
-        _Achievements.Clear();
+        State.Achievements.Clear();
         if (NoAchievementsMessage != null) NoAchievementsMessage.Visibility = Visibility.Collapsed;
         if (AchievementList != null) AchievementList.Visibility = Visibility.Visible;
         LoadingOverlay.Visibility = Visibility.Visible;
@@ -462,20 +424,20 @@ namespace SLAM.Reborn {
           GC.WaitForPendingFinalizers();
           SAM.API.Steam.Unload();
           _SteamClient = new Client();
-          _SteamClient.Initialize(_SelectedGameId);
+          _SteamClient.Initialize(State.SelectedGameId);
           try {
             string installPath = SAM.API.Steam.GetInstallPath();
             ulong steamId64 = _SteamClient.SteamUser.GetSteamId();
             uint accountId = (uint)(steamId64 & 0xFFFFFFFF);
-            var stats = LocalConfigReader.GetAppStats(installPath, accountId, _SelectedGameId);
+            var stats = LocalConfigReader.GetAppStats(installPath, accountId, State.SelectedGameId);
             _StartPlayTimeMinutes = stats.PlayTimeMinutes;
             _SessionStartTime = DateTime.Now;
           } catch { _StartPlayTimeMinutes = 0; _SessionStartTime = DateTime.Now; }
           _UserStatsReceivedCallback = _SteamClient.CreateAndRegisterCallback<SAM.API.UserStatsReceived>();
           _UserStatsReceivedCallback.OnRun += (p) => {
             Dispatcher.Invoke(() => {
-              if (p.GameId != _SelectedGameId) {
-                DisplayAlert($"Steam returned stats for the wrong game ({p.GameId} vs {_SelectedGameId}). Please restart SLAM.", true);
+              if (p.GameId != State.SelectedGameId) {
+                DisplayAlert($"Steam returned stats for the wrong game ({p.GameId} vs {State.SelectedGameId}). Please restart SLAM.", true);
                 LoadingOverlay.Visibility = Visibility.Collapsed;
                 return;
               }
@@ -511,7 +473,7 @@ namespace SLAM.Reborn {
         }
         _IsSwitchingContext = false;
         _CallbackTimer.Start();
-        var gameInfo = _AllGames.FirstOrDefault(g => g.Id == _SelectedGameId);
+        var gameInfo = State.AllGames.FirstOrDefault(g => g.Id == State.SelectedGameId);
         if (gameInfo != null && !gameInfo.HasAchievements) {
           if (NoAchievementsMessage != null) NoAchievementsMessage.Visibility = Visibility.Visible;
           if (AchievementList != null) AchievementList.Visibility = Visibility.Collapsed;
@@ -538,35 +500,14 @@ namespace SLAM.Reborn {
       }
     }
     private void FetchAchievements() {
-      var definitions = new List<AchievementDefinition>();
-      LoadUserGameStatsSchema(definitions);
-      
-      if (definitions.Count == 0) {
-         try {
-             uint count = _SteamClient.SteamUserStats.GetNumAchievements();
-             for (uint i = 0; i < count; i++) {
-                 string id = _SteamClient.SteamUserStats.GetAchievementName(i);
-                 if (!string.IsNullOrEmpty(id)) {
-                      definitions.Add(new AchievementDefinition {
-                          Id = id,
-                          Name = _SteamClient.SteamUserStats.GetAchievementDisplayAttribute(id, "name"),
-                          Description = _SteamClient.SteamUserStats.GetAchievementDisplayAttribute(id, "desc"),
-                          IsHidden = _SteamClient.SteamUserStats.GetAchievementDisplayAttribute(id, "hidden") == "1" ? 1 : 0,
-                          Permission = 0,
-                          IconNormal = "",
-                          IconLocked = ""
-                      });
-                 }
-             }
-         } catch { } 
-         if (definitions.Count == 0) SharedStatusText.Text = "Steam ghosted my request for the schema. Expect some missing info. Use your imagination or restart SLAM.";
-      }
+      var definitions = SteamDataService.FetchAchievements(State.SelectedGameId, _SteamClient);
+      if (definitions.Count == 0) SharedStatusText.Text = "Steam ghosted my request for the schema. Expect some missing info. Use your imagination or restart SLAM.";
       bool anyProtected = definitions.Any(x => x.Permission > 0);
-      _Achievements.Clear();
+      State.Achievements.Clear();
       foreach (var def in definitions) {
         if (_SteamClient.SteamUserStats.GetAchievementAndUnlockTime(def.Id, out bool isAchieved, out uint unlockTime)) {
           _SteamClient.SteamUserStats.GetAchievementAchievedPercent(def.Id, out float globalPercent);
-          string iconUrl = $"https://cdn.steamstatic.com/steamcommunity/public/images/apps/{_SelectedGameId}/{(isAchieved ? def.IconNormal : def.IconLocked)}";
+          string iconUrl = string.Format(SteamConstants.AchievementIconUrl, State.SelectedGameId, isAchieved ? def.IconNormal : def.IconLocked);
           string name = def.Name;
           string description = def.Description;
           bool isHiddenLocked = def.IsHidden == 1 && !isAchieved;
@@ -595,21 +536,21 @@ namespace SLAM.Reborn {
             Permission = anyProtected ? 3 : def.Permission,
             IsHidden = def.IsHidden == 1
           };
-          _Achievements.Add(avm);
+          State.Achievements.Add(avm);
         }
       }
-      if (_Achievements.Count == 0) {
+      if (State.Achievements.Count == 0) {
         if (NoAchievementsMessage != null) NoAchievementsMessage.Visibility = Visibility.Visible;
         if (AchievementList != null) AchievementList.Visibility = Visibility.Collapsed;
       } else {
         if (NoAchievementsMessage != null) NoAchievementsMessage.Visibility = Visibility.Collapsed;
         if (AchievementList != null) AchievementList.Visibility = Visibility.Visible;
       }
-      bool hasHiddenLocked = _Achievements.Any(x => x.IsHiddenLocked);
+      bool hasHiddenLocked = State.Achievements.Any(x => x.IsHiddenLocked);
       if (RevealHiddenBtn != null) RevealHiddenBtn.Visibility = hasHiddenLocked ? Visibility.Visible : Visibility.Collapsed;
-      SharedStatusText.Text = $"Loaded {_Achievements.Count} achievements.";
-      int unlocked = _Achievements.Count(x => x.IsAchieved);
-      int total = _Achievements.Count;
+      SharedStatusText.Text = $"Loaded {State.Achievements.Count} achievements.";
+      int unlocked = State.Achievements.Count(x => x.IsAchieved);
+      int total = State.Achievements.Count;
       int locked = total - unlocked;
       if (AchievementProgressBar != null) AchievementProgressBar.Visibility = Visibility.Visible;
       UpdateProgressBar();
@@ -618,7 +559,7 @@ namespace SLAM.Reborn {
         var warning = new WarningWindow("These are Protected, and touching them puts your account in serious danger.", "I want to risk it! YOLO!", "I love my Steam profile.", "Protected Achievements", true);
         warning.ShowDialog();
         if (warning.IsConfirmed) {
-            foreach (var ach in _Achievements) ach.Permission = 0;
+            foreach (var ach in State.Achievements) ach.Permission = 0;
             AreModificationsAllowed = true;
             UpdateProtectionState();
             UpdateStatsMessage();
@@ -632,7 +573,7 @@ namespace SLAM.Reborn {
         UpdateProtectionState();
         UpdateStatsMessage();
       }
-      StartAchievementImageCaching(_Achievements.ToList());
+      StartAchievementImageCaching(State.Achievements.ToList());
       LoadingOverlay.Visibility = Visibility.Collapsed;
     }
     private void SortFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) => ApplySort();
@@ -672,7 +613,7 @@ namespace SLAM.Reborn {
       }
     }
     private void UnlockAll_Click(object sender, RoutedEventArgs e) {
-      foreach (var ach in _Achievements) ach.IsAchieved = true;
+      foreach (var ach in State.Achievements) ach.IsAchieved = true;
     }
     private void Links_Click(object sender, RoutedEventArgs e) {
       if (LinksButton.ContextMenu != null) {
@@ -685,162 +626,37 @@ namespace SLAM.Reborn {
         try {
           var steamId = _SteamClient.SteamUser.GetSteamId();
           string url = "";
-          if (item.Tag?.ToString() == "completionist") url = $"https://completionist.me/steam/profile/{steamId}/app/{_SelectedGameId}";
-          else if (item.Tag?.ToString() == "steamhunters") url = $"https://steamhunters.com/id/{steamId}/apps/{_SelectedGameId}/achievements";
-          else if (item.Tag?.ToString() == "steam_achievements") url = $"https://steamcommunity.com/profiles/{steamId}/stats/{_SelectedGameId}/achievements/";
-          else if (item.Tag?.ToString() == "global_stats") url = $"https://steamcommunity.com/stats/{_SelectedGameId}/achievements/";
-          else if (item.Tag?.ToString() == "steamdb") url = $"https://steamdb.info/app/{_SelectedGameId}/";
-          else if (item.Tag?.ToString() == "store") url = $"https://store.steampowered.com/app/{_SelectedGameId}/";
-          else if (item.Tag?.ToString() == "guides") url = $"https://steamcommunity.com/app/{_SelectedGameId}/guides/";
+          if (item.Tag?.ToString() == "completionist") url = string.Format(SteamConstants.CompletionistMeUrl, steamId, State.SelectedGameId);
+          else if (item.Tag?.ToString() == "steamhunters") url = string.Format(SteamConstants.SteamHuntersUrl, steamId, State.SelectedGameId);
+          else if (item.Tag?.ToString() == "steam_achievements") url = string.Format(SteamConstants.UserStatsUrl, steamId, State.SelectedGameId);
+          else if (item.Tag?.ToString() == "global_stats") url = string.Format(SteamConstants.GlobalStatsUrl, State.SelectedGameId);
+          else if (item.Tag?.ToString() == "steamdb") url = string.Format(SteamConstants.SteamDbUrl, State.SelectedGameId);
+          else if (item.Tag?.ToString() == "store") url = string.Format(SteamConstants.StoreAppUrl, State.SelectedGameId);
+          else if (item.Tag?.ToString() == "guides") url = string.Format(SteamConstants.CommunityAppGuidesUrl, State.SelectedGameId);
           if (!string.IsNullOrEmpty(url)) Process.Start(url);
-        } catch { }
+        } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Launch URL error: {ex.Message}"); }
       }
     }
     private void LockAll_Click(object sender, RoutedEventArgs e) {
-      foreach (var ach in _Achievements) ach.IsAchieved = false;
+      foreach (var ach in State.Achievements) ach.IsAchieved = false;
     }
-
     private void ToggleIcons_Click(object sender, RoutedEventArgs e) {
       try { ShowAchievementIcons = !ShowAchievementIcons; }
-      catch { }
-    }
-    private BitmapSource GetSteamImage(int handle) {
-      if (handle <= 0) return null;
-      if (_SteamClient.SteamUtils.GetImageSize(handle, out int width, out int height)) {
-        int size = width * height * 4;
-        byte[] data = new byte[size];
-        if (_SteamClient.SteamUtils.GetImageRGBA(handle, data)) {
-          for (int i = 0; i < size; i += 4) {
-            byte r = data[i];
-            data[i] = data[i + 2];
-            data[i + 2] = r;
-          }
-          var bitmap = BitmapSource.Create(width, height, 96, 96, System.Windows.Media.PixelFormats.Bgra32, null, data, width * 4);
-          bitmap.Freeze();
-          return bitmap;
-        }
-      }
-      return null;
+      catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"ToggleIcons error: {ex.Message}"); }
     }
     private void StartAchievementImageCaching(List<AchievementViewModel> achievements) {
+      bool revealHidden = RevealHiddenBtn != null && RevealHiddenBtn.IsChecked == true;
       Task.Run(async () => {
         try {
-          var cacheDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cache", "achievements");
-          if (!Directory.Exists(cacheDir)) Directory.CreateDirectory(cacheDir);
-          foreach (var ach in achievements) {
-            string urlToLoad = ach.RealIconUrl;
-            if (string.IsNullOrEmpty(urlToLoad) || urlToLoad.EndsWith("/")) {
-               int handle = _SteamClient.SteamUserStats.GetAchievementIcon(ach.Id);
-               var steamBmp = GetSteamImage(handle);
-               if (steamBmp != null) {
-                   await Dispatcher.InvokeAsync(() => {
-                       ach.RealIcon = steamBmp;
-                       ach.Icon = steamBmp;
-                       ach.IsBroken = false;
-                   });
-               } else {
-                   await Dispatcher.InvokeAsync(() => {
-                        // Only show broken if not hidden/pack
-                        if (ach.IsHiddenLocked && ach.IconUrl.StartsWith("pack://")) {
-                           try { ach.Icon = new BitmapImage(new Uri(ach.IconUrl)); } catch {}
-                        } else {
-                           ach.IsBroken = true;
-                        }
-                   }, DispatcherPriority.Background);
-               }
-               continue;
-            }
-
-            if (urlToLoad.StartsWith("pack://")) {
-              if (ach.IconUrl.StartsWith("pack://"))
-                await Dispatcher.InvokeAsync(() => {
-                  try {
-                    ach.Icon = new BitmapImage(new Uri(ach.IconUrl));
-                  } catch { }
-                });
-              continue;
-            }
-            var filename = System.IO.Path.GetFileName(new Uri(urlToLoad).LocalPath);
-            var path = Path.Combine(cacheDir, filename);
-            var bitmap = await ImageCacheHelper.GetImageAsync(urlToLoad, path);
-            await Task.Delay(20);
-            if (bitmap != null) {
-              await Dispatcher.InvokeAsync(() => {
-                try {
-                  ach.RealIcon = bitmap;
-                  if (!ach.IsHiddenLocked || (RevealHiddenBtn != null && RevealHiddenBtn.IsChecked == true)) {
-                    ach.Icon = bitmap;
-                  } else if (ach.IsHiddenLocked && ach.Icon == null && ach.IconUrl.StartsWith("pack://")) {
-                    try {
-                      ach.Icon = new BitmapImage(new Uri(ach.IconUrl));
-                    } catch { }
-                  }
-                } catch { }
-              }, DispatcherPriority.Background);
-            } else {
-              // Try Steam fallback if web download failed? 
-              // Usually if URL is valid, we expect it to work. But we can Try Steam.
-               int handle = _SteamClient.SteamUserStats.GetAchievementIcon(ach.Id);
-               var steamBmp = GetSteamImage(handle);
-               if (steamBmp != null) {
-                   await Dispatcher.InvokeAsync(() => {
-                       ach.RealIcon = steamBmp;
-                       ach.Icon = steamBmp;
-                       ach.IsBroken = false;
-                   });
-               } else {
-                  await Dispatcher.InvokeAsync(() => {
-                    ach.IsBroken = true;
-                  }, DispatcherPriority.Background);
-               }
-            }
-          }
-        } catch { }
+          await ImageCacheService.FetchAchievementIconsAsync(achievements, _SteamClient, revealHidden, Dispatcher);
+        } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"StartAchievementImageCaching loop error: {ex.Message}"); }
       });
-    }
-    private bool LoadUserGameStatsSchema(List<AchievementDefinition> definitions) {
-      try {
-        string installPath = SAM.API.Steam.GetInstallPath();
-        string path = Path.Combine(installPath, "appcache", "stats", $"UserGameStatsSchema_{_SelectedGameId}.bin");
-        var kv = KeyValue.LoadAsBinary(path);
-        if (kv == null) return false;
-        var currentLanguage = _SteamClient.SteamApps008.GetCurrentGameLanguage() ?? "english";
-        var stats = kv[_SelectedGameId.ToString()]["stats"];
-        if (!stats.Valid || stats.Children == null) return false;
-        foreach (var stat in stats.Children) {
-          var type = (SAM.API.Types.UserStatType)stat["type"].AsInteger(0);
-          if (type == SAM.API.Types.UserStatType.Achievements || type == SAM.API.Types.UserStatType.GroupAchievements) {
-            foreach (var bits in stat.Children.Where(b => b.Name.Equals("bits", StringComparison.OrdinalIgnoreCase))) {
-              if (bits.Children == null) continue;
-              foreach (var bit in bits.Children) definitions.Add(new AchievementDefinition {
-                Id = bit["name"].AsString(""),
-                Name = GetLocalizedString(bit["display"]["name"], currentLanguage, bit["name"].AsString("")),
-                Description = GetLocalizedString(bit["display"]["desc"], currentLanguage, ""),
-                IconNormal = bit["display"]["icon"].AsString(""),
-                IconLocked = bit["display"]["icon_gray"].AsString(""),
-                Permission = bit["permission"].AsInteger(0),
-                IsHidden = bit["display"]["hidden"].AsInteger(0)
-              });
-            }
-          }
-        }
-        return true;
-      } catch { return false; }
-    }
-    private string GetLocalizedString(KeyValue kv, string language, string defaultValue) {
-      var name = kv[language].AsString("");
-      if (!string.IsNullOrEmpty(name)) return name;
-      if (language != "english") {
-        name = kv["english"].AsString("");
-        if (!string.IsNullOrEmpty(name)) return name;
-      }
-      return kv.AsString(defaultValue);
     }
     private void Back_Click(object sender, RoutedEventArgs e) {
       try {
         AreModificationsAllowed = true;
         UpdateProtectionState();
-        SharedStatusText.Text = $"{_AllGames.Count} games detected! Your wallet sends its regards.";
+        SharedStatusText.Text = $"{State.AllGames.Count} games detected! Your wallet sends its regards.";
         if (SharedStatusText.Parent is Border b) b.Background = new SolidColorBrush(Color.FromRgb(0, 122, 204));
         if (_IsTimerActive || IsTimerMode) {
           _IsTimerActive = false;
@@ -855,6 +671,7 @@ namespace SLAM.Reborn {
           if (FilterLockedBtn != null) FilterLockedBtn.Visibility = Visibility.Visible;
           if (FilterUnlockedBtn != null) FilterUnlockedBtn.Visibility = Visibility.Visible;
           if (StartTimerButton != null) StartTimerButton.Visibility = Visibility.Collapsed;
+          if (StopTimerButton != null) StopTimerButton.Visibility = Visibility.Collapsed;
           if (RandomTimerButton != null) RandomTimerButton.Visibility = Visibility.Collapsed;
           if (ExactTimeButton != null) ExactTimeButton.Visibility = Visibility.Collapsed;
           if (EnableTimerButton != null) EnableTimerButton.Visibility = Visibility.Visible;
@@ -906,7 +723,7 @@ namespace SLAM.Reborn {
         string bgUrl = null;
         using (var client = new WebClient()) {
           client.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
-          string url = $"https://store.steampowered.com/api/appdetails?appids={appId}";
+          string url = string.Format(SteamConstants.AppDetailsApiUrl, appId);
           string json = await client.DownloadStringTaskAsync(url);
           var data = Newtonsoft.Json.Linq.JObject.Parse(json);
           var gameData = data[appId.ToString()];
@@ -917,7 +734,7 @@ namespace SLAM.Reborn {
         if (!string.IsNullOrEmpty(bgUrl)) {
           bitmap = await ImageCacheHelper.GetImageAsync(bgUrl, bgPath);
         }
-      } catch { }
+      } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Steam API Background fetch error: {ex.Message}"); }
       if (bitmap == null) {
         bitmap = new BitmapImage(new Uri("pack://application:,,,/SLAM;component/Resources/bg.png"));
       }
@@ -926,8 +743,8 @@ namespace SLAM.Reborn {
     }
     private void RefreshGame_Click(object sender, RoutedEventArgs e) => LoadGameData(false);
     private void Store_Click(object sender, RoutedEventArgs e) {
-      if (_Achievements != null) {
-        int unlockCount = _Achievements.Count(a => !a.OriginalIsAchieved && a.IsAchieved);
+      if (State.Achievements != null) {
+        int unlockCount = State.Achievements.Count(a => !a.OriginalIsAchieved && a.IsAchieved);
         if (unlockCount > 2) {
           var warning = new WarningWindow($"You're about to pop {unlockCount} achievements at once. That's very efficient, but also suspicious. Why not use the Timer Mode to look like a human?", "I am a machine!", "I am smart!", "The \"reckless\" set");
           warning.ShowDialog();
@@ -935,7 +752,7 @@ namespace SLAM.Reborn {
         }
       }
       bool success = true;
-      foreach (var ach in _Achievements) {
+      foreach (var ach in State.Achievements) {
         if (!_SteamClient.SteamUserStats.SetAchievement(ach.Id, ach.IsAchieved)) success = false;
       }
       if (success && _SteamClient.SteamUserStats.StoreStats()) {
@@ -949,7 +766,7 @@ namespace SLAM.Reborn {
     private void Maximize_Click(object sender, RoutedEventArgs e) { WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized; }
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
     private void Refresh_Click(object sender, RoutedEventArgs e) {
-      _AllGames.Clear();
+      State.AllGames.Clear();
       HomeLoadingOverlay.Visibility = Visibility.Visible;
       LoadData();
     }
@@ -973,8 +790,8 @@ namespace SLAM.Reborn {
             SetGameFilter(btn);
     }
     private void AchievementFilterToggle_Click(object sender, RoutedEventArgs e) {
-      if (sender == FilterWithAchievementsBtn) SetFilterMode(GameFilterMode.WithAchievements);
-      else if (sender == FilterWithoutAchievementsBtn) SetFilterMode(GameFilterMode.WithoutAchievements);
+      if (sender == FilterWithAchievementsBtn) SetFilterMode(AppState.GameFilterMode.WithAchievements);
+      else if (sender == FilterWithoutAchievementsBtn) SetFilterMode(AppState.GameFilterMode.WithoutAchievements);
     }
     public static readonly DependencyProperty IsTimerModeProperty = DependencyProperty.Register("IsTimerMode", typeof(bool), typeof(MainWindow), new PropertyMetadata(false));
     public bool IsTimerMode {
@@ -992,9 +809,10 @@ namespace SLAM.Reborn {
       if (SaveButton != null) SaveButton.Visibility = visibility;
       if (FilterButtonsPanel != null) FilterButtonsPanel.Visibility = visibility;
       if (FilterAllBtn != null) FilterAllBtn.Visibility = visibility;
-      bool hasHidden = _Achievements != null && _Achievements.Any(x => x.IsHiddenLocked);
+      bool hasHidden = State.Achievements != null && State.Achievements.Any(x => x.IsHiddenLocked);
       if (RevealHiddenBtn != null) RevealHiddenBtn.Visibility = hasHidden ? Visibility.Visible : Visibility.Collapsed;
       if (StartTimerButton != null) StartTimerButton.Visibility = IsTimerMode ? Visibility.Visible : Visibility.Collapsed;
+      if (StopTimerButton != null) StopTimerButton.Visibility = Visibility.Collapsed;
       if (RandomTimerButton != null) RandomTimerButton.Visibility = IsTimerMode ? Visibility.Visible : Visibility.Collapsed;
       if (ExactTimeButton != null) ExactTimeButton.Visibility = IsTimerMode ? Visibility.Visible : Visibility.Collapsed;
       if (EnableTimerText != null) EnableTimerText.Text = IsTimerMode ? "Normal Mode" : "Timer Mode";
@@ -1010,8 +828,8 @@ namespace SLAM.Reborn {
       set { SetValue(AreModificationsAllowedProperty, value); }
     }
     private void UpdateStatsMessage() {
-      int unlocked = _Achievements.Count(x => x.IsAchieved);
-      int total = _Achievements.Count;
+      int unlocked = State.Achievements.Count(x => x.IsAchieved);
+      int total = State.Achievements.Count;
       int locked = total - unlocked;
       if (!AreModificationsAllowed) SharedStatusText.Text = "These achievements are protected! SLAM is lazy, not magical. Can't touch 'em.";
       else {
@@ -1038,7 +856,7 @@ namespace SLAM.Reborn {
           SelectedGamePlayTime.Text = text;
           SelectedGamePlayTime.Visibility = Visibility.Visible;
         }
-      } catch { }
+      } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Game Activity Format error: {ex.Message}"); }
     }
     private void EnableTimer_Click(object sender, RoutedEventArgs e) {
       IsTimerMode = !IsTimerMode;
@@ -1079,7 +897,7 @@ namespace SLAM.Reborn {
           max = temp;
         }
         var random = new Random();
-        foreach (var ach in _Achievements) {
+        foreach (var ach in State.Achievements) {
           if (!ach.IsAchieved) ach.TimerMinutes = random.Next(min, max + 1).ToString();
         }
         if (RandomTimerPopup != null) RandomTimerPopup.IsOpen = false;
@@ -1096,7 +914,7 @@ namespace SLAM.Reborn {
                 min = max;
                 max = temp;
             }
-            var achievementsToProcess = _Achievements.Where(a => !a.IsAchieved).ToList();
+            var achievementsToProcess = State.Achievements.Where(a => !a.IsAchieved).ToList();
             if (achievementsToProcess.Count == 0) return;
             var random = new Random();
             achievementsToProcess = achievementsToProcess.OrderBy(a => random.Next()).ToList();
@@ -1218,8 +1036,10 @@ namespace SLAM.Reborn {
             if (RandomTimerButton != null) RandomTimerButton.Visibility = Visibility.Collapsed;
             if (ExactTimeButton != null) ExactTimeButton.Visibility = Visibility.Collapsed;
             if (SortFilter != null) SortFilter.Visibility = Visibility.Collapsed;
+            if (StopTimerButton != null) StopTimerButton.Visibility = Visibility.Visible;
         } else {
             if (EnableTimerButton != null) EnableTimerButton.Visibility = Visibility.Visible;
+            if (StopTimerButton != null) StopTimerButton.Visibility = Visibility.Collapsed;
             if (IsTimerMode) {
                 if (RandomTimerButton != null) RandomTimerButton.Visibility = Visibility.Visible;
                 if (ExactTimeButton != null) ExactTimeButton.Visibility = Visibility.Visible;
@@ -1227,10 +1047,16 @@ namespace SLAM.Reborn {
             }
         }
     }
+    private void StopTimer_Click(object sender, RoutedEventArgs e) {
+        if (_IsTimerActive || _IsTimerPaused) {
+            SetTimerUIState(false);
+            if (SharedStatusText != null) UpdateStatsMessage();
+        }
+    }
     private void UpdateProgressBar() {
       if (AchievementProgressBar == null) return;
-      int unlocked = _Achievements.Count(x => x.IsAchieved);
-      int total = _Achievements.Count;
+      int unlocked = State.Achievements.Count(x => x.IsAchieved);
+      int total = State.Achievements.Count;
       AchievementProgressBar.Value = total > 0 ? (double)unlocked / total * 100 : 0;
     }
     private async Task<int> RunTimerSequence(List<AchievementViewModel> achievements) {
@@ -1315,18 +1141,18 @@ namespace SLAM.Reborn {
       bool isSorted = _AchievementView.SortDescriptions.Count > 0 || (lcv != null && lcv.CustomSort != null);
       if (isSorted) {
         var sorted = _AchievementView.Cast<AchievementViewModel>().ToList();
-        _Achievements.Clear();
-        foreach (var item in sorted) _Achievements.Add(item);
+        State.Achievements.Clear();
+        foreach (var item in sorted) State.Achievements.Add(item);
         if (SortFilter != null) SortFilter.SelectedIndex = 0;
       }
       if (e.Data.GetDataPresent("myFormat")) {
         AchievementViewModel source = e.Data.GetData("myFormat") as AchievementViewModel;
         AchievementViewModel target = ((FrameworkElement)e.OriginalSource).DataContext as AchievementViewModel;
         if (source != null && target != null && source != target) {
-          int oldIndex = _Achievements.IndexOf(source);
-          int newIndex = _Achievements.IndexOf(target);
+          int oldIndex = State.Achievements.IndexOf(source);
+          int newIndex = State.Achievements.IndexOf(target);
           if (oldIndex != -1 && newIndex != -1) {
-            _Achievements.Move(oldIndex, newIndex);
+            State.Achievements.Move(oldIndex, newIndex);
             UpdateTimerMetadata();
           }
         }
@@ -1335,6 +1161,18 @@ namespace SLAM.Reborn {
     private void TimerDelay_TextChanged(object sender, TextChangedEventArgs e) => UpdateTimerMetadata();
     private void UpdateTimerMetadata(AchievementViewModel activeItem = null, double activeRemainingMinutes = -1) {
       if (_AchievementView == null) return;
+      DateTime endTime = DateTime.Now;
+      foreach (AchievementViewModel ach in _AchievementView) {
+        if (ach.IsAchieved) continue;
+        double minutes = 0;
+        bool isParsed = double.TryParse(ach.TimerMinutes, out minutes);
+        if (activeItem != null && ach == activeItem && activeRemainingMinutes >= 0) {
+          minutes = activeRemainingMinutes;
+          isParsed = true;
+        }
+        if (isParsed && minutes > 0) endTime = endTime.AddMinutes(minutes).AddSeconds(1);
+      }
+      bool showDate = endTime.Date > DateTime.Now.Date;
       int i = 1;
       DateTime projection = DateTime.Now;
       foreach (AchievementViewModel ach in _AchievementView) {
@@ -1351,10 +1189,10 @@ namespace SLAM.Reborn {
         }
         if (isParsed && minutes > 0) {
           projection = projection.AddMinutes(minutes);
-          ach.ETA = $"{projection:t}";
+          ach.ETA = showDate ? $"{projection:d MMMM} - {projection:t}" : $"{projection:t}";
           projection = projection.AddSeconds(1);
         } else if (isParsed && minutes == 0) {
-          ach.ETA = $"{projection:t}";
+          ach.ETA = showDate ? $"{projection:d MMMM} - {projection:t}" : $"{projection:t}";
         } else ach.ETA = "";
       }
     }
@@ -1531,12 +1369,12 @@ namespace SLAM.Reborn {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
       if (value is float percent) {
         string mode = parameter as string;
-        if (mode == "Blur") return (percent < 1) ? 25.0 : 8.0;
-        string hex = "#FF8000";
-        if (percent >= 40) hex = "#CCCCCC";
-        else if (percent >= 20) hex = "#1EFF00";
-        else if (percent >= 5) hex = "#0070DD";
-        else if (percent >= 1) hex = "#A335EE";
+        if (mode == "Blur") return (percent < 1) ? UIConstants.RarityBlurLegendary : UIConstants.RarityBlurNormal;
+        string hex = UIConstants.RarityColorLegendary;
+        if (percent >= 40) hex = UIConstants.RarityColorCommon;
+        else if (percent >= 20) hex = UIConstants.RarityColorUncommon;
+        else if (percent >= 5) hex = UIConstants.RarityColorRare;
+        else if (percent >= 1) hex = UIConstants.RarityColorEpic;
         Color color = (Color)ColorConverter.ConvertFromString(hex);
         if (mode == "Color") return color;
         return new SolidColorBrush(color);

@@ -68,11 +68,11 @@ namespace SLAM.Reborn {
                   games.Add(new GameInfo { Id = appId, Name = name, Type = gameType, ImageUrl = $"https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/{appId}/header.jpg", HasAchievements = hasAchievements });
                 }
               }
-            } catch { }
+            } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"AppInfoReader inner parse error: {ex.Message}"); }
             fs.Position = nextPos;
           }
         }
-      } catch { }
+      } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"AppInfoReader outer error: {ex.Message}"); }
       return games;
     }
     private static string ReadNullTerminatedString(Stream stream) {
