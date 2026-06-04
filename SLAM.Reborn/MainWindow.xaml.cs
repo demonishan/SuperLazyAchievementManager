@@ -114,7 +114,6 @@ namespace SLAM.Reborn {
     private DispatcherTimer _KeepAliveTimer;
     private ICollectionView _AchievementView;
     private string _AppVersion = "";
-
     private AppConfig _Config = new AppConfig();
     private bool _IsSwitchingContext = false;
     public MainWindow() {
@@ -222,6 +221,7 @@ namespace SLAM.Reborn {
           HomeLoadingOverlay.Visibility = Visibility.Collapsed;
           RefreshFilter();
           StartImageCaching();
+          _ = CacheManager.RunCleanupAsync(State);
           if (fetchedGames.Count == 0) DisplayAlert("No games found. Check if Steam is running or if appinfo.vdf is readable.", true);
         });
       } catch (Exception ex) {
@@ -281,7 +281,6 @@ namespace SLAM.Reborn {
       foreach (var g in filtered)
         State.FilteredGames.Add(new GameViewModel { Id = g.Id, Name = g.Name, Type = g.Type, Image = g.CachedIcon, IsFavorite = State.FavoriteGameIds.Contains(g.Id), IsInstalled = g.IsInstalled });
     }
-
     private SAM.API.UserStatsReceived _UserStatsReceivedCallback;
     public static readonly DependencyProperty ShowAchievementIconsProperty = DependencyProperty.Register(nameof(ShowAchievementIcons), typeof(bool), typeof(MainWindow), new PropertyMetadata(true));
     public bool ShowAchievementIcons {
@@ -649,10 +648,10 @@ namespace SLAM.Reborn {
       catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"ToggleIcons error: {ex.Message}"); }
     }
     private void StartAchievementImageCaching(List<AchievementViewModel> achievements) {
-      bool revealHidden = RevealHiddenBtn != null && RevealHiddenBtn.IsChecked == true;
+      bool revealHidden = RevealHiddenBtn?.IsChecked == true;
       Task.Run(async () => {
         try {
-          await ImageCacheService.FetchAchievementIconsAsync(achievements, _SteamClient, revealHidden, Dispatcher);
+          await ImageCacheService.FetchAchievementIconsAsync(State.SelectedGameId, achievements, _SteamClient, revealHidden, Dispatcher);
         } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"StartAchievementImageCaching loop error: {ex.Message}"); }
       });
     }
@@ -963,7 +962,6 @@ namespace SLAM.Reborn {
                 totalWeight += w;
             }
             weights.Sort();
-            
             var parts = new List<int>();
             int sum = 0;
             for (int i = 0; i < achievementCount; i++) {
@@ -971,7 +969,6 @@ namespace SLAM.Reborn {
                 parts.Add(val);
                 sum += val;
             }
-            
             int diff = totalMinutes - sum;
             while (diff > 0) {
                 parts[random.Next(0, achievementCount)]++;

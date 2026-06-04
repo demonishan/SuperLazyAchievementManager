@@ -17,7 +17,6 @@ namespace SLAM.Reborn {
     public static List<AchievementDefinition> FetchAchievements(uint gameId, SAM.API.Client steamClient) {
       var definitions = new List<AchievementDefinition>();
       LoadUserGameStatsSchema(gameId, steamClient, definitions);
-      
       if (definitions.Count == 0) {
         try {
           uint count = steamClient.SteamUserStats.GetNumAchievements();

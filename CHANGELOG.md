@@ -1,5 +1,12 @@
 ## Change Log
 
+## [8.8.1] - 2026-06-04
+### Added
+- Image Caching: Added automatic cache cleanup. When launching SLAM, achievement icons and background images for uninstalled (and non-favorited) games will be automatically deleted to save disk space.
+- Image Caching: Steam API fallback icons are now properly encoded to PNG and saved to the local cache.
+### Changed
+- Image Caching: Achievement icons are now strictly organized into game-specific folders (`cache/achievements/[Game ID]/`) instead of a single flat folder.
+
 ## [8.8.0] - 2026-06-04
 ### Changed
 - Improved image caching priority: Favorite and Installed games are now prioritized for image downloading and caching on launch.

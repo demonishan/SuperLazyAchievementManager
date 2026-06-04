@@ -10,7 +10,7 @@ jobs:
   build:
     name: Build SLAM
     runs-on: windows-latest
-    
+
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4

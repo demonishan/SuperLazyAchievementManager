@@ -38,15 +38,26 @@ namespace SLAM.Reborn {
         }, DispatcherPriority.Background);
       }
     }
-    public static async Task FetchAchievementIconsAsync(List<AchievementViewModel> achievements, SAM.API.Client steamClient, bool revealHidden, Dispatcher dispatcher) {
-      var cacheDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cache", "achievements");
+    public static async Task FetchAchievementIconsAsync(uint gameId, List<AchievementViewModel> achievements, SAM.API.Client steamClient, bool revealHidden, Dispatcher dispatcher) {
+      var cacheDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cache", "achievements", gameId.ToString());
       if (!Directory.Exists(cacheDir)) Directory.CreateDirectory(cacheDir);
       foreach (var ach in achievements) {
         string urlToLoad = ach.RealIconUrl;
         if (string.IsNullOrEmpty(urlToLoad) || urlToLoad.EndsWith("/")) {
+          var fallbackPath = Path.Combine(cacheDir, $"{ach.Id}.png");
+          var localBitmap = await ImageCacheHelper.GetImageAsync(fallbackPath, fallbackPath);
+          if (localBitmap != null) {
+            await dispatcher.InvokeAsync(() => {
+              ach.RealIcon = localBitmap;
+              ach.Icon = localBitmap;
+              ach.IsBroken = false;
+            });
+            continue;
+          }
           int handle = steamClient.SteamUserStats.GetAchievementIcon(ach.Id);
           var steamBmp = GetSteamImage(handle, steamClient);
           if (steamBmp != null) {
+            SaveBitmapSourceToDisk(steamBmp, fallbackPath);
             await dispatcher.InvokeAsync(() => {
               ach.RealIcon = steamBmp;
               ach.Icon = steamBmp;
@@ -55,7 +66,7 @@ namespace SLAM.Reborn {
           } else {
             await dispatcher.InvokeAsync(() => {
               if (ach.IsHiddenLocked && ach.IconUrl.StartsWith("pack://")) {
-                try { ach.Icon = new BitmapImage(new Uri(ach.IconUrl)); } 
+                try { ach.Icon = new BitmapImage(new Uri(ach.IconUrl)); }
                 catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Hidden icon internal load error: {ex.Message}"); }
               } else ach.IsBroken = true;
             }, DispatcherPriority.Background);
@@ -65,7 +76,7 @@ namespace SLAM.Reborn {
         if (urlToLoad.StartsWith("pack://")) {
           if (ach.IconUrl.StartsWith("pack://")) {
             await dispatcher.InvokeAsync(() => {
-              try { ach.Icon = new BitmapImage(new Uri(ach.IconUrl)); } 
+              try { ach.Icon = new BitmapImage(new Uri(ach.IconUrl)); }
               catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Pack URI fetch error: {ex.Message}"); }
             });
           }
@@ -82,15 +93,26 @@ namespace SLAM.Reborn {
               if (!ach.IsHiddenLocked || revealHidden) {
                 ach.Icon = bitmap;
               } else if (ach.IsHiddenLocked && ach.Icon == null && ach.IconUrl.StartsWith("pack://")) {
-                try { ach.Icon = new BitmapImage(new Uri(ach.IconUrl)); } 
+                try { ach.Icon = new BitmapImage(new Uri(ach.IconUrl)); }
                 catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Fallback pack URI fetch error: {ex.Message}"); }
               }
             } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Achievement icon assignment error: {ex.Message}"); }
           }, DispatcherPriority.Background);
         } else {
+          var fallbackPath = Path.Combine(cacheDir, $"{ach.Id}.png");
+          var localBitmap = await ImageCacheHelper.GetImageAsync(fallbackPath, fallbackPath);
+          if (localBitmap != null) {
+            await dispatcher.InvokeAsync(() => {
+              ach.RealIcon = localBitmap;
+              ach.Icon = localBitmap;
+              ach.IsBroken = false;
+            });
+            continue;
+          }
           int handle = steamClient.SteamUserStats.GetAchievementIcon(ach.Id);
           var steamBmp = GetSteamImage(handle, steamClient);
           if (steamBmp != null) {
+            SaveBitmapSourceToDisk(steamBmp, fallbackPath);
             await dispatcher.InvokeAsync(() => {
               ach.RealIcon = steamBmp;
               ach.Icon = steamBmp;
@@ -101,6 +123,16 @@ namespace SLAM.Reborn {
           }
         }
       }
+    }
+    private static void SaveBitmapSourceToDisk(BitmapSource bitmap, string path) {
+      try {
+        if (!Directory.Exists(Path.GetDirectoryName(path))) Directory.CreateDirectory(Path.GetDirectoryName(path));
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(bitmap));
+        using (var fs = new FileStream(path, FileMode.Create)) {
+          encoder.Save(fs);
+        }
+      } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"SaveBitmap error: {ex.Message}"); }
     }
     private static BitmapSource GetSteamImage(int handle, SAM.API.Client steamClient) {
       if (handle <= 0) return null;
