@@ -232,7 +232,11 @@ namespace SLAM.Reborn {
       }
     }
     private void StartImageCaching() {
-      var games = State.AllGames.OrderBy(g => g.Name).ToList();
+      var games = State.AllGames
+        .OrderByDescending(g => State.FavoriteGameIds.Contains(g.Id))
+        .ThenByDescending(g => g.IsInstalled)
+        .ThenBy(g => g.Name)
+        .ToList();
       Task.Run(async () => {
         try {
           var cacheDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cache", "games");
@@ -951,13 +955,34 @@ namespace SLAM.Reborn {
         }
         if (achievementCount > 0) {
             var random = new Random();
+            var weights = new List<double>();
+            double totalWeight = 0;
+            for (int i = 0; i < achievementCount; i++) {
+                double w = random.NextDouble() * 100 + 10;
+                weights.Add(w);
+                totalWeight += w;
+            }
+            weights.Sort();
+            
             var parts = new List<int>();
-            for (int i = 0; i < achievementCount; i++)
-                parts.Add(1);
-            int remainingMinutes = totalMinutes - achievementCount;
-            for (int i = 0; i < remainingMinutes; i++) {
-                int indexToIncrement = random.Next(0, achievementCount);
-                parts[indexToIncrement]++;
+            int sum = 0;
+            for (int i = 0; i < achievementCount; i++) {
+                int val = (int)Math.Max(1, Math.Round((weights[i] / totalWeight) * totalMinutes));
+                parts.Add(val);
+                sum += val;
+            }
+            
+            int diff = totalMinutes - sum;
+            while (diff > 0) {
+                parts[random.Next(0, achievementCount)]++;
+                diff--;
+            }
+            while (diff < 0) {
+                int idx = random.Next(0, achievementCount);
+                if (parts[idx] > 1) {
+                    parts[idx]--;
+                    diff++;
+                }
             }
             parts.Sort();
             for (int i = 0; i < achievementCount; i++)

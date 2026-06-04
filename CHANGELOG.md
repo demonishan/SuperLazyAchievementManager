@@ -1,5 +1,10 @@
 ## Change Log
 
+## [8.8.0] - 2026-06-04
+### Changed
+- Improved image caching priority: Favorite and Installed games are now prioritized for image downloading and caching on launch.
+- Timer Mode: Overhauled the Exact Time Generator's distribution algorithm to use weighted randomization. This ensures a much more natural and drastic spread of times (e.g. 5 mins up to 45 mins) compared to the previous uniform distribution.
+
 ## [8.7.0] - 2026-06-04
 ### Added
 - Timer Mode: Added a "Stop Timer" button to let users cancel a running timer.
