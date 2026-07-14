@@ -1,5 +1,11 @@
 ## Change Log
 
+## [8.8.2] - 2026-07-14
+### Added
+- Timer Mode: Added "Time Difference" options (Small, Medium, Large) to the Exact Time Generator popup. This allows you to scale the time spread between individual achievement unlocks to your liking.
+### Changed
+- UI: Increased the width of the Exact Time Generator popup to properly fit the new radio buttons.
+
 ## [8.8.1] - 2026-06-04
 ### Added
 - Image Caching: Added automatic cache cleanup. When launching SLAM, achievement icons and background images for uninstalled (and non-favorited) games will be automatically deleted to save disk space.

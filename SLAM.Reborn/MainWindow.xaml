@@ -541,7 +541,7 @@
               <Image Source="pack://application:,,,/SLAM;component/Resources/icon-exact-time.png" Width="18" Height="18" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
             </Button>
             <Popup x:Name="ExactTimePopup" PlacementTarget="{Binding ElementName=ExactTimeButton}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True">
-                <Border Background="#252526" BorderBrush="#1A9fff" BorderThickness="1" CornerRadius="4" Padding="15" Width="200">
+                <Border Background="#252526" BorderBrush="#1A9fff" BorderThickness="1" CornerRadius="4" Padding="15" Width="230">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.5"/>
                     </Border.Effect>
@@ -562,7 +562,13 @@
                                 <TextBox x:Name="ExactMinuteInput" Background="#20232a" Foreground="White" BorderThickness="0" Padding="5" Text="00" HorizontalContentAlignment="Center" MaxLength="2"/>
                             </StackPanel>
                         </Grid>
-                        <Button Content="Generate" Margin="0,15,0,0" Style="{StaticResource PrimaryActionButtonStyle}" Click="ApplyExactTime_Click" Height="30"/>
+                        <TextBlock Text="Time Difference" Foreground="#BBBBBB" FontSize="11" Margin="0,10,0,5" HorizontalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,5">
+                            <RadioButton x:Name="ExactDiffSmall" Content="Small" Foreground="White" Margin="0,0,10,0"/>
+                            <RadioButton x:Name="ExactDiffMedium" Content="Medium" Foreground="White" Margin="0,0,10,0" IsChecked="True"/>
+                            <RadioButton x:Name="ExactDiffLarge" Content="Large" Foreground="White"/>
+                        </StackPanel>
+                        <Button Content="Generate" Margin="0,10,0,0" Style="{StaticResource PrimaryActionButtonStyle}" Click="ApplyExactTime_Click" Height="30"/>
                     </StackPanel>
                 </Border>
             </Popup>

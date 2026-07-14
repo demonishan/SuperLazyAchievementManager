@@ -956,8 +956,20 @@ namespace SLAM.Reborn {
             var random = new Random();
             var weights = new List<double>();
             double totalWeight = 0;
+            
+            double minWeight = 10;
+            double weightRange = 100;
+            
+            if (ExactDiffSmall?.IsChecked == true) {
+                minWeight = 80;
+                weightRange = 40;
+            } else if (ExactDiffLarge?.IsChecked == true) {
+                minWeight = 1;
+                weightRange = 1000;
+            }
+            
             for (int i = 0; i < achievementCount; i++) {
-                double w = random.NextDouble() * 100 + 10;
+                double w = random.NextDouble() * weightRange + minWeight;
                 weights.Add(w);
                 totalWeight += w;
             }
