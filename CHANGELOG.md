@@ -1,5 +1,10 @@
 ## Change Log
 
+## [8.8.3] - 2026-07-23
+### Added
+- Help & Support: Added a new "Need help?" button to the title bar which directly links to the new, comprehensive online tutorial and guide.
+- Documentation: Created an hosted tutorial page to help new users quickly understand features like the Exact Timer and Game Filtering.
+
 ## [8.8.2] - 2026-07-14
 ### Added
 - Timer Mode: Added "Time Difference" options (Small, Medium, Large) to the Exact Time Generator popup. This allows you to scale the time spread between individual achievement unlocks to your liking.

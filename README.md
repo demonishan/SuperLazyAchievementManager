@@ -31,7 +31,7 @@ This isn't just a visual skin; it's a complete modernization of the experience:
 
 ## Getting Started
 
-New to SLAM? Check out the **[Official Tutorial and Guide](https://demonishan.github.io/SuperLazyAchievementManager/)** to learn everything from basic setup to using the advanced Timer modes.
+New to SLAM? Check out the **[Tutorial and Guide](https://demonishan.github.io/SuperLazyAchievementManager/)** to learn everything from basic setup to using the advanced Timer modes.
 
 ### Quick Start
 1. **Download** the latest release from the `Dist` folder.

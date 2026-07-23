@@ -251,7 +251,6 @@
         <TextBlock x:Name="WindowVersionText" Text="v0.0.0" FontSize="10" Foreground="#666" Margin="5,2,0,0" VerticalAlignment="Center"/>
       </StackPanel>
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-        <Button Content="&#xE897;" Width="46" Click="Help_Click" ToolTip="Need help?" Style="{StaticResource TitleBarButtonStyle}" FontFamily="Segoe MDL2 Assets" FontSize="11" WindowChrome.IsHitTestVisibleInChrome="True"/>
         <Button Content="&#xE921;" Width="46" Click="Minimize_Click" Style="{StaticResource TitleBarButtonStyle}" FontFamily="Segoe MDL2 Assets" FontSize="10" WindowChrome.IsHitTestVisibleInChrome="True"/>
         <Button x:Name="MaximizeBtn" Content="&#xE922;" Width="46" Click="Maximize_Click" Style="{StaticResource TitleBarButtonStyle}" FontFamily="Segoe MDL2 Assets" FontSize="10" WindowChrome.IsHitTestVisibleInChrome="True"/>
         <Button Content="&#xE8BB;" Width="46" Click="Close_Click" Style="{StaticResource CloseButtonStyle}" FontFamily="Segoe MDL2 Assets" FontSize="10" WindowChrome.IsHitTestVisibleInChrome="True"/>
@@ -920,8 +919,11 @@
       </Grid>
     </Grid>
     <ProgressBar x:Name="AchievementProgressBar" Grid.Row="2" Height="5" VerticalAlignment="Top" Background="#555555" Foreground="#FFFFFF" BorderThickness="0" Minimum="0" Maximum="100" Visibility="Collapsed" Opacity="0.7"/>
-    <Border Grid.Row="2" Background="#1A9fff" Height="25" Padding="15,0" Margin="0,5,0,0">
-      <TextBlock x:Name="SharedStatusText" Text="Consulting Lord Gaben for your Steam library data..." Foreground="White" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-    </Border>
+    <Grid Grid.Row="2" Margin="0,5,0,0">
+      <Border Background="#1A9fff" Height="25" Padding="15,0">
+        <TextBlock x:Name="SharedStatusText" Text="Consulting Lord Gaben for your Steam library data..." Foreground="White" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+      </Border>
+      <Button Content="?" Click="Help_Click" ToolTip="Need help?" Style="{StaticResource TitleBarButtonStyle}" Foreground="White" HorizontalAlignment="Right" Width="30" Height="25" FontSize="12"/>
+    </Grid>
   </Grid>
 </Window>
