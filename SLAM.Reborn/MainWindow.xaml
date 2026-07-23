@@ -251,6 +251,7 @@
         <TextBlock x:Name="WindowVersionText" Text="v0.0.0" FontSize="10" Foreground="#666" Margin="5,2,0,0" VerticalAlignment="Center"/>
       </StackPanel>
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <Button Content="&#xE897;" Width="46" Click="Help_Click" ToolTip="Need help?" Style="{StaticResource TitleBarButtonStyle}" FontFamily="Segoe MDL2 Assets" FontSize="11" WindowChrome.IsHitTestVisibleInChrome="True"/>
         <Button Content="&#xE921;" Width="46" Click="Minimize_Click" Style="{StaticResource TitleBarButtonStyle}" FontFamily="Segoe MDL2 Assets" FontSize="10" WindowChrome.IsHitTestVisibleInChrome="True"/>
         <Button x:Name="MaximizeBtn" Content="&#xE922;" Width="46" Click="Maximize_Click" Style="{StaticResource TitleBarButtonStyle}" FontFamily="Segoe MDL2 Assets" FontSize="10" WindowChrome.IsHitTestVisibleInChrome="True"/>
         <Button Content="&#xE8BB;" Width="46" Click="Close_Click" Style="{StaticResource CloseButtonStyle}" FontFamily="Segoe MDL2 Assets" FontSize="10" WindowChrome.IsHitTestVisibleInChrome="True"/>

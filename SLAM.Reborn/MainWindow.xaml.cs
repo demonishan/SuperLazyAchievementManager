@@ -765,6 +765,14 @@ namespace SLAM.Reborn {
       else DisplayAlert("Failed to store changes.", true);
     }
     private void ClearSearch_Click(object sender, RoutedEventArgs e) { SearchBox.Text = string.Empty; }
+    private void Help_Click(object sender, RoutedEventArgs e) {
+      try {
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo {
+            FileName = "https://demonishan.github.io/SuperLazyAchievementManager/",
+            UseShellExecute = true
+        });
+      } catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Help link error: {ex.Message}"); }
+    }
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
     private void Maximize_Click(object sender, RoutedEventArgs e) { WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized; }
     private void Close_Click(object sender, RoutedEventArgs e) => Close();

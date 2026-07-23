@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SLAM - Super Lazy Achievement Manager</title>
+    <meta name="description" content="The intuitive, modern, and powerful achievement manager for Steam." />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg-color: #0f1115;
+        --surface-color: #20232a;
+        --surface-hover: #2a2e37;
+        --accent-color: #1a9fff;
+        --text-primary: #ffffff;
+        --text-secondary: #a0a5b5;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        line-height: 1.6;
+        background-image: radial-gradient(circle at top right, #1a2a42 0%, var(--bg-color) 40%);
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 60px 20px;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 60px;
+        animation: fadeInDown 0.8s ease-out;
+      }
+      h1 {
+      font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 0;
+    line-height: 1;
+        background: linear-gradient(135deg, #fff 0%, #a0a5b5 100%);
+        /* -webkit-background-clip: text; */
+        -webkit-text-fill-color: transparent;
+      }
+      .subtitle {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        font-weight: 300;
+      }
+      .card {
+        background-color: rgba(32, 35, 42, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+      }
+      .card:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      .card:nth-child(3) {
+        animation-delay: 0.2s;
+      }
+      .card:nth-child(4) {
+        animation-delay: 0.3s;
+      }
+      .card:nth-child(5) {
+        animation-delay: 0.4s;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(26, 159, 255, 0.15);
+        border-color: rgba(26, 159, 255, 0.3);
+      }
+      h2 {
+        color: var(--accent-color);
+        font-size: 1.8rem;
+        margin-top: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .number-badge {
+        background: linear-gradient(135deg, var(--accent-color), #0073cc);
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        font-weight: 800;
+        box-shadow: 0 4px 15px rgba(26, 159, 255, 0.4);
+      }
+      img {
+        width: 100%;
+        border-radius: 4px;
+      }
+      ul,
+      ol {
+        padding-left: 20px;
+        margin-bottom: 0;
+      }
+      li {
+        margin-bottom: 12px;
+        color: #d1d5e0;
+      }
+      li::marker {
+        color: var(--accent-color);
+        font-weight: bold;
+      }
+      strong {
+        color: var(--text-primary);
+      }
+      a {
+        color: var(--accent-color);
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+      a:hover {
+        color: #4db8ff;
+      }
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>SLAM Tutorial</h1>
+        <div class="subtitle">The intuitive, modern, and powerful achievement manager for Steam.</div>
+      </header>
+      <div class="card">
+        <h2>
+          <div class="number-badge">1</div>
+          Getting Started
+        </h2>
+        <img src="1.png" alt="SLAM Tutorial Step 1" />
+        <p>When you open SLAM, it will automatically detect your local Steam installation and load your games library. If you have a large library, this may take a few moments.</p>
+        <ul>
+          <li>Use the search bar at the top to quickly find specific games in your library. The search takes filters into consideration, so you might have to adjust them accordingly.</li>
+          <li>
+            Use the
+            <strong>Filter Bar</strong>
+            at the top to toggle between Games, DLC, Mods, Demos. You can also filter by favorite, locally installed, with or without achievements.</li>
+          </li>
+          <li>Click on any game banner to view and manage its achievements.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>
+          <div class="number-badge">2</div>
+          Managing Achievements
+        </h2>
+        <p>Once you've selected a game, you have full control over your progression.</p>
+        <ul>
+          <li>
+            <strong>Lock / Unlock Individually</strong>
+            : Click the padlock icon next to any achievement to instantly toggle its state.
+          </li>
+          <li>
+            <strong>Toggle All</strong>
+            : Click the "Select All" button at the top to quickly mark or unmark every achievement in the game.
+          </li>
+          <li>
+            <strong>Commit Changes</strong>
+            : When you're ready, simply click the
+            <strong>Store</strong>
+            button to permanently save the changes to your Steam account.
+          </li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>
+          <div class="number-badge">3</div>
+          Using the Timer Mode
+        </h2>
+        <p>Want to make your achievement unlocks look natural? The Timer Mode unlocks achievements in the background over time.</p>
+        <ol>
+          <li>
+            Click the
+            <strong>Exact Time Generator</strong>
+            button (the clock icon with a gear) in the bottom right corner.
+          </li>
+          <li>
+            Set your desired
+            <strong>Total Time</strong>
+            (e.g., 12 hours) that you want the unlocks to span across.
+          </li>
+          <li>
+            Select your
+            <strong>Time Difference</strong>
+            preference (Small, Medium, Large) to control how spaced out the unlocks will be.
+          </li>
+          <li>
+            Click
+            <strong>Generate</strong>
+            to assign a calculated countdown timer to every locked achievement.
+          </li>
+          <li>
+            Hit
+            <strong>Start Timer</strong>
+            . SLAM will run silently in the background and unlock each achievement exactly when its timer hits zero!
+          </li>
+        </ol>
+      </div>
+      <div class="card">
+        <h2>
+          <div class="number-badge">4</div>
+          Troubleshooting
+        </h2>
+        <p>Running into issues? Here's what you need to know:</p>
+        <ul>
+          <li>
+            <strong>Missing Images:</strong>
+            If images aren't loading, ensure you are connected to the internet. SLAM caches images locally on the first fetch, so they will load instantly on subsequent launches without using bandwidth!
+          </li>
+          <li>
+            <strong>Empty Game List:</strong>
+            Ensure Steam is currently running in the background and that you are logged into your account.
+          </li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
